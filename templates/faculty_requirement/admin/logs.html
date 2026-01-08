@@ -1,0 +1,63 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% block content %}
+
+<h2 style="margin-bottom:20px;">Logs & Monitoring</h2>
+
+<div class="log-container">
+    <a href="{% url 'admin_logs' %}" class="log-card admin">
+        <h3>Admin Logs</h3>
+        <p>View admin login, logout, failed attempts, IPs, and activity analysis.</p>
+    </a>
+
+    <a href="{% url 'user_logs' %}" class="log-card user">
+        <h3>User Logs</h3>
+        <p>View user activity logs, access history, and behaviour tracking.</p>
+    </a>
+</div>
+
+<style>
+.log-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.log-card {
+    display: block;
+    padding: 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.log-card h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.log-card p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Admin logs style */
+.log-card.admin {
+    border-left: 6px solid #2563eb;
+}
+
+/* User logs style */
+.log-card.user {
+    border-left: 6px solid #16a34a;
+}
+
+/* Hover effect */
+.log-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+</style>
+
+{% endblock %}

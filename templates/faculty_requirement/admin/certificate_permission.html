@@ -1,0 +1,303 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% load static %}
+
+{% block page_title %}Certificate Permission{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <!-- ================= ASSIGN / EDIT FORM ================= -->
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+
+        <h5 class="card-title mb-3" id="formTitle">Assign Certificate Permission</h5>
+
+        <form method="post" id="permissionForm">
+          {% csrf_token %}
+
+          <input type="hidden" name="operation" id="formOperation" value="create">
+          <input type="hidden" name="id" id="formPermissionId">
+
+          <!-- Department -->
+          <div class="mb-3">
+            <label class="form-label">Department</label>
+            <select name="department" id="departmentSelect" class="form-select" required>
+              <option value="">Select Department</option>
+              {% for dept in departments %}
+                <option value="{{ dept.id }}">{{ dept.code }} - {{ dept.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Document Type -->
+          <div class="mb-3">
+            <label class="form-label">Document Type</label>
+            <select name="document_type" id="documentTypeSelect" class="form-select" required>
+              <option value="">Select Document Type</option>
+              {% for doc in document_types %}
+                <option value="{{ doc.id }}">{{ doc.document_type }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Required -->
+          <div class="form-check mb-3">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="is_required"
+                   id="isRequired">
+            <label class="form-check-label" for="isRequired">
+              Required Document
+            </label>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <i class="fa fa-save me-2"></i>Assign
+            </button>
+            <button type="button"
+                    class="btn btn-light d-none"
+                    id="cancelEditBtn">
+              Cancel Edit
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LIST ================= -->
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+
+        <h5 class="card-title mb-3">Assigned Permissions</h5>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Department</th>
+                <th>Document Type</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {% for item in permissions %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.department.name }}</td>
+                <td>{{ item.document_type.document_type }}</td>
+                <td>
+                  {% if item.is_required %}
+                    <span class="badge bg-danger">Required</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Optional</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+
+                  <button type="button"
+                          class="btn btn-sm btn-outline-primary me-2 edit-btn"
+                          data-id="{{ item.id }}"
+                          data-department="{{ item.department.id }}"
+                          data-document="{{ item.document_type.id }}"
+                          data-required="{{ item.is_required }}">
+                    <i class="fa fa-edit"></i>
+                  </button>
+
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger delete-btn"
+                          data-id="{{ item.id }}">
+                    <i class="fa fa-trash"></i>
+                  </button>
+
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">
+                  No permissions assigned.
+                </td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- DELETE FORM -->
+        <form method="post" id="deleteForm" class="d-none">
+          {% csrf_token %}
+          <input type="hidden" name="operation" value="delete">
+          <input type="hidden" name="id" id="deleteId">
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= CUSTOM DELETE CONFIRMATION MODAL ================= -->
+<div id="deleteConfirmModal" class="custom-modal" style="display: none;">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h5>Confirm Delete</h5>
+    </div>
+    <div class="custom-modal-body">
+      <p>Are you sure you want to delete this certificate permission?</p>
+      <p>This action cannot be undone.</p>
+    </div>
+    <div class="custom-modal-footer">
+      <button type="button" id="confirmDeleteBtn" class="btn btn-danger">
+        <i class="fa fa-trash me-2"></i>Yes, Delete
+      </button>
+      <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Minimal styles for the custom modal -->
+<style>
+  .custom-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+  .custom-modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: modalFadeIn 0.2s ease-out;
+  }
+  .custom-modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+  .custom-modal-header h5 {
+    margin: 0;
+    font-weight: 600;
+  }
+  .custom-modal-body {
+    padding: 1.5rem;
+  }
+  .custom-modal-body p {
+    margin: 0.5rem 0;
+  }
+  .custom-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    text-align: right;
+  }
+  .custom-modal-footer button {
+    min-width: 100px;
+  }
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<!-- ================= JS ================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const formTitle = document.getElementById("formTitle");
+  const operation = document.getElementById("formOperation");
+  const permissionId = document.getElementById("formPermissionId");
+  const department = document.getElementById("departmentSelect");
+  const documentType = document.getElementById("documentTypeSelect");
+  const isRequired = document.getElementById("isRequired");
+  const submitBtn = document.getElementById("submitBtn");
+  const cancelBtn = document.getElementById("cancelEditBtn");
+
+  // Modal elements
+  const modal = document.getElementById("deleteConfirmModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+
+  let pendingDeleteId = null;
+
+  /* ===== EDIT ===== */
+  document.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      formTitle.textContent = "Edit Certificate Permission";
+      operation.value = "edit";
+      permissionId.value = this.dataset.id;
+
+      department.value = this.dataset.department;
+      documentType.value = this.dataset.document;
+      isRequired.checked = this.dataset.required === "True";
+
+      submitBtn.innerHTML = '<i class="fa fa-save me-2"></i>Update';
+      submitBtn.classList.replace("btn-primary", "btn-warning");
+      cancelBtn.classList.remove("d-none");
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  /* ===== CANCEL EDIT ===== */
+  cancelBtn.addEventListener("click", function () {
+    formTitle.textContent = "Assign Certificate Permission";
+    operation.value = "create";
+    permissionId.value = "";
+
+    department.value = "";
+    documentType.value = "";
+    isRequired.checked = false;
+
+    submitBtn.innerHTML = '<i class="fa fa-save me-2"></i>Assign';
+    submitBtn.classList.replace("btn-warning", "btn-primary");
+    cancelBtn.classList.add("d-none");
+  });
+
+  /* ===== DELETE WITH CUSTOM MODAL ===== */
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      pendingDeleteId = this.dataset.id;
+      modal.style.display = "flex"; // Show modal
+    });
+  });
+
+  // Cancel delete
+  cancelDeleteBtn.addEventListener("click", function () {
+    modal.style.display = "none";
+    pendingDeleteId = null;
+  });
+
+  // Close modal when clicking outside the content
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) {
+      modal.style.display = "none";
+      pendingDeleteId = null;
+    }
+  });
+
+  // Confirm delete
+  confirmDeleteBtn.addEventListener("click", function () {
+    if (pendingDeleteId) {
+      document.getElementById("deleteId").value = pendingDeleteId;
+      document.getElementById("deleteForm").submit();
+    }
+  });
+
+});
+</script>
+
+{% endblock %}

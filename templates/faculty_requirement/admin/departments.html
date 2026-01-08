@@ -1,0 +1,266 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% load static %}
+
+{% block page_title %}Departments{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <!-- CREATE / EDIT FORM -->
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+
+        <h5 class="card-title mb-3" id="formTitle">Create Department</h5>
+
+        <form method="post" action="{% url 'department' %}" id="deptForm">
+          {% csrf_token %}
+
+          <input type="hidden" name="operation" id="formOperation" value="create">
+          <input type="hidden" name="id" id="formDeptId">
+
+          <div class="mb-3">
+            <label for="degreeSelect" class="form-label">Degree</label>
+            <select id="degreeSelect" name="degree_id" class="form-select" required>
+              <option value="" disabled selected>Select a Degree</option>
+              {% for d in degrees %}
+                <option value="{{ d.id }}">{{ d.degree_code }} - {{ d.degree }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="deptName" class="form-label">Department Name</label>
+            <input type="text"
+                   class="form-control"
+                   id="deptName"
+                   name="name"
+                   placeholder="e.g., Computer Science"
+                   required>
+          </div>
+
+          <div class="mb-3">
+            <label for="deptCode" class="form-label">Department Code</label>
+            <input type="text"
+                   class="form-control"
+                   id="deptCode"
+                   name="code"
+                   maxlength="20"
+                   placeholder="e.g., CSE"
+                   required>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" id="formSubmitBtn">
+              <i class="fa fa-plus me-2"></i>Create
+            </button>
+            <button type="button"
+                    class="btn btn-light d-none"
+                    id="cancelEditBtn">
+              Cancel Edit
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST TABLE -->
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="card-title m-0">All Departments</h5>
+          <div class="input-group" style="max-width: 360px;">
+            <span class="input-group-text"><i class="fa fa-search"></i></span>
+            <input id="deptSearch" type="text" class="form-control"
+                   placeholder="Search by name / code / degree...">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle" id="deptTable">
+            <thead>
+              <tr>
+                <th style="width:60px;">#</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Degree</th>
+                <th class="text-end" style="width:200px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {% for item in departments %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="dept-name">{{ item.name }}</td>
+                <td class="dept-code">{{ item.code }}</td>
+                <td class="dept-degree"
+                    data-degree-id="{{ item.degree.id }}">
+                  {{ item.degree.degree_code }} - {{ item.degree.degree }}
+                </td>
+                <td class="text-end">
+
+                  <!-- INLINE EDIT -->
+                  <button type="button"
+                          class="btn btn-sm btn-outline-primary me-2 edit-btn"
+                          data-id="{{ item.id }}"
+                          data-name="{{ item.name }}"
+                          data-code="{{ item.code }}"
+                          data-degree-id="{{ item.degree.id }}">
+                    <i class="fa fa-edit me-1"></i>Edit
+                  </button>
+
+                  <!-- INLINE DELETE -->
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger delete-btn"
+                          data-id="{{ item.id }}">
+                    <i class="fa fa-trash me-1"></i>Delete
+                  </button>
+
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">
+                  No departments found.
+                </td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- HIDDEN DELETE FORM -->
+        <form method="post" action="{% url 'department' %}"
+              id="deleteForm" class="d-none">
+          {% csrf_token %}
+          <input type="hidden" name="operation" value="delete">
+          <input type="hidden" name="id" id="deleteFormId">
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const formTitle = document.getElementById('formTitle');
+  const formOperation = document.getElementById('formOperation');
+  const formDeptId = document.getElementById('formDeptId');
+  const deptName = document.getElementById('deptName');
+  const deptCode = document.getElementById('deptCode');
+  const degreeSelect = document.getElementById('degreeSelect');
+  const submitBtn = document.getElementById('formSubmitBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+
+  /* ======================
+     INLINE EDIT
+  ====================== */
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+
+      formTitle.textContent = 'Edit Department';
+      formOperation.value = 'edit';
+      formDeptId.value = this.dataset.id;
+
+      deptName.value = this.dataset.name;
+      deptCode.value = this.dataset.code;
+      degreeSelect.value = this.dataset.degreeId;
+
+      submitBtn.innerHTML = '<i class="fa fa-save me-2"></i>Update';
+      submitBtn.classList.remove('btn-primary');
+      submitBtn.classList.add('btn-warning');
+
+      cancelBtn.classList.remove('d-none');
+
+      deptName.focus();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  /* ======================
+     CANCEL EDIT
+  ====================== */
+  cancelBtn.addEventListener('click', function () {
+
+    formTitle.textContent = 'Create Department';
+    formOperation.value = 'create';
+    formDeptId.value = '';
+
+    deptName.value = '';
+    deptCode.value = '';
+    degreeSelect.selectedIndex = 0;
+
+    submitBtn.innerHTML = '<i class="fa fa-plus me-2"></i>Create';
+    submitBtn.classList.remove('btn-warning');
+    submitBtn.classList.add('btn-primary');
+
+    cancelBtn.classList.add('d-none');
+  });
+
+  /* ======================
+     INLINE DELETE (NO LAG)
+  ====================== */
+  let activeDeleteBtn = null;
+
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+
+      if (activeDeleteBtn && activeDeleteBtn !== this) {
+        resetDelete(activeDeleteBtn);
+      }
+
+      if (!this.classList.contains('confirming')) {
+        this.classList.add('confirming');
+        this.classList.remove('btn-outline-danger');
+        this.classList.add('btn-danger');
+        this.innerHTML = '<i class="fa fa-check me-1"></i>Confirm';
+        activeDeleteBtn = this;
+        return;
+      }
+
+      document.getElementById('deleteFormId').value = this.dataset.id;
+      document.getElementById('deleteForm').submit();
+    });
+  });
+
+  function resetDelete(btn) {
+    btn.classList.remove('confirming', 'btn-danger');
+    btn.classList.add('btn-outline-danger');
+    btn.innerHTML = '<i class="fa fa-trash me-1"></i>Delete';
+  }
+
+  document.addEventListener('click', function () {
+    if (activeDeleteBtn) {
+      resetDelete(activeDeleteBtn);
+      activeDeleteBtn = null;
+    }
+  });
+
+  /* ======================
+     SEARCH FILTER
+  ====================== */
+  document.getElementById('deptSearch').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#deptTable tbody tr').forEach(tr => {
+      const name = tr.querySelector('.dept-name')?.textContent.toLowerCase() || '';
+      const code = tr.querySelector('.dept-code')?.textContent.toLowerCase() || '';
+      const deg  = tr.querySelector('.dept-degree')?.textContent.toLowerCase() || '';
+      tr.style.display = (name.includes(q) || code.includes(q) || deg.includes(q)) ? '' : 'none';
+    });
+  });
+
+});
+</script>
+
+{% endblock %}

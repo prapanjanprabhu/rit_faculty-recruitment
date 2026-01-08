@@ -1,0 +1,468 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 fw-bold text-dark mb-1">Admin Login Logs</h2>
+            <p class="text-muted mb-0">Monitor authentication activities and security events</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Print Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                            <i class="fas fa-history text-primary fs-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-1">Total Logs</p>
+                            <h4 class="fw-bold mb-0">{{ analytics.total }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                            <i class="fas fa-check-circle text-success fs-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-1">Success</p>
+                            <h4 class="fw-bold mb-0">{{ analytics.success }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-danger bg-opacity-10 p-2 rounded me-3">
+                            <i class="fas fa-times-circle text-danger fs-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-1">Failed</p>
+                            <h4 class="fw-bold mb-0">{{ analytics.failed }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 p-2 rounded me-3">
+                            <i class="fas fa-users text-info fs-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-1">Unique Users</p>
+                            <h4 class="fw-bold mb-0">{{ analytics.unique_users }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded me-3">
+                            <i class="fas fa-network-wired text-warning fs-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-1">Unique IPs</p>
+                            <h4 class="fw-bold mb-0">{{ analytics.unique_ips }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Filter Logs</h5>
+            <form method="get" class="row g-3">
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label small text-muted">Username</label>
+                    <select name="username" class="form-select">
+                        <option value="">All Users</option>
+                        {% for u in usernames %}
+                            <option value="{{ u }}" {% if filters.username == u %}selected{% endif %}>{{ u }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label small text-muted">Action Type</label>
+                    <select name="action" class="form-select">
+                        <option value="">All Actions</option>
+                        <option value="LOGIN_SUCCESS" {% if filters.action == "LOGIN_SUCCESS" %}selected{% endif %}>Login Success</option>
+                        <option value="LOGIN_FAILED" {% if filters.action == "LOGIN_FAILED" %}selected{% endif %}>Login Failed</option>
+                        <option value="LOGOUT" {% if filters.action == "LOGOUT" %}selected{% endif %}>Logout</option>
+                    </select>
+                </div>
+                
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label small text-muted">IP Address</label>
+                    <select name="ip" class="form-select">
+                        <option value="">All IPs</option>
+                        {% for i in ips %}
+                            <option value="{{ i }}" {% if filters.ip == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label small text-muted">User Agent</label>
+                    <select name="ua" class="form-select">
+                        <option value="">All User Agents</option>
+                        {% for a in user_agents %}
+                            <option value="{{ a }}" {% if filters.ua == a %}selected{% endif %}>
+                                {{ a|truncatechars:50 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12 mt-2">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'admin_logs' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Clear Filters
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Live Search -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text"
+                       id="liveSearch"
+                       class="form-control border-0 bg-light"
+                       placeholder="Search within current logs... (Type to filter)"
+                       autocomplete="off">
+                <span class="input-group-text bg-light border-0">
+                    <span id="resultCount">{{ page_obj.paginator.count }} </span> records
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="logsTable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 ps-4">
+                                <div class="d-flex align-items-center">
+                                    <span>Date & Time</span>
+                                    <i class="fas fa-sort text-muted ms-1"></i>
+                                </div>
+                            </th>
+                            <th class="border-0">Username</th>
+                            <th class="border-0">Action</th>
+                            <th class="border-0">IP Address</th>
+                            <th class="border-0">User Agent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in page_obj %}
+                        <tr class="log-row">
+                            <td class="ps-4">
+                                <div class="text-dark fw-medium">{{ log.timestamp|date:"Y-m-d" }}</div>
+                                <div class="text-muted small">{{ log.timestamp|date:"H:i:s" }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-medium">{{ log.username_attempted }}</div>
+                            </td>
+                            <td>
+                                {% if log.action == "LOGIN_SUCCESS" %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                                        <i class="fas fa-check-circle me-1"></i>Success
+                                    </span>
+                                {% elif log.action == "LOGIN_FAILED" %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
+                                        <i class="fas fa-times-circle me-1"></i>Failed
+                                    </span>
+                                {% elif log.action == "LOGOUT" %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">
+                                        {{ log.action }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="font-monospace small">{{ log.ip_address }}</span>
+                                {% if log.ip_address == request.META.REMOTE_ADDR %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 ms-1">
+                                        Current
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="small" style="max-width: 300px;">
+                                <div class="text-truncate" title="{{ log.user_agent|escape }}">
+                                    {{ log.user_agent }}
+                                </div>
+                                <button type="button" 
+                                        class="btn btn-sm btn-link p-0 mt-1 text-primary"
+                                        onclick="showUserAgentPopover(this)"
+                                        data-agent="{{ log.user_agent|escape }}">
+                                    View full
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr id="emptyRow">
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-3"></i>
+                                    <p class="mb-0">No logs found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="text-muted small">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+        </div>
+        <nav>
+            <ul class="pagination mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        color: #6c757d;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    .table td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+    }
+    .badge {
+        padding: 0.35em 0.65em;
+        font-weight: 500;
+    }
+    .form-select, .form-control {
+        border-radius: 8px;
+    }
+    .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        border: none;
+        color: #495057;
+    }
+    .page-item.active .page-link {
+        background-color: #1a4b8c;
+        border-color: #1a4b8c;
+    }
+    .page-link:hover {
+        background-color: #f8f9fa;
+        color: #1a4b8c;
+    }
+    #logsTable tbody tr {
+        transition: none !important;
+    }
+    .ua-popover {
+        max-width: 600px;
+    }
+    .ua-popover .popover-body {
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 400px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 6px;
+    }
+</style>
+
+<script>
+    let timeoutId = null;
+
+    // Live search with debounce
+    document.getElementById('liveSearch').addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            const filter = this.value.trim().toLowerCase();
+            const rows = document.querySelectorAll('#logsTable tbody tr.log-row');
+            const emptyRow = document.getElementById('emptyRow');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (filter === '' || text.includes(filter)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (visibleCount === 0 && filter !== '') {
+                if (emptyRow) emptyRow.style.display = '';
+                document.getElementById('resultCount').textContent = '0';
+            } else {
+                if (emptyRow) emptyRow.style.display = 'none';
+                document.getElementById('resultCount').textContent = visibleCount || rows.length;
+            }
+        }, 300);
+    });
+
+    // Bootstrap Popover for full User Agent (no modal needed)
+    function showUserAgentPopover(button) {
+        const agent = button.getAttribute('data-agent');
+
+        // Destroy any existing popover on this button
+        if (button._popover) {
+            button._popover.dispose();
+        }
+
+        // Create new popover
+        const popover = new bootstrap.Popover(button, {
+            container: 'body',
+            title: 'Full User Agent',
+            content: agent,
+            placement: 'left',
+            trigger: 'manual',
+            html: true,
+            customClass: 'ua-popover',
+            template: `
+                <div class="popover" role="tooltip">
+                    <div class="popover-arrow"></div>
+                    <h3 class="popover-header"></h3>
+                    <div class="popover-body"></div>
+                    <div class="popover-footer text-end mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('${agent.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-copy me-1"></i>Copy
+                        </button>
+                    </div>
+                </div>
+            `
+        });
+
+        popover.show();
+        button._popover = popover;
+
+        // Auto-hide when clicking elsewhere
+        document.addEventListener('click', function hideOnClick(e) {
+            if (!button.contains(e.target) && !document.querySelector('.popover').contains(e.target)) {
+                popover.hide();
+                document.removeEventListener('click', hideOnClick);
+            }
+        });
+    }
+
+    // Copy function for popover
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = event.target.closest('button');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            setTimeout(() => {
+                btn.innerHTML = original;
+            }, 2000);
+        });
+    }
+
+    // Initial count
+    document.addEventListener('DOMContentLoaded', function() {
+        const dataRows = document.querySelectorAll('#logsTable tbody tr.log-row');
+        document.getElementById('resultCount').textContent = dataRows.length;
+    });
+</script>
+{% endblock %}

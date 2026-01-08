@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programmes & Publications</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Calibri','Segoe UI',sans-serif;background:#f8f9fa;padding:20px;color:#333}
+.container{max-width:1000px;margin:auto;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);overflow:hidden;border:1px solid #ddd}
+.header{background:#003366;color:#fff;padding:20px;text-align:center;border-bottom:4px solid #ffcc00}
+.header h1{font-size:24px;margin-bottom:5px;font-weight:600}
+.header p{font-size:14px;opacity:.9}
+.form-section{padding:25px}
+.section-title{color:#003366;font-size:18px;font-weight:600;margin:25px 0 15px;padding-bottom:8px;border-bottom:2px solid #e0e0e0}
+.sub-section-title{color:#003366;font-size:16px;font-weight:600;margin:20px 0 10px}
+label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14px}
+.required:after{content:" *";color:#d32f2f}
+.form-control,select,textarea{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+.programme-block,.publication-block,.project-block{background:#f5f7fa;border:1px solid #ddd;border-radius:5px;padding:15px;margin-bottom:15px;position:relative}
+.programme-block:before,.publication-block:before,.project-block:before{content:attr(data-index);position:absolute;top:-10px;left:15px;background:#003366;color:#fff;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:12px}
+.publication-block{background:#fff8e1;border-color:#ffd54f}
+.project-block{background:#e8f5e8;border-color:#4caf50}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px}
+.btn-add{background:#e9ecef;color:#003366;border:1px dashed #adb5bd;width:100%;margin:10px 0}
+.btn-prev{background:#6c757d;color:#fff}
+.btn-next{background:#003366;color:#fff}
+.remove-btn{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;padding:5px 10px;border-radius:3px;font-size:12px;cursor:pointer;margin-top:10px}
+.button-group{display:flex;justify-content:space-between;margin-top:30px;padding-top:20px;border-top:1px solid #eee}
+.table-input{display:flex;gap:10px;margin-bottom:10px}
+.table-input input{flex:1}
+.row-count{display:inline-block;background:#003366;color:white;padding:2px 8px;border-radius:10px;font-size:12px;margin-left:5px}
+.form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}
+.form-row .form-group{flex:1;min-width:200px}
+.full-width{flex:1 0 100%}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="header">
+<h1>Programmes & Publications</h1>
+<p>Details of programmes attended/organized and publications</p>
+</div>
+
+<div class="form-section">
+<form method="post">
+{% csrf_token %}
+
+<!-- ================= PROGRAMMES ================= -->
+<h2 class="section-title">Programmes</h2>
+
+<div id="programmes-container" class="block-container">
+{% if programmes %}
+    {% for p in programmes %}
+    <div class="programme-block" data-index="{{ forloop.counter }}">
+        <label class="required">Programme Type</label>
+        <select name="programme_type[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Workshop" {% if p.programme_type == "Workshop" %}selected{% endif %}>Workshop</option>
+            <option value="FDP" {% if p.programme_type == "FDP" %}selected{% endif %}>FDP</option>
+            <option value="Conference" {% if p.programme_type == "Conference" %}selected{% endif %}>Conference</option>
+            <option value="Seminar" {% if p.programme_type == "Seminar" %}selected{% endif %}>Seminar</option>
+            <option value="Webinar" {% if p.programme_type == "Webinar" %}selected{% endif %}>Webinar</option>
+            <option value="Other" {% if p.programme_type == "Other" %}selected{% endif %}>Other</option>
+        </select>
+
+        <label class="required">Count</label>
+        <input type="number" name="programme_count[]" class="form-control"
+               value="{{ p.count }}">
+
+        {% if not forloop.first %}
+        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="programme-block" data-index="1">
+        <label class="required">Programme Type</label>
+        <select name="programme_type[]" class="form-control">
+            <option value="">Select</option>
+            <option>Workshop</option>
+            <option>FDP</option>
+            <option>Conference</option>
+            <option>Seminar</option>
+            <option>Webinar</option>
+            <option>Other</option>
+        </select>
+
+        <label class="required">Count</label>
+        <input type="number" name="programme_count[]" class="form-control">
+    </div>
+{% endif %}
+</div>
+
+<button type="button" class="btn btn-add" onclick="addBlock('programme')">
++ Add More Programme
+</button>
+
+<!-- ================= XII. RESEARCH PUBLICATIONS IN JOURNALS ================= -->
+<h2 class="section-title">XII. Details of Research Publications in Journals (Scopus indexed)</h2>
+
+<div id="research-publications-container" class="block-container">
+{% if research_publications %}
+    {% for pub in research_publications %}
+    <div class="publication-block" data-index="{{ forloop.counter }}">
+        <label class="required">Publication Details</label>
+        <textarea name="research_publication_details[]" class="form-control" rows="3">{{ pub.details }}</textarea>
+        
+        {% if not forloop.first %}
+        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="publication-block" data-index="1">
+        <label class="required">Publication Details</label>
+        <textarea name="research_publication_details[]" class="form-control" rows="3" placeholder="E.g., 1. Image Based Automated Weather Analysis Using Deep Learning for Decision Support to Remote Farmers ISSN:2147-67992147-6799"></textarea>
+    </div>
+{% endif %}
+</div>
+
+<button type="button" class="btn btn-add" onclick="addBlock('research_publication')">
++ Add More Research Publication
+</button>
+
+<!-- ================= XIII. RESEARCH SCHOLARS GUIDED ================= -->
+<h2 class="section-title">XIII. Details of Research Scholars guided for M.E./M.Tech./M.S./M.Phil./Ph.D</h2>
+
+<div class="form-row">
+    <div class="form-group full-width">
+        <label>Details of Research Scholars</label>
+        <textarea name="research_scholars_details" class="form-control" rows="3">{{ research_scholars|default:"N/A" }}</textarea>
+    </div>
+</div>
+
+<!-- ================= XIV. SPONSORED RESEARCH PROJECTS ================= -->
+<h2 class="section-title">XIV. Details of Ongoing/Completed Sponsored Research Projects and Consultancy work</h2>
+
+<div id="projects-container" class="block-container">
+{% if sponsored_projects %}
+    {% for proj in sponsored_projects %}
+    <div class="project-block" data-index="{{ forloop.counter }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" name="project_title[]" class="form-control" value="{{ proj.title }}">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="project_status[]" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Ongoing" {% if proj.status == "Ongoing" %}selected{% endif %}>Ongoing</option>
+                    <option value="Completed" {% if proj.status == "Completed" %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Funding Agency</label>
+                <input type="text" name="funding_agency[]" class="form-control" value="{{ proj.funding_agency }}">
+            </div>
+            <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" name="project_amount[]" class="form-control" value="{{ proj.amount }}">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group full-width">
+                <label>Duration</label>
+                <input type="text" name="project_duration[]" class="form-control" value="{{ proj.duration }}" placeholder="E.g., 2020-2022">
+            </div>
+        </div>
+        
+        {% if not forloop.first %}
+        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="project-block" data-index="1">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" name="project_title[]" class="form-control" placeholder="Enter project title">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select name="project_status[]" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Ongoing">Ongoing</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Funding Agency</label>
+                <input type="text" name="funding_agency[]" class="form-control" placeholder="Sponsoring agency">
+            </div>
+            <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" name="project_amount[]" class="form-control" placeholder="Amount in rupees">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group full-width">
+                <label>Duration</label>
+                <input type="text" name="project_duration[]" class="form-control" placeholder="E.g., 2020-2022">
+            </div>
+        </div>
+    </div>
+{% endif %}
+</div>
+
+<button type="button" class="btn btn-add" onclick="addBlock('project')">
++ Add More Project
+</button>
+
+<!-- ================= XV. MEMBERSHIP/FELLOWSHIP ================= -->
+<h2 class="section-title">XV. Details of Membership/Fellowship of other institutions/Professional Societies</h2>
+
+<div id="memberships-container" class="block-container">
+{% if memberships %}
+    {% for mem in memberships %}
+    <div class="programme-block" data-index="{{ forloop.counter }}">
+        <label>Membership/Fellowship Details</label>
+        <textarea name="membership_details[]" class="form-control" rows="2">{{ mem.details }}</textarea>
+        
+        {% if not forloop.first %}
+        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="programme-block" data-index="1">
+        <label>Membership/Fellowship Details</label>
+        <textarea name="membership_details[]" class="form-control" rows="2" placeholder="E.g., Member of IEEE, Fellow of ACM, etc."></textarea>
+    </div>
+{% endif %}
+</div>
+
+<button type="button" class="btn btn-add" onclick="addBlock('membership')">
++ Add More Membership
+</button>
+
+<!-- ================= XVI. AWARDS/RECOGNITION ================= -->
+<h2 class="section-title">XVI. Awards/Recognition (if any)</h2>
+
+<div id="awards-container" class="block-container">
+{% if awards %}
+    {% for award in awards %}
+    <div class="publication-block" data-index="{{ forloop.counter }}">
+        <label>Award/Recognition Details</label>
+        <textarea name="award_details[]" class="form-control" rows="2">{{ award.details }}</textarea>
+        
+        {% if not forloop.first %}
+        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="publication-block" data-index="1">
+        <label>Award/Recognition Details</label>
+        <textarea name="award_details[]" class="form-control" rows="2" placeholder="E.g., Best Paper Award 2020, Excellence in Teaching Award, etc."></textarea>
+    </div>
+{% endif %}
+</div>
+
+<button type="button" class="btn btn-add" onclick="addBlock('award')">
++ Add More Award
+</button>
+
+<!-- ================= PUBLICATIONS ================= -->
+<h2 class="section-title">Publications (General)</h2>
+
+<div id="publications-container" class="block-container">
+{% if publications %}
+    {% for pub in publications %}
+    <div class="publication-block" data-index="{{ forloop.counter }}">
+        <label class="required">Publication Title</label>
+        <input type="text" name="publication_title[]" class="form-control"
+               value="{{ pub.title }}">
+
+        <label class="required">Indexing</label>
+        <select name="publication_indexing[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Scopus" {% if pub.indexing == "Scopus" %}selected{% endif %}>Scopus</option>
+            <option value="Web of Science" {% if pub.indexing == "Web of Science" %}selected{% endif %}>Web of Science</option>
+            <option value="SCI" {% if pub.indexing == "SCI" %}selected{% endif %}>SCI</option>
+            <option value="UGC Care" {% if pub.indexing == "UGC Care" %}selected{% endif %}>UGC Care</option>
+            <option value="Other" {% if pub.indexing == "Other" %}selected{% endif %}>Other</option>
+        </select>
+
+        {% if not forloop.first %}
+        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="publication-block" data-index="1">
+        <label class="required">Publication Title</label>
+        <input type="text" name="publication_title[]" class="form-control">
+
+        <label class="required">Indexing</label>
+        <select name="publication_indexing[]" class="form-control">
+            <option value="">Select</option>
+            <option>Scopus</option>
+            <option>Web of Science</option>
+            <option>SCI</option>
+            <option>UGC Care</option>
+            <option>Other</option>
+        </select>
+    </div>
+{% endif %}
+</div>
+
+<button type="button" class="btn btn-add" onclick="addBlock('publication')">
++ Add More Publication
+</button>
+
+<!-- ================= BUTTONS ================= -->
+<div class="button-group">
+<button type="button" class="btn btn-prev"
+        onclick="window.location.href='{% url "teaching_and_contributions" %}'">
+← Previous
+</button>
+<button type="submit" class="btn btn-next">
+Save & Next →
+</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<script>
+function addBlock(type){
+    const map={
+        programme:['programmes-container','programme-block'],
+        research_publication:['research-publications-container','publication-block'],
+        project:['projects-container','project-block'],
+        membership:['memberships-container','programme-block'],
+        award:['awards-container','publication-block'],
+        publication:['publications-container','publication-block']
+    };
+
+    const [cid,cls]=map[type];
+    const container=document.getElementById(cid);
+    const clone=container.firstElementChild.cloneNode(true);
+
+    clone.querySelectorAll('input,select,textarea').forEach(el=>el.value="");
+    clone.querySelectorAll('select').forEach(select=>select.selectedIndex=0);
+
+    const removeBtn=document.createElement("button");
+    removeBtn.type="button";
+    removeBtn.className="remove-btn";
+    removeBtn.textContent="Remove";
+    removeBtn.onclick=function(){removeBlock(this)};
+    clone.appendChild(removeBtn);
+
+    container.appendChild(clone);
+    updateIndex(container);
+}
+
+function removeBlock(btn){
+    const container=btn.closest(".block-container");
+    const blocks=container.children;
+    
+    if(blocks.length>1){
+        btn.parentElement.remove();
+        updateIndex(container);
+    }else{
+        alert("At least one entry is required.");
+    }
+}
+
+function updateIndex(container){
+    [...container.children].forEach((b,i)=>{
+        b.setAttribute("data-index",i+1);
+    });
+}
+
+// Initialize any necessary data
+document.addEventListener('DOMContentLoaded', function() {
+    // Update all containers on load
+    ['programmes-container', 'research-publications-container', 'projects-container', 
+     'memberships-container', 'awards-container', 'publications-container'].forEach(id => {
+        const container = document.getElementById(id);
+        if(container) updateIndex(container);
+    });
+});
+</script>
+
+</body>
+</html>

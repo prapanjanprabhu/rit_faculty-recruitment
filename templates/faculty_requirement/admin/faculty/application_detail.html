@@ -1,0 +1,272 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% load static %}
+
+{% block page_title %}Application: {{ candidate.name|default:'-' }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a class="btn btn-light" href="{% url 'faculty_data' %}"><i class="fa fa-arrow-left me-2"></i>Back</a>
+</div>
+
+<div class="row g-3">
+  <!-- Candidate Summary -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body d-flex align-items-start gap-3">
+        <img src="{% if candidate.photo %}{{ candidate.photo.url }}{% else %}{% static 'images/profile.jpg' %}{% endif %}" alt="Photo" style="width:72px;height:72px;border-radius:12px;object-fit:cover;">
+        <div class="flex-grow-1">
+          <h5 class="mb-2">{{ candidate.name|default:'-' }}</h5>
+          <div class="row g-2 small text-muted">
+            <div class="col-md-3"><i class="fa fa-calendar me-1"></i>DOB: {{ candidate.date_of_birth|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-venus-mars me-1"></i>Gender: {{ candidate.gender|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-user me-1"></i>Age: {{ candidate.age|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-ring me-1"></i>Marital: {{ candidate.marital_status|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-users me-1"></i>Community: {{ candidate.community|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-id-card me-1"></i>Caste: {{ candidate.caste|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-address-card me-1"></i>PAN: {{ candidate.pan_number|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-envelope me-1"></i>Email: {{ candidate.email|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-phone me-1"></i>Phone 1: {{ candidate.phone_primary|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-phone me-1"></i>Phone 2: {{ candidate.phone_secondary|default:'-' }}</div>
+            <div class="col-md-6"><i class="fa fa-map-marker-alt me-1"></i>Address: {{ candidate.address|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-briefcase me-1"></i>Total Exp (yrs): {{ candidate.total_experience_years|default:'-' }}</div>
+            <div class="col-md-3"><i class="fa fa-user-tie me-1"></i>Present Post (yrs): {{ candidate.present_post_years|default:'-' }}</div>
+            <div class="col-md-6"><i class="fa fa-female me-1"></i>Mother & Occupation: {{ candidate.mother_name_and_occupation|default:'-' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Position Application -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Position Application</strong></div>
+      <div class="card-body row g-3">
+        <div class="col-md-3"><div class="text-muted small">Position Applied</div><div>{{ position.position_applied|default:'-' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Department</div><div>{{ position.department|default:'-' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Present Designation</div><div>{{ position.present_designation|default:'-' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Present Organization</div><div>{{ position.present_organization|default:'-' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Specialization</div><div>{{ position.specialization|default:'-' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Assistant Prof (yrs)</div><div>{{ position.assistant_professor_years|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Associate Prof (yrs)</div><div>{{ position.associate_professor_years|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Professor (yrs)</div><div>{{ position.professor_years|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Other (yrs)</div><div>{{ position.other_years|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Research Exp (yrs)</div><div>{{ position.research_experience_years|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Industry Exp (yrs)</div><div>{{ position.industry_experience_years|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Journal Publications</div><div>{{ position.journal_publications|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Conference Publications</div><div>{{ position.conference_publications|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Students Guided (Completed)</div><div>{{ position.students_guided_completed|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Students Guided (Ongoing)</div><div>{{ position.students_guided_ongoing|default:'0' }}</div></div>
+        <div class="col-md-3"><div class="text-muted small">Community & Caste</div><div>{{ position.community_and_caste|default:'-' }}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Education -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Education</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Category</th><th>Degree</th><th>Specialization</th><th>Year</th><th>Institution</th><th>University</th><th>%</th><th>Class</th></tr></thead>
+          <tbody>
+            {% for e in education %}
+            <tr>
+              <td>{{ e.category|default:'-' }}</td><td>{{ e.degree|default:'-' }}</td><td>{{ e.specialization|default:'-' }}</td>
+              <td>{{ e.year_of_passing|default:'-' }}</td><td>{{ e.institution|default:'-' }}</td><td>{{ e.university|default:'-' }}</td>
+              <td>{{ e.percentage|default:'-' }}</td><td>{{ e.class_obtained|default:'-' }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-muted text-center">No education records.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Research Details -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Research Details</strong></div>
+      <div class="card-body row g-3">
+        <div class="col-md-2"><div class="text-muted small">UG Mode</div><div>{{ research_details.mode_ug|default:'-' }}</div></div>
+        <div class="col-md-2"><div class="text-muted small">PG Mode</div><div>{{ research_details.mode_pg|default:'-' }}</div></div>
+        <div class="col-md-2"><div class="text-muted small">PhD Mode</div><div>{{ research_details.mode_phd|default:'-' }}</div></div>
+        <div class="col-md-2"><div class="text-muted small">UG Arrears</div><div>{{ research_details.arrears_ug|default:'0' }}</div></div>
+        <div class="col-md-2"><div class="text-muted small">PG Arrears</div><div>{{ research_details.arrears_pg|default:'0' }}</div></div>
+        <div class="col-md-2"><div class="text-muted small">GATE</div><div>{{ research_details.gate_score|default:'-' }}</div></div>
+        <div class="col-md-2"><div class="text-muted small">NET/SLET</div><div>{{ research_details.net_slet_score|default:'-' }}</div></div>
+        <div class="col-12"><div class="text-muted small">ME Thesis</div><div>{{ research_details.me_thesis_title|default:'-' }}</div></div>
+        <div class="col-12"><div class="text-muted small">PhD Thesis</div><div>{{ research_details.phd_thesis_title|default:'-' }}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Academic Experience -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Academic Experience</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Institution</th><th>Designation</th><th>Join</th><th>Relieve</th><th>Y</th><th>M</th><th>D</th></tr></thead>
+          <tbody>
+            {% for a in academic %}
+            <tr>
+              <td>{{ a.institution }}</td><td>{{ a.designation }}</td><td>{{ a.joining_date }}</td><td>{{ a.relieving_date }}</td>
+              <td>{{ a.years|default:'0' }}</td><td>{{ a.months|default:'0' }}</td><td>{{ a.days|default:'0' }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-muted text-center">No academic experience.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Industry Experience -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Industry / Research Experience</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Organization</th><th>Designation</th><th>Nature of Work</th><th>Join</th><th>Relieve</th><th>Y</th><th>M</th><th>D</th></tr></thead>
+        <tbody>
+          {% for i in industry %}
+          <tr>
+            <td>{{ i.organization }}</td><td>{{ i.designation }}</td><td>{{ i.nature_of_work }}</td>
+            <td>{{ i.joining_date }}</td><td>{{ i.relieving_date }}</td>
+            <td>{{ i.years|default:'0' }}</td><td>{{ i.months|default:'0' }}</td><td>{{ i.days|default:'0' }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="text-muted text-center">No industry experience.</td></tr>
+          {% endfor %}
+        </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teaching Subjects -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Teaching Subjects</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Level</th><th>Subject and Result</th></tr></thead>
+          <tbody>
+            {% for t in teaching %}
+            <tr><td>{{ t.level }}</td><td>{{ t.subject_and_result }}</td></tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-muted text-center">No teaching subjects.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contributions -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Contributions</strong></div>
+      <div class="card-body">
+        {% for c in contributions %}
+          <div class="mb-2"><span class="badge bg-secondary me-2">{{ c.level }}</span>{{ c.description }}</div>
+        {% empty %}
+          <div class="text-muted">No contributions.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Programmes -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Programmes</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Type</th><th>Category</th><th>Count</th></tr></thead>
+          <tbody>
+            {% for p in programmes %}
+            <tr><td>{{ p.programme_type }}</td><td>{{ p.category|default:'-' }}</td><td>{{ p.count }}</td></tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-muted text-center">No programmes.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Publications -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Publications</strong></div>
+      <div class="card-body">
+        {% for p in publications %}
+          <div class="mb-2">• {{ p.title }} <span class="text-muted">{{ p.indexing|default:'' }}</span></div>
+        {% empty %}
+          <div class="text-muted">No publications.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sponsored Projects -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Sponsored Projects</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Title</th><th>Duration</th><th>Amount</th><th>Agency</th></tr></thead>
+          <tbody>
+            {% for s in sponsored_projects %}
+            <tr><td>{{ s.title }}</td><td>{{ s.duration|default:'-' }}</td><td>{{ s.amount|default:'-' }}</td><td>{{ s.agency|default:'-' }}</td></tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted text-center">No sponsored projects.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Qualifications -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Other Qualifications</strong></div>
+      <div class="card-body table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Qualification</th><th>Specialization</th><th>Institute</th><th>Year</th></tr></thead>
+          <tbody>
+            {% for q in qualification %}
+            <tr><td>{{ q.qualification }}</td><td>{{ q.specialization|default:'-' }}</td><td>{{ q.institute|default:'-' }}</td><td>{{ q.year|default:'-' }}</td></tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted text-center">No qualifications.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Referees -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Referees</strong></div>
+      <div class="card-body">
+        {% for r in referees %}
+          <div class="mb-2">
+            <strong>{{ r.name }}</strong> — {{ r.designation }}, {{ r.organization }}
+            <span class="text-muted ms-2">{{ r.contact_number }}</span>
+          </div>
+        {% empty %}
+          <div class="text-muted">No referees.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

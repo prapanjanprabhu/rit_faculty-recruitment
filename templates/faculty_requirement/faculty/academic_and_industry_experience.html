@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic & Industry Experience</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
+        
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
+        
+        .header { background: #003366; color: white; padding: 20px; text-align: center; border-bottom: 4px solid #ffcc00; }
+        .header h1 { font-size: 24px; margin-bottom: 5px; font-weight: 600; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        
+        .form-section { padding: 25px; }
+        
+        .section-title { color: #003366; font-size: 18px; font-weight: 600; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
+        
+        .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
+        .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
+        
+        label { display: block; margin-bottom: 5px; color: #003366; font-weight: 500; font-size: 14px; }
+        .required:after { content: " *"; color: #d32f2f; }
+        
+        .form-control { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .form-control:focus { outline: none; border-color: #003366; box-shadow: 0 0 0 2px rgba(0,51,102,0.1); }
+        
+        .experience-block { background: #f5f7fa; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; position: relative; }
+        .experience-block:before { content: attr(data-index); position: absolute; top: -10px; left: 15px; background: #003366; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px; }
+        
+        .duration-row { display: flex; gap: 10px; background: white; padding: 10px; border-radius: 4px; }
+        .duration-group { flex: 1; }
+        .duration-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        
+        .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .btn-add { background: #e9ecef; color: #003366; border: 1px dashed #adb5bd; width: 100%; margin: 10px 0; }
+        .btn-add:hover { background: #dee2e6; }
+        .btn-prev { background: #6c757d; color: white; }
+        .btn-next { background: #003366; color: white; }
+        .btn-prev:hover { background: #545b62; }
+        .btn-next:hover { background: #002244; }
+        
+        .remove-btn { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 5px 10px; border-radius: 3px; font-size: 12px; cursor: pointer; margin-top: 10px; }
+        
+        .instructions { background: #e7f1ff; border-left: 3px solid #003366; padding: 10px 15px; margin-bottom: 20px; font-size: 13px; }
+        
+        .button-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        
+        @media (max-width: 768px) {
+            .form-group { min-width: 100%; }
+            .button-group { flex-direction: column; gap: 10px; }
+            .btn { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Academic & Industry Experience</h1>
+            <p>Provide details of your professional experience</p>
+        </div>
+
+        <div class="form-section">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="instructions">
+                    <p><strong>Instructions:</strong> Fill all relevant work experience details. Add multiple entries as needed.</p>
+                </div>
+
+                <h2 class="section-title">Academic Experience</h2>
+                <div id="academic-container">
+                    {% if academic %}
+                        {% for exp in academic %}
+                        <div class="experience-block" data-index="{{ forloop.counter }}">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Institution</label>
+                                    <input type="text" name="academic_institution[]" class="form-control" value="{{ exp.institution }}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Designation</label>
+                                    <input type="text" name="academic_designation[]" class="form-control" value="{{ exp.designation }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Joining Date</label>
+                                    <input type="date" name="academic_joining_date[]" class="form-control" value="{{ exp.joining_date }}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Relieving Date</label>
+                                    <input type="text" name="academic_relieving_date[]" class="form-control" value="{{ exp.relieving_date }}">
+                                </div>
+                            </div>
+                            
+                            <div class="duration-row">
+                                <div class="duration-group">
+                                    <label>Years</label>
+                                    <input type="number" name="academic_years[]" class="duration-input" value="{{ exp.years|default:'0' }}">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Months</label>
+                                    <input type="number" name="academic_months[]" class="duration-input" value="{{ exp.months|default:'0' }}">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Days</label>
+                                    <input type="number" name="academic_days[]" class="duration-input" value="{{ exp.days|default:'0' }}">
+                                </div>
+                            </div>
+                            
+                            {% if not forloop.first %}
+                            <button type="button" class="remove-btn" onclick="removeAcademic(this)"><i class="fas fa-trash"></i> Remove</button>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="experience-block" data-index="1">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Institution</label>
+                                    <input type="text" name="academic_institution[]" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Designation</label>
+                                    <input type="text" name="academic_designation[]" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Joining Date</label>
+                                    <input type="date" name="academic_joining_date[]" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Relieving Date</label>
+                                    <input type="text" name="academic_relieving_date[]" class="form-control" placeholder="Till Date">
+                                </div>
+                            </div>
+                            
+                            <div class="duration-row">
+                                <div class="duration-group">
+                                    <label>Years</label>
+                                    <input type="number" name="academic_years[]" class="duration-input" value="0">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Months</label>
+                                    <input type="number" name="academic_months[]" class="duration-input" value="0">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Days</label>
+                                    <input type="number" name="academic_days[]" class="duration-input" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="button" class="btn btn-add" onclick="addAcademic()"><i class="fas fa-plus"></i> Add More Academic Experience</button>
+
+                <h2 class="section-title">Industry / Research Experience</h2>
+                <div id="industry-container">
+                    {% if industry %}
+                        {% for exp in industry %}
+                        <div class="experience-block" data-index="{{ forloop.counter }}">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Organization</label>
+                                    <input type="text" name="industry_organization[]" class="form-control" value="{{ exp.organization }}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Designation</label>
+                                    <input type="text" name="industry_designation[]" class="form-control" value="{{ exp.designation }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 2;">
+                                    <label>Nature of Work</label>
+                                    <input type="text" name="industry_nature[]" class="form-control" value="{{ exp.nature_of_work }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Joining Date</label>
+                                    <input type="date" name="industry_joining_date[]" class="form-control" value="{{ exp.joining_date }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Relieving Date</label>
+                                    <input type="date" name="industry_relieving_date[]" class="form-control" value="{{ exp.relieving_date }}">
+                                </div>
+                            </div>
+                            
+                            <div class="duration-row">
+                                <div class="duration-group">
+                                    <label>Years</label>
+                                    <input type="number" name="industry_years[]" class="duration-input" value="{{ exp.years|default:'0' }}">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Months</label>
+                                    <input type="number" name="industry_months[]" class="duration-input" value="{{ exp.months|default:'0' }}">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Days</label>
+                                    <input type="number" name="industry_days[]" class="duration-input" value="{{ exp.days|default:'0' }}">
+                                </div>
+                            </div>
+                            
+                            {% if not forloop.first %}
+                            <button type="button" class="remove-btn" onclick="removeIndustry(this)"><i class="fas fa-trash"></i> Remove</button>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="experience-block" data-index="1">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Organization</label>
+                                    <input type="text" name="industry_organization[]" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="required">Designation</label>
+                                    <input type="text" name="industry_designation[]" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 2;">
+                                    <label>Nature of Work</label>
+                                    <input type="text" name="industry_nature[]" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="required">Joining Date</label>
+                                    <input type="date" name="industry_joining_date[]" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Relieving Date</label>
+                                    <input type="date" name="industry_relieving_date[]" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="duration-row">
+                                <div class="duration-group">
+                                    <label>Years</label>
+                                    <input type="number" name="industry_years[]" class="duration-input" value="0">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Months</label>
+                                    <input type="number" name="industry_months[]" class="duration-input" value="0">
+                                </div>
+                                <div class="duration-group">
+                                    <label>Days</label>
+                                    <input type="number" name="industry_days[]" class="duration-input" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="button" class="btn btn-add" onclick="addIndustry()"><i class="fas fa-plus"></i> Add More Industry Experience</button>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="window.location.href='{% url 'educational_qualifications' %}'"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button type="submit" class="btn btn-next">Save & Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let academicCounter = {{ academic|length|default:1 }};
+        let industryCounter = {{ industry|length|default:1 }};
+        
+        function addAcademic() {
+            academicCounter++;
+            const container = document.getElementById('academic-container');
+            const firstBlock = container.querySelector('.experience-block');
+            const newBlock = firstBlock.cloneNode(true);
+            
+            newBlock.setAttribute('data-index', academicCounter);
+            newBlock.querySelectorAll('input').forEach(input => input.value = '');
+            
+            if (!newBlock.querySelector('.remove-btn')) {
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+                removeBtn.onclick = function() { removeAcademic(this); };
+                newBlock.appendChild(removeBtn);
+            }
+            
+            container.appendChild(newBlock);
+        }
+        
+        function removeAcademic(button) {
+            const block = button.closest('.experience-block');
+            if (document.querySelectorAll('#academic-container .experience-block').length > 1) {
+                block.remove();
+                updateIndices('academic-container');
+            }
+        }
+        
+        function addIndustry() {
+            industryCounter++;
+            const container = document.getElementById('industry-container');
+            const firstBlock = container.querySelector('.experience-block');
+            const newBlock = firstBlock.cloneNode(true);
+            
+            newBlock.setAttribute('data-index', industryCounter);
+            newBlock.querySelectorAll('input').forEach(input => input.value = '');
+            
+            if (!newBlock.querySelector('.remove-btn')) {
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+                removeBtn.onclick = function() { removeIndustry(this); };
+                newBlock.appendChild(removeBtn);
+            }
+            
+            container.appendChild(newBlock);
+        }
+        
+        function removeIndustry(button) {
+            const block = button.closest('.experience-block');
+            if (document.querySelectorAll('#industry-container .experience-block').length > 1) {
+                block.remove();
+                updateIndices('industry-container');
+            }
+        }
+        
+        function updateIndices(containerId) {
+            const blocks = document.querySelectorAll(`#${containerId} .experience-block`);
+            blocks.forEach((block, index) => {
+                block.setAttribute('data-index', index + 1);
+            });
+        }
+        
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const required = document.querySelectorAll('.required');
+            let valid = true;
+            
+            required.forEach(field => {
+                const input = field.closest('.form-group').querySelector('input');
+                if (!input.value.trim()) {
+                    valid = false;
+                    input.style.borderColor = '#d32f2f';
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                alert('Please fill all required fields (*)');
+            }
+        });
+    </script>
+</body>
+</html>

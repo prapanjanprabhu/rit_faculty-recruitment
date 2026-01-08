@@ -1,0 +1,261 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% load static %}
+{% block page_title %}Faculty Applications{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ================== FILTER + DASHBOARD ================== */
+.filter-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+}
+
+.kpi-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+.kpi-card.vertical {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.kpi-icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.kpi-content h3 {
+    margin: 0;
+    font-weight: 800;
+}
+
+.kpi-content p {
+    margin: 0;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.kpi-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.kpi-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.progress {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg,#2563eb,#1d4ed8);
+}
+
+.profile-photo {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+</style>
+
+<div class="container-fluid mt-4">
+
+<!-- ================= FILTER ================= -->
+<form method="get" class="filter-card mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label>Department</label>
+            <select name="department" class="form-select">
+                <option value="">All</option>
+                {% for d in departments %}
+                <option value="{{ d.id }}" {% if d.id|stringformat:"s" == selected_department %}selected{% endif %}>
+                    {{ d.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Designation</label>
+            <select name="designation" class="form-select">
+                <option value="">All</option>
+                {% for d in designations %}
+                <option value="{{ d.id }}" {% if d.id|stringformat:"s" == selected_designation %}selected{% endif %}>
+                    {{ d.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label>Search</label>
+            <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Candidate name">
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">
+                <i class="fas fa-filter"></i> Apply
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- ================= ANALYTICS ================= -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            <div class="kpi-content">
+                <h3>{{ total_candidates }}</h3>
+                <p>Total Candidates</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="kpi-card vertical">
+            <div class="kpi-title">Top Departments</div>
+            {% for d in dept_counts|slice:":3" %}
+                <div class="kpi-row">
+                    <span>{{ d.department__name }}</span>
+                    <strong>{{ d.total }}</strong>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" style="width:{{ d.total }}%"></div>
+                </div>
+            {% empty %}
+                <span class="text-muted">No data</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="kpi-card vertical">
+            <div class="kpi-title">Top Designations</div>
+            {% for d in designation_counts|slice:":3" %}
+                <div class="kpi-row">
+                    <span>{{ d.position_applied__name }}</span>
+                    <strong>{{ d.total }}</strong>
+                </div>
+            {% empty %}
+                <span class="text-muted">No data</span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ================= TABLE ================= -->
+<div class="card">
+<div class="card-body">
+<table id="facultyTable" class="table table-hover">
+<thead class="table-dark">
+<tr>
+    <th>#</th>
+    <th>Photo</th>
+    <th>Candidate</th>
+    <th>Department</th>
+    <th>Designation</th>
+    <th>Application</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for app in applications %}
+<tr>
+    <td>{{ forloop.counter }}</td>
+   <td>
+    {% if app.candidate.photo and app.candidate.photo.name %}
+        <img src="{{ app.candidate.photo.url }}"
+             class="profile-photo"
+             alt="Photo"
+             onerror="this.replaceWith(createFallbackIcon())">
+    {% else %}
+        <div class="profile-photo d-flex align-items-center justify-content-center"
+             style="background:#e2e8f0;">
+            <i class="fas fa-user text-muted"></i>
+        </div>
+    {% endif %}
+</td>
+
+    <td><strong>{{ app.candidate.name }}</strong></td>
+    <td>{{ app.department.name|default:"-" }}</td>
+    <td>{{ app.position_applied.name|default:"-" }}</td>
+    <td>#{{ app.candidate.id }}</td>
+    <td>
+        <a href="{% url 'faculty_application_details' app.candidate.id %}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-eye"></i>
+        </a>
+        <a href="{% url 'faculty_data_pdf' app.candidate.id %}" target="_blank"
+           class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-file-pdf"></i>
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="7" class="text-center text-muted">No records found</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$('#facultyTable').DataTable({
+    pageLength: 50,
+    order: [[0,'asc']]
+});
+
+function createFallbackIcon() {
+    const div = document.createElement("div");
+    div.style.width = "45px";
+    div.style.height = "45px";
+    div.style.borderRadius = "50%";
+    div.style.background = "#e2e8f0";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
+
+    const icon = document.createElement("i");
+    icon.className = "fas fa-user text-muted";
+
+    div.appendChild(icon);
+    return div;
+}
+</script>
+
+{% endblock %}

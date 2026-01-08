@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Qualifications</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
+        
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
+        
+        .header { background: #003366; color: white; padding: 20px; text-align: center; border-bottom: 4px solid #ffcc00; }
+        .header h1 { font-size: 24px; margin-bottom: 5px; font-weight: 600; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        
+        .form-section { padding: 25px; }
+        
+        .section-title { color: #003366; font-size: 18px; font-weight: 600; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
+        
+        .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
+        .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
+        
+        label { display: block; margin-bottom: 5px; color: #003366; font-weight: 500; font-size: 14px; }
+        .required:after { content: " *"; color: #d32f2f; }
+        
+        .form-control, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .form-control:focus, select:focus, textarea:focus { outline: none; border-color: #003366; }
+        
+        .education-block { background: #f5f7fa; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; position: relative; }
+        .education-block:before { content: attr(data-index); position: absolute; top: -10px; left: 15px; background: #003366; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px; }
+        
+        .education-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .education-header h3 { font-size: 16px; color: #003366; margin: 0; }
+        
+        .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .btn-add { background: #e9ecef; color: #003366; border: 1px dashed #adb5bd; width: 100%; margin: 10px 0; }
+        .btn-add:hover { background: #dee2e6; }
+        .btn-prev { background: #6c757d; color: white; }
+        .btn-next { background: #003366; color: white; }
+        .btn-remove { background: #dc3545; color: white; font-size: 12px; padding: 5px 10px; }
+        .btn-prev:hover { background: #545b62; }
+        .btn-next:hover { background: #002244; }
+        .btn-remove:hover { background: #c82333; }
+        
+        .button-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        
+        .instructions { background: #e7f1ff; border-left: 3px solid #003366; padding: 10px 15px; margin-bottom: 20px; font-size: 13px; }
+        
+        .full-width { flex: 1 0 100%; }
+        
+        @media (max-width: 768px) {
+            .form-group { min-width: 100%; }
+            .button-group { flex-direction: column; gap: 10px; }
+            .btn { width: 100%; }
+            .education-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+        <h1>Educational Qualifications</h1>
+        <p>Complete educational background and details</p>
+    </div>
+
+    <div class="form-section">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="instructions">
+                <strong>Instructions:</strong> Fill all educational qualifications from SSLC to highest degree.
+            </div>
+
+            <h2 class="section-title">Educational Qualifications</h2>
+
+            <div id="edu-container">
+
+            {% if education %}
+                {% for edu in education %}
+                <div class="education-block" data-index="{{ forloop.counter }}">
+
+                    <div class="education-header">
+                        <h3>Qualification #{{ forloop.counter }}</h3>
+                        {% if not forloop.first %}
+                        <button type="button" class="btn btn-remove" onclick="removeEdu(this)">Remove</button>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">Category</label>
+                            <select name="category[]" class="form-control">
+                                <option value="">Select Category</option>
+                                {% for lvl in levels %}
+                                <option value="{{ lvl.id }}"
+                                    {% if edu.category|stringformat:"s" == lvl.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ lvl.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">Degree</label>
+                            <select name="degree[]" class="form-control">
+                                <option value="">Select Degree</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}"
+                                    {% if edu.degree|stringformat:"s" == dept.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ dept.degree.degree_code }} - {{ dept.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Specialization</label>
+                            <input type="text" name="specialization[]" class="form-control" value="{{ edu.specialization }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">Year of Passing</label>
+                            <input type="number" name="year_of_passing[]" class="form-control" value="{{ edu.year_of_passing }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">Institution</label>
+                            <input type="text" name="institution[]" class="form-control" value="{{ edu.institution }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">University / Board</label>
+                            <input type="text" name="university[]" class="form-control" value="{{ edu.university }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">Percentage / CGPA</label>
+                            <input type="text" name="percentage[]" class="form-control" value="{{ edu.percentage }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Class Obtained</label>
+                            <select name="class_obtained[]" class="form-control">
+                                <option value="">Select Class</option>
+                                <option value="First Class" {% if edu.class_obtained == "First Class" %}selected{% endif %}>First Class</option>
+                                <option value="Second Class" {% if edu.class_obtained == "Second Class" %}selected{% endif %}>Second Class</option>
+                                <option value="Distinction" {% if edu.class_obtained == "Distinction" %}selected{% endif %}>Distinction</option>
+                                <option value="Pass" {% if edu.class_obtained == "Pass" %}selected{% endif %}>Pass</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="education-block" data-index="1">
+
+                    <div class="education-header">
+                        <h3>Qualification #1</h3>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">Category</label>
+                            <select name="category[]" class="form-control">
+                                <option value="">Select Category</option>
+                                {% for lvl in levels %}
+                                <option value="{{ lvl.id }}">{{ lvl.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">Degree</label>
+                            <select name="degree[]" class="form-control">
+                                <option value="">Select Degree</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.id }}">{{ dept.degree.degree_code }} - {{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Specialization</label>
+                            <input type="text" name="specialization[]" class="form-control">
+                        </div>
+                    </div>
+
+                </div>
+            {% endif %}
+
+            </div>
+                <button type="button" class="btn btn-add" onclick="addEdu()">+ Add More Qualification</button>
+
+                <h2 class="section-title">Additional Educational Details</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mode of UG Study</label>
+                        <select name="mode_ug" class="form-control">
+                            <option value="">Select Mode</option>
+                            <option value="Regular" {% if research.mode_ug == "Regular" %}selected{% endif %}>Regular</option>
+                            <option value="Correspondence" {% if research.mode_ug == "Correspondence" %}selected{% endif %}>Correspondence</option>
+                            <option value="Distance" {% if research.mode_ug == "Distance" %}selected{% endif %}>Distance</option>
+                            <option value="Online" {% if research.mode_ug == "Online" %}selected{% endif %}>Online</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mode of PG Study</label>
+                        <select name="mode_pg" class="form-control">
+                            <option value="">Select Mode</option>
+                            <option value="Regular" {% if research.mode_pg == "Regular" %}selected{% endif %}>Regular</option>
+                            <option value="Correspondence" {% if research.mode_pg == "Correspondence" %}selected{% endif %}>Correspondence</option>
+                            <option value="Distance" {% if research.mode_pg == "Distance" %}selected{% endif %}>Distance</option>
+                            <option value="Online" {% if research.mode_pg == "Online" %}selected{% endif %}>Online</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mode of PhD Study</label>
+                        <select name="mode_phd" class="form-control">
+                            <option value="">Select Mode</option>
+                            <option value="Regular" {% if research.mode_phd == "Regular" %}selected{% endif %}>Regular</option>
+                            <option value="Part-time" {% if research.mode_phd == "Part-time" %}selected{% endif %}>Part-time</option>
+                            <option value="Full-time" {% if research.mode_phd == "Full-time" %}selected{% endif %}>Full-time</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>UG Arrears (if any)</label>
+                        <input type="number" name="arrears_ug" class="form-control" value="{{ research.arrears_ug|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>PG Arrears (if any)</label>
+                        <input type="number" name="arrears_pg" class="form-control" value="{{ research.arrears_pg|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>GATE Score</label>
+                        <input type="text" name="gate_score" class="form-control" value="{{ research.gate_score|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>NET/SLET Score</label>
+                        <input type="text" name="net_slet_score" class="form-control" value="{{ research.net_slet_score|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>ME/MTech Thesis Title</label>
+                        <textarea name="me_thesis_title" class="form-control" rows="3">{{ research.me_thesis_title|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>PhD Thesis Title</label>
+                        <textarea name="phd_thesis_title" class="form-control" rows="3">{{ research.phd_thesis_title|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="window.location.href='{% url 'individual_data_sheet' %}'">← Previous</button>
+                    <button type="submit" class="btn btn-next">Save & Next →</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize counter
+        let eduCounter = {{ education|length|default:1 }};
+        
+        function addEdu() {
+            eduCounter++;
+            const container = document.getElementById('edu-container');
+            const firstBlock = container.querySelector('.education-block');
+            const newBlock = firstBlock.cloneNode(true);
+            
+            // Update block attributes
+            newBlock.setAttribute('data-index', eduCounter);
+            
+            // Update header
+            const header = newBlock.querySelector('.education-header');
+            header.querySelector('h3').textContent = `Qualification #${eduCounter}`;
+            
+            // Add remove button if not present
+            if (!header.querySelector('.btn-remove')) {
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-remove';
+                removeBtn.textContent = 'Remove';
+                removeBtn.onclick = function() { removeEdu(this); };
+                header.appendChild(removeBtn);
+            }
+            
+            // Clear all input values
+            newBlock.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+                input.value = '';
+            });
+            
+            newBlock.querySelectorAll('select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+            
+            newBlock.querySelectorAll('textarea').forEach(textarea => {
+                textarea.value = '';
+            });
+            
+            container.appendChild(newBlock);
+            updateBlockNumbers();
+        }
+        
+        function removeEdu(button) {
+            const block = button.closest('.education-block');
+            const container = document.getElementById('edu-container');
+            const blocks = container.querySelectorAll('.education-block');
+            
+            // Don't remove if it's the only block
+            if (blocks.length > 1) {
+                block.remove();
+                eduCounter--;
+                updateBlockNumbers();
+            } else {
+                alert('At least one qualification is required.');
+            }
+        }
+        
+        function updateBlockNumbers() {
+            const container = document.getElementById('edu-container');
+            const blocks = container.querySelectorAll('.education-block');
+            
+            blocks.forEach((block, index) => {
+                const blockNumber = index + 1;
+                block.setAttribute('data-index', blockNumber);
+                block.querySelector('.education-header h3').textContent = `Qualification #${blockNumber}`;
+                
+                // Keep remove button only for blocks after the first one
+                const header = block.querySelector('.education-header');
+                const removeBtn = header.querySelector('.btn-remove');
+                
+                if (index === 0 && removeBtn) {
+                    removeBtn.remove();
+                } else if (index > 0 && !removeBtn) {
+                    const newRemoveBtn = document.createElement('button');
+                    newRemoveBtn.type = 'button';
+                    newRemoveBtn.className = 'btn btn-remove';
+                    newRemoveBtn.textContent = 'Remove';
+                    newRemoveBtn.onclick = function() { removeEdu(this); };
+                    header.appendChild(newRemoveBtn);
+                }
+            });
+        }
+        
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const required = document.querySelectorAll('.required');
+            let valid = true;
+            
+            required.forEach(field => {
+                const input = field.closest('.form-group').querySelector('input, select');
+                if (!input.value.trim()) {
+                    valid = false;
+                    input.style.borderColor = '#d32f2f';
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                alert('Please fill all required fields (*)');
+            }
+        });
+        
+        // Initialize block numbers on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBlockNumbers();
+        });
+    </script>
+</body>
+</html>

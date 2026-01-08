@@ -1,0 +1,925 @@
+{% extends 'faculty_requirement/admin/base.html' %}
+{% block page_title %}Faculty Application{% endblock %}
+
+{% block content %}
+
+
+<style>
+/* ================= FACULTY APPLICATION PORTAL ================= */
+.faculty-portal {
+  font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+  background: linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.faculty-portal h4 {
+  font-weight: 800;
+  color: #1a4b8c;
+  margin-bottom: 2rem;
+}
+
+.faculty-portal .card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  transition: all .3s ease;
+  animation: fadeInUp .5s ease forwards;
+  opacity: 0;
+}
+
+.faculty-portal .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+.faculty-portal .card-header {
+  background: linear-gradient(135deg,#1a4b8c 0%,#2c5aa0 100%);
+  color: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem 1.5rem;
+  border-bottom: none;
+}
+
+.faculty-portal .card-header strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.faculty-portal .card-body {
+  padding: 1.5rem;
+}
+
+.faculty-portal b {
+  color: #334155;
+  font-weight: 600;
+}
+
+.faculty-portal .table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.faculty-portal .table thead th {
+  background: linear-gradient(135deg,#1a4b8c 0%,#2c5aa0 100%);
+  color: #fff;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border: none;
+}
+
+.faculty-portal .table td {
+  vertical-align: middle;
+  font-weight: 500;
+  color: #374151;
+}
+
+.faculty-portal .table tbody tr:hover {
+  background: rgba(26,75,140,.04);
+}
+
+.faculty-portal .btn {
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all .3s ease;
+}
+
+.faculty-portal .btn-outline-primary {
+  border: 2px solid #fff;
+  color: #fff;
+}
+
+.faculty-portal .btn-outline-primary:hover {
+  background: #fff;
+  color: #1a4b8c;
+}
+
+.faculty-portal .btn-success {
+  background: linear-gradient(135deg,#10b981,#059669);
+  border: none;
+}
+
+.faculty-portal .btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16,185,129,.3);
+}
+
+.faculty-portal .btn-secondary {
+  border-radius: 10px;
+}
+
+.faculty-portal .inline-edit {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px dashed #cbd5f5;
+}
+
+.faculty-portal .form-control,
+.faculty-portal textarea {
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.faculty-portal .badge {
+  border-radius: 20px;
+  padding: .4rem .75rem;
+  font-weight: 600;
+}
+
+@keyframes fadeInUp {
+  from {opacity:0; transform:translateY(20px);}
+  to {opacity:1; transform:translateY(0);}
+}
+
+.faculty-portal .row-edit {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid #1a4b8c;
+  background: transparent;
+  color: #1a4b8c;
+  transition: all .25s ease;
+}
+
+.faculty-portal .row-edit:hover {
+  background: #1a4b8c;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(26,75,140,.3);
+  transform: translateY(-1px);
+}
+
+/* Cancel buttons inside inline edit */
+.faculty-portal .row-cancel {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+}
+
+.faculty-portal table td:last-child,
+.faculty-portal table th:last-child {
+  text-align: right;
+  white-space: nowrap;
+  width: 1%;
+}
+
+.faculty-portal .row-action {
+  display: flex;
+  align-items: center;
+}
+
+.faculty-portal .row-action .content {
+  flex: 1;
+  min-width: 0;
+}
+
+</style>
+
+<h4 class="mb-4">{{ candidate.name }}</h4>
+
+<!-- ================= CANDIDATE ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Candidate</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Edit</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="row g-2 small">
+        <div class="col-md-3"><b>Age:</b> {{ candidate.age|default:'-' }}</div>
+        <div class="col-md-3"><b>DOB:</b> {{ candidate.date_of_birth|default:'-' }}</div>
+        <div class="col-md-3"><b>Gender:</b> {{ candidate.gender|default:'-' }}</div>
+        <div class="col-md-3"><b>Marital:</b> {{ candidate.marital_status|default:'-' }}</div>
+        <div class="col-md-3"><b>Community:</b> {{ candidate.community|default:'-' }}</div>
+        <div class="col-md-3"><b>Caste:</b> {{ candidate.caste|default:'-' }}</div>
+        <div class="col-md-3"><b>PAN:</b> {{ candidate.pan_number|default:'-' }}</div>
+        <div class="col-md-3"><b>Email:</b> {{ candidate.email|default:'-' }}</div>
+        <div class="col-md-3"><b>Phone 1:</b> {{ candidate.phone_primary|default:'-' }}</div>
+        <div class="col-md-3"><b>Phone 2:</b> {{ candidate.phone_secondary|default:'-' }}</div>
+        <div class="col-md-6"><b>Address:</b> {{ candidate.address|default:'-' }}</div>
+        <div class="col-md-3"><b>Total Exp:</b> {{ candidate.total_experience_years|default:'-' }}</div>
+        <div class="col-md-3"><b>Present Post Yrs:</b> {{ candidate.present_post_years|default:'-' }}</div>
+        <div class="col-md-6"><b>Mother:</b> {{ candidate.mother_name_and_occupation|default:'-' }}</div>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="candidate">
+      <input type="hidden" name="name" value="{{ candidate.name }}">
+      <div class="row g-2">
+        <div class="col-md-6"><input class="form-control" name="email" value="{{ candidate.email }}" placeholder="Email"></div>
+        <div class="col-md-6"><input class="form-control" name="phone_primary" value="{{ candidate.phone_primary }}" placeholder="Primary Phone"></div>
+        <div class="col-md-6"><input class="form-control" name="phone_secondary" value="{{ candidate.phone_secondary }}" placeholder="Secondary Phone"></div>
+        <div class="col-md-3"><input class="form-control" name="age" value="{{ candidate.age }}" placeholder="Age" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="date_of_birth" value="{{ candidate.date_of_birth }}" placeholder="DOB" type="date"></div>
+        <div class="col-md-3"><input class="form-control" name="gender" value="{{ candidate.gender }}" placeholder="Gender"></div>
+        <div class="col-md-3"><input class="form-control" name="marital_status" value="{{ candidate.marital_status }}" placeholder="Marital Status"></div>
+        <div class="col-md-3"><input class="form-control" name="community" value="{{ candidate.community }}" placeholder="Community"></div>
+        <div class="col-md-3"><input class="form-control" name="caste" value="{{ candidate.caste }}" placeholder="Caste"></div>
+        <div class="col-md-3"><input class="form-control" name="pan_number" value="{{ candidate.pan_number }}" placeholder="PAN Number"></div>
+        <div class="col-md-6"><textarea class="form-control" name="address" placeholder="Address">{{ candidate.address }}</textarea></div>
+        <div class="col-md-3"><input class="form-control" name="total_experience_years" value="{{ candidate.total_experience_years }}" placeholder="Total Experience Years" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="present_post_years" value="{{ candidate.present_post_years }}" placeholder="Present Post Years" type="number"></div>
+        <div class="col-md-6"><input class="form-control" name="mother_name_and_occupation" value="{{ candidate.mother_name_and_occupation }}" placeholder="Mother Name & Occupation"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Save</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= POSITION ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Position</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Edit</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="row g-2 small">
+        <div class="col-md-3"><b>Position:</b> {{ position.position_applied|default:'-' }}</div>
+        <div class="col-md-3"><b>Department:</b> {{ position.department|default:'-' }}</div>
+        <div class="col-md-3"><b>Designation:</b> {{ position.present_designation|default:'-' }}</div>
+        <div class="col-md-3"><b>Organization:</b> {{ position.present_organization|default:'-' }}</div>
+        <div class="col-md-3"><b>Specialization:</b> {{ position.specialization|default:'-' }}</div>
+        <div class="col-md-3"><b>Assistant Prof (yrs):</b> {{ position.assistant_professor_years|default:'0' }}</div>
+        <div class="col-md-3"><b>Associate Prof (yrs):</b> {{ position.associate_professor_years|default:'0' }}</div>
+        <div class="col-md-3"><b>Professor (yrs):</b> {{ position.professor_years|default:'0' }}</div>
+        <div class="col-md-3"><b>Other (yrs):</b> {{ position.other_years|default:'0' }}</div>
+        <div class="col-md-3"><b>Research Exp (yrs):</b> {{ position.research_experience_years|default:'0' }}</div>
+        <div class="col-md-3"><b>Industry Exp (yrs):</b> {{ position.industry_experience_years|default:'0' }}</div>
+        <div class="col-md-3"><b>Journal Publications:</b> {{ position.journal_publications|default:'0' }}</div>
+        <div class="col-md-3"><b>Conference Publications:</b> {{ position.conference_publications|default:'0' }}</div>
+        <div class="col-md-3"><b>Students Guided (Completed):</b> {{ position.students_guided_completed|default:'0' }}</div>
+        <div class="col-md-3"><b>Students Guided (Ongoing):</b> {{ position.students_guided_ongoing|default:'0' }}</div>
+        <div class="col-md-3"><b>Community & Caste:</b> {{ position.community_and_caste|default:'-' }}</div>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="position">
+      <div class="row g-2">
+        <div class="col-md-3"><input class="form-control" name="position_applied" value="{{ position.position_applied }}" placeholder="Position Applied"></div>
+        <div class="col-md-3"><input class="form-control" name="department" value="{{ position.department }}" placeholder="Department"></div>
+        <div class="col-md-3"><input class="form-control" name="present_designation" value="{{ position.present_designation }}" placeholder="Designation"></div>
+        <div class="col-md-3"><input class="form-control" name="present_organization" value="{{ position.present_organization }}" placeholder="Organization"></div>
+        <div class="col-md-3"><input class="form-control" name="specialization" value="{{ position.specialization }}" placeholder="Specialization"></div>
+        <div class="col-md-3"><input class="form-control" name="assistant_professor_years" value="{{ position.assistant_professor_years }}" placeholder="Assistant Prof (yrs)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="associate_professor_years" value="{{ position.associate_professor_years }}" placeholder="Associate Prof (yrs)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="professor_years" value="{{ position.professor_years }}" placeholder="Professor (yrs)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="other_years" value="{{ position.other_years }}" placeholder="Other (yrs)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="research_experience_years" value="{{ position.research_experience_years }}" placeholder="Research Exp (yrs)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="industry_experience_years" value="{{ position.industry_experience_years }}" placeholder="Industry Exp (yrs)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="journal_publications" value="{{ position.journal_publications }}" placeholder="Journal Publications" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="conference_publications" value="{{ position.conference_publications }}" placeholder="Conference Publications" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="students_guided_completed" value="{{ position.students_guided_completed }}" placeholder="Students Guided (Completed)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="students_guided_ongoing" value="{{ position.students_guided_ongoing }}" placeholder="Students Guided (Ongoing)" type="number"></div>
+        <div class="col-md-3"><input class="form-control" name="community_and_caste" value="{{ position.community_and_caste }}" placeholder="Community & Caste"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Save</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= EDUCATION ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Education</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Category</th><th>Degree</th><th>Spec.</th><th>Year</th><th>Institution</th><th>University</th><th>%</th><th>Class</th><th></th></tr></thead>
+          <tbody>
+            {% for e in education %}
+            <tr>
+              <td>{{ e.category }}</td><td>{{ e.degree }}</td><td>{{ e.specialization|default:'-' }}</td>
+              <td>{{ e.year_of_passing }}</td><td>{{ e.institution }}</td><td>{{ e.university }}</td>
+              <td>{{ e.percentage }}</td><td>{{ e.class_obtained }}</td>
+              <td><button class="btn btn-sm row-edit" data-target="#edu-{{ e.id }}">Edit</button></td>
+            </tr>
+            <tr id="edu-{{ e.id }}" class="d-none"><td colspan="9">
+              <form class="row g-2 inline-edit" data-section="education">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="education">
+                <input type="hidden" name="id" value="{{ e.id }}">
+                <div class="col-md-3"><input class="form-control" name="category" value="{{ e.category }}" placeholder="Category"></div>
+                <div class="col-md-3"><input class="form-control" name="degree" value="{{ e.degree }}" placeholder="Degree"></div>
+                <div class="col-md-3"><input class="form-control" name="specialization" value="{{ e.specialization }}" placeholder="Specialization"></div>
+                <div class="col-md-3"><input class="form-control" name="year_of_passing" value="{{ e.year_of_passing }}" placeholder="Year of Passing"></div>
+                <div class="col-md-3"><input class="form-control" name="institution" value="{{ e.institution }}" placeholder="Institution"></div>
+                <div class="col-md-3"><input class="form-control" name="university" value="{{ e.university }}" placeholder="University"></div>
+                <div class="col-md-3"><input class="form-control" name="percentage" value="{{ e.percentage }}" placeholder="Percentage"></div>
+                <div class="col-md-3"><input class="form-control" name="class_obtained" value="{{ e.class_obtained }}" placeholder="Class Obtained"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#edu-{{ e.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="9" class="text-muted text-center">No education records.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="education">
+      <div class="row g-2">
+        <div class="col-md-3"><input class="form-control" name="category" placeholder="Category"></div>
+        <div class="col-md-3"><input class="form-control" name="degree" placeholder="Degree"></div>
+        <div class="col-md-3"><input class="form-control" name="specialization" placeholder="Specialization"></div>
+        <div class="col-md-3"><input class="form-control" name="year_of_passing" placeholder="Year of Passing"></div>
+        <div class="col-md-3"><input class="form-control" name="institution" placeholder="Institution"></div>
+        <div class="col-md-3"><input class="form-control" name="university" placeholder="University"></div>
+        <div class="col-md-3"><input class="form-control" name="percentage" placeholder="Percentage"></div>
+        <div class="col-md-3"><input class="form-control" name="class_obtained" placeholder="Class Obtained"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= ACADEMIC EXPERIENCE ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Academic Experience</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Institution</th><th>Designation</th><th>Join</th><th>Relieve</th><th>Y</th><th>M</th><th>D</th><th></th></tr></thead>
+          <tbody>
+            {% for a in academic %}
+            <tr>
+              <td>{{ a.institution }}</td><td>{{ a.designation }}</td><td>{{ a.joining_date }}</td><td>{{ a.relieving_date }}</td>
+              <td>{{ a.years|default:'0' }}</td><td>{{ a.months|default:'0' }}</td><td>{{ a.days|default:'0' }}</td>
+              <td><button class="btn btn-sm btn-outline-primary row-edit" data-target="#acad-{{ a.id }}">Edit</button></td>
+            </tr>
+            <tr id="acad-{{ a.id }}" class="d-none"><td colspan="8">
+              <form class="row g-2 inline-edit" data-section="academic_experience">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="academic_experience">
+                <input type="hidden" name="id" value="{{ a.id }}">
+                <div class="col-md-4"><input class="form-control" name="institution" value="{{ a.institution }}" placeholder="Institution"></div>
+                <div class="col-md-4"><input class="form-control" name="designation" value="{{ a.designation }}" placeholder="Designation"></div>
+                <div class="col-md-4"><input class="form-control" name="joining_date" value="{{ a.joining_date }}" type="date" placeholder="Joining Date"></div>
+                <div class="col-md-4"><input class="form-control" name="relieving_date" value="{{ a.relieving_date }}" placeholder="Relieving Date"></div>
+                <div class="col-md-4"><input class="form-control" name="years" value="{{ a.years }}" type="number" placeholder="Years"></div>
+                <div class="col-md-4"><input class="form-control" name="months" value="{{ a.months }}" type="number" placeholder="Months"></div>
+                <div class="col-md-4"><input class="form-control" name="days" value="{{ a.days }}" type="number" placeholder="Days"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#acad-{{ a.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-muted text-center">No academic experience.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="academic_experience">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="institution" placeholder="Institution"></div>
+        <div class="col-md-4"><input class="form-control" name="designation" placeholder="Designation"></div>
+        <div class="col-md-4"><input class="form-control" name="joining_date" type="date" placeholder="Joining Date"></div>
+        <div class="col-md-4"><input class="form-control" name="relieving_date" placeholder="Relieving Date"></div>
+        <div class="col-md-4"><input class="form-control" name="years" type="number" placeholder="Years"></div>
+        <div class="col-md-4"><input class="form-control" name="months" type="number" placeholder="Months"></div>
+        <div class="col-md-4"><input class="form-control" name="days" type="number" placeholder="Days"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= INDUSTRY EXPERIENCE ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Industry / Research Experience</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Organization</th><th>Designation</th><th>Nature of Work</th><th>Join</th><th>Relieve</th><th>Y</th><th>M</th><th>D</th><th></th></tr></thead>
+          <tbody>
+            {% for i in industry %}
+            <tr>
+              <td>{{ i.organization }}</td><td>{{ i.designation }}</td><td>{{ i.nature_of_work }}</td>
+              <td>{{ i.joining_date }}</td><td>{{ i.relieving_date }}</td>
+              <td>{{ i.years|default:'0' }}</td><td>{{ i.months|default:'0' }}</td><td>{{ i.days|default:'0' }}</td>
+              <td><button class="btn btn-sm btn-outline-primary row-edit" data-target="#ind-{{ i.id }}">Edit</button></td>
+            </tr>
+            <tr id="ind-{{ i.id }}" class="d-none"><td colspan="9">
+              <form class="row g-2 inline-edit" data-section="industry_experience">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="industry_experience">
+                <input type="hidden" name="id" value="{{ i.id }}">
+                <div class="col-md-4"><input class="form-control" name="organization" value="{{ i.organization }}" placeholder="Organization"></div>
+                <div class="col-md-4"><input class="form-control" name="designation" value="{{ i.designation }}" placeholder="Designation"></div>
+                <div class="col-md-4"><input class="form-control" name="nature_of_work" value="{{ i.nature_of_work }}" placeholder="Nature of Work"></div>
+                <div class="col-md-4"><input class="form-control" name="joining_date" value="{{ i.joining_date }}" type="date" placeholder="Joining Date"></div>
+                <div class="col-md-4"><input class="form-control" name="relieving_date" value="{{ i.relieving_date }}" type="date" placeholder="Relieving Date"></div>
+                <div class="col-md-4"><input class="form-control" name="years" value="{{ i.years }}" type="number" placeholder="Years"></div>
+                <div class="col-md-4"><input class="form-control" name="months" value="{{ i.months }}" type="number" placeholder="Months"></div>
+                <div class="col-md-4"><input class="form-control" name="days" value="{{ i.days }}" type="number" placeholder="Days"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#ind-{{ i.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="9" class="text-muted text-center">No industry experience.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="industry_experience">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="organization" placeholder="Organization"></div>
+        <div class="col-md-4"><input class="form-control" name="designation" placeholder="Designation"></div>
+        <div class="col-md-4"><input class="form-control" name="nature_of_work" placeholder="Nature of Work"></div>
+        <div class="col-md-4"><input class="form-control" name="joining_date" type="date" placeholder="Joining Date"></div>
+        <div class="col-md-4"><input class="form-control" name="relieving_date" type="date" placeholder="Relieving Date"></div>
+        <div class="col-md-4"><input class="form-control" name="years" type="number" placeholder="Years"></div>
+        <div class="col-md-4"><input class="form-control" name="months" type="number" placeholder="Months"></div>
+        <div class="col-md-4"><input class="form-control" name="days" type="number" placeholder="Days"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= TEACHING SUBJECTS ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Teaching Subjects</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Level</th><th>Subject & Result</th><th></th></tr></thead>
+          <tbody>
+            {% for t in teaching %}
+            <tr>
+              <td>{{ t.level }}</td><td>{{ t.subject_and_result }}</td>
+              <td><button class="btn btn-sm btn-outline-primary row-edit" data-target="#teach-{{ t.id }}">Edit</button></td>
+            </tr>
+            <tr id="teach-{{ t.id }}" class="d-none"><td colspan="3">
+              <form class="row g-2 inline-edit" data-section="teaching_subject">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="teaching_subject">
+                <input type="hidden" name="id" value="{{ t.id }}">
+                <div class="col-md-4"><input class="form-control" name="level" value="{{ t.level }}" placeholder="Level"></div>
+                <div class="col-md-8"><input class="form-control" name="subject_and_result" value="{{ t.subject_and_result }}" placeholder="Subject & Result"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#teach-{{ t.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-muted text-center">No teaching subjects.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="teaching_subject">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="level" placeholder="Level (UG/PG)"></div>
+        <div class="col-md-8"><input class="form-control" name="subject_and_result" placeholder="Subject & Result"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= CONTRIBUTIONS ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Contributions</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      {% for c in contributions %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div><span class="badge bg-secondary me-2">{{ c.level }}</span>{{ c.description }}</div>
+          <button class="btn btn-sm btn-outline-primary row-edit" data-target="#cont-{{ c.id }}">Edit</button>
+        </div>
+        <div id="cont-{{ c.id }}" class="d-none">
+          <form class="row g-2 inline-edit" data-section="contribution">
+            {% csrf_token %}
+            <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+            <input type="hidden" name="section" value="contribution">
+            <input type="hidden" name="id" value="{{ c.id }}">
+            <div class="col-md-4"><input class="form-control" name="level" value="{{ c.level }}" placeholder="Level"></div>
+            <div class="col-md-8"><textarea class="form-control" name="description" placeholder="Description">{{ c.description }}</textarea></div>
+            <div class="col-12 mt-2">
+              <button class="btn btn-success btn-sm">Save</button>
+              <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#cont-{{ c.id }}">Cancel</button>
+            </div>
+          </form>
+        </div>
+      {% empty %}
+        <div class="text-muted">No contributions.</div>
+      {% endfor %}
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="contribution">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="level" placeholder="Level (Department/College)"></div>
+        <div class="col-md-8"><textarea class="form-control" name="description" placeholder="Description"></textarea></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= PROGRAMMES ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Programmes</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Type</th><th>Category</th><th>Count</th><th></th></tr></thead>
+          <tbody>
+            {% for p in programmes %}
+            <tr>
+              <td>{{ p.programme_type }}</td><td>{{ p.category|default:'-' }}</td><td>{{ p.count }}</td>
+              <td><button class="btn btn-sm btn-outline-primary row-edit" data-target="#prog-{{ p.id }}">Edit</button></td>
+            </tr>
+            <tr id="prog-{{ p.id }}" class="d-none"><td colspan="4">
+              <form class="row g-2 inline-edit" data-section="programme">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="programme">
+                <input type="hidden" name="id" value="{{ p.id }}">
+                <div class="col-md-4"><input class="form-control" name="programme_type" value="{{ p.programme_type }}" placeholder="Type"></div>
+                <div class="col-md-4"><input class="form-control" name="category" value="{{ p.category }}" placeholder="Category"></div>
+                <div class="col-md-4"><input class="form-control" name="count" value="{{ p.count }}" type="number" placeholder="Count"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#prog-{{ p.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted text-center">No programmes.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="programme">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="programme_type" placeholder="Programme Type"></div>
+        <div class="col-md-4"><input class="form-control" name="category" placeholder="Category"></div>
+        <div class="col-md-4"><input class="form-control" name="count" type="number" placeholder="Count"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= PUBLICATIONS ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Publications</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      {% for p in publications %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>• {{ p.title }} <span class="text-muted">{{ p.indexing|default:'' }}</span></div>
+          <button class="btn btn-sm btn-outline-primary row-edit" data-target="#pub-{{ p.id }}">Edit</button>
+        </div>
+        <div id="pub-{{ p.id }}" class="d-none">
+          <form class="row g-2 inline-edit" data-section="publication">
+            {% csrf_token %}
+            <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+            <input type="hidden" name="section" value="publication">
+            <input type="hidden" name="id" value="{{ p.id }}">
+            <div class="col-12"><textarea class="form-control" name="title" placeholder="Title">{{ p.title }}</textarea></div>
+            <div class="col-12"><input class="form-control" name="indexing" value="{{ p.indexing }}" placeholder="Indexing"></div>
+            <div class="col-12 mt-2">
+              <button class="btn btn-success btn-sm">Save</button>
+              <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#pub-{{ p.id }}">Cancel</button>
+            </div>
+          </form>
+        </div>
+      {% empty %}
+        <div class="text-muted">No publications.</div>
+      {% endfor %}
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="publication">
+      <div class="row g-2">
+        <div class="col-12"><textarea class="form-control" name="title" placeholder="Title"></textarea></div>
+        <div class="col-12"><input class="form-control" name="indexing" placeholder="Indexing"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= QUALIFICATIONS ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Other Qualifications</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Qualification</th><th>Specialization</th><th>Institute</th><th>Year</th><th></th></tr></thead>
+          <tbody>
+            {% for q in qualification %}
+            <tr>
+              <td>{{ q.qualification }}</td><td>{{ q.specialization|default:'-' }}</td><td>{{ q.institute|default:'-' }}</td><td>{{ q.year|default:'-' }}</td>
+              <td><button class="btn btn-sm btn-outline-primary row-edit" data-target="#qual-{{ q.id }}">Edit</button></td>
+            </tr>
+            <tr id="qual-{{ q.id }}" class="d-none"><td colspan="5">
+              <form class="row g-2 inline-edit" data-section="qualification">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="qualification">
+                <input type="hidden" name="id" value="{{ q.id }}">
+                <div class="col-md-4"><input class="form-control" name="qualification" value="{{ q.qualification }}" placeholder="Qualification"></div>
+                <div class="col-md-4"><input class="form-control" name="specialization" value="{{ q.specialization }}" placeholder="Specialization"></div>
+                <div class="col-md-4"><input class="form-control" name="institute" value="{{ q.institute }}" placeholder="Institute"></div>
+                <div class="col-md-4"><input class="form-control" name="year" value="{{ q.year }}" type="number" placeholder="Year"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#qual-{{ q.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-muted text-center">No qualifications.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="qualification">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="qualification" placeholder="Qualification"></div>
+        <div class="col-md-4"><input class="form-control" name="specialization" placeholder="Specialization"></div>
+        <div class="col-md-4"><input class="form-control" name="institute" placeholder="Institute"></div>
+        <div class="col-md-4"><input class="form-control" name="year" type="number" placeholder="Year"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= SPONSORED PROJECTS ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Sponsored Projects</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Title</th><th>Duration</th><th>Amount</th><th>Agency</th><th></th></tr></thead>
+          <tbody>
+            {% for s in sponsored_projects %}
+            <tr>
+              <td>{{ s.title }}</td><td>{{ s.duration|default:'-' }}</td><td>{{ s.amount|default:'-' }}</td><td>{{ s.agency|default:'-' }}</td>
+              <td><button class="btn btn-sm btn-outline-primary row-edit" data-target="#sp-{{ s.id }}">Edit</button></td>
+            </tr>
+            <tr id="sp-{{ s.id }}" class="d-none"><td colspan="5">
+              <form class="row g-2 inline-edit" data-section="sponsored_project">
+                {% csrf_token %}
+                <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+                <input type="hidden" name="section" value="sponsored_project">
+                <input type="hidden" name="id" value="{{ s.id }}">
+                <div class="col-md-6"><input class="form-control" name="title" value="{{ s.title }}" placeholder="Title"></div>
+                <div class="col-md-3"><input class="form-control" name="duration" value="{{ s.duration }}" placeholder="Duration"></div>
+                <div class="col-md-3"><input class="form-control" name="amount" value="{{ s.amount }}" type="number" placeholder="Amount"></div>
+                <div class="col-md-6"><input class="form-control" name="agency" value="{{ s.agency }}" placeholder="Agency"></div>
+                <div class="col-12 mt-2">
+                  <button class="btn btn-success btn-sm">Save</button>
+                  <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#sp-{{ s.id }}">Cancel</button>
+                </div>
+              </form>
+            </td></tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-muted text-center">No sponsored projects.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="sponsored_project">
+      <div class="row g-2">
+        <div class="col-md-6"><input class="form-control" name="title" placeholder="Title"></div>
+        <div class="col-md-3"><input class="form-control" name="duration" placeholder="Duration"></div>
+        <div class="col-md-3"><input class="form-control" name="amount" type="number" placeholder="Amount"></div>
+        <div class="col-md-6"><input class="form-control" name="agency" placeholder="Agency"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= REFEREES ================= -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Referees</strong>
+    <button class="btn btn-sm btn-outline-primary edit-btn">Add</button>
+  </div>
+  <div class="card-body">
+    <div class="view-section">
+      {% for r in referees %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <strong>{{ r.name }}</strong> — {{ r.designation }}, {{ r.organization }}
+            <span class="text-muted ms-2">{{ r.contact_number }}</span>
+          </div>
+          <button class="btn btn-sm btn-outline-primary row-edit" data-target="#ref-{{ r.id }}">Edit</button>
+        </div>
+        <div id="ref-{{ r.id }}" class="d-none">
+          <form class="row g-2 inline-edit" data-section="referee">
+            {% csrf_token %}
+            <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+            <input type="hidden" name="section" value="referee">
+            <input type="hidden" name="id" value="{{ r.id }}">
+            <div class="col-md-4"><input class="form-control" name="name" value="{{ r.name }}" placeholder="Name"></div>
+            <div class="col-md-4"><input class="form-control" name="designation" value="{{ r.designation }}" placeholder="Designation"></div>
+            <div class="col-md-4"><input class="form-control" name="organization" value="{{ r.organization }}" placeholder="Organization"></div>
+            <div class="col-md-4"><input class="form-control" name="contact_number" value="{{ r.contact_number }}" placeholder="Contact"></div>
+            <div class="col-12 mt-2">
+              <button class="btn btn-success btn-sm">Save</button>
+              <button type="button" class="btn btn-secondary btn-sm row-cancel" data-target="#ref-{{ r.id }}">Cancel</button>
+            </div>
+          </form>
+        </div>
+      {% empty %}
+        <div class="text-muted">No referees.</div>
+      {% endfor %}
+    </div>
+    <form class="edit-section d-none">
+      {% csrf_token %}
+      <input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+      <input type="hidden" name="section" value="referee">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" name="name" placeholder="Name"></div>
+        <div class="col-md-4"><input class="form-control" name="designation" placeholder="Designation"></div>
+        <div class="col-md-4"><input class="form-control" name="organization" placeholder="Organization"></div>
+        <div class="col-md-4"><input class="form-control" name="contact_number" placeholder="Contact"></div>
+      </div>
+      <div class="mt-2">
+        <button class="btn btn-success btn-sm">Add</button>
+        <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Toggle card-level add forms
+
+document.querySelectorAll('.edit-btn').forEach(btn => {
+  btn.onclick = () => {
+    const card = btn.closest('.card');
+    card.querySelector('.view-section').classList.add('d-none');
+    card.querySelector('.edit-section').classList.remove('d-none');
+  };
+});
+
+document.querySelectorAll('.cancel-btn').forEach(btn => {
+  btn.onclick = () => {
+    const card = btn.closest('.card');
+    card.querySelector('.edit-section').classList.add('d-none');
+    card.querySelector('.view-section').classList.remove('d-none');
+  };
+});
+
+// Toggle row-level edit forms
+
+document.querySelectorAll('.row-edit').forEach(btn => {
+  btn.onclick = () => {
+    const target = document.querySelector(btn.dataset.target);
+    if (target) target.classList.remove('d-none');
+  };
+});
+
+document.querySelectorAll('.row-cancel').forEach(btn => {
+  btn.onclick = () => {
+    const target = document.querySelector(btn.dataset.target);
+    if (target) target.classList.add('d-none');
+  };
+});
+
+// Submit handlers for both inline row edits and card-level add/edit forms
+
+document.querySelectorAll('form.inline-edit, form.edit-section').forEach(form => {
+  form.onsubmit = async e => {
+    e.preventDefault();
+
+    const res = await fetch("{% url 'faculty_section_update' %}", {
+      method: "POST",
+      body: new FormData(form),
+      headers: {
+        "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    });
+
+    const json = await res.json();
+    if (json.success) location.reload();
+    else alert("Update failed");
+  };
+});
+</script>
+
+{% endblock %}

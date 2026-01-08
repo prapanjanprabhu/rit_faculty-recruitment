@@ -1,0 +1,46 @@
+{% comment %} <form method="post" class="ajax-form">
+{% csrf_token %}
+<input type="hidden" name="candidate_id" value="{{ candidate.id }}">
+<input type="hidden" name="section" value="candidate">
+
+<div class="mb-3">
+  <label>Name</label>
+  <input class="form-control" name="name" value="{{ candidate.name }}">
+</div>
+
+<div class="mb-3">
+  <label>Email</label>
+  <input class="form-control" name="email" value="{{ candidate.email }}">
+</div>
+
+<div class="mb-3">
+  <label>Phone</label>
+  <input class="form-control" name="phone_primary" value="{{ candidate.phone_primary }}">
+</div>
+
+<div class="text-end">
+  <button class="btn btn-primary">Save</button>
+</div>
+</form>
+
+<script>
+document.querySelector('.ajax-form').onsubmit = function(e){
+  e.preventDefault();
+
+  fetch("{% url 'faculty_section_update' %}",{
+    method:'POST',
+    body:new FormData(this),
+    headers:{
+      'X-CSRFToken':this.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.success){
+      location.reload();
+    }else{
+      alert(d.error);
+    }
+  });
+};
+</script> {% endcomment %}

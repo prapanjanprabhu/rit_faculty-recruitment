@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ title|default:"System Notification" }}</title>
+</head>
+<body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px;">
+    <tr>
+      <td align="center">
+
+        <table width="600" cellpadding="0" cellspacing="0"
+               style="background:#ffffff; border-radius:8px; overflow:hidden;
+                      box-shadow:0 2px 10px rgba(0,0,0,.08);">
+
+          <!-- HEADER -->
+          <tr>
+            <td
+              style="
+                {% if action|lower == 'deleted' %}
+                  background:#dc3545;
+                {% else %}
+                  background:#0d6efd;
+                {% endif %}
+                color:#ffffff;
+                padding:16px 20px;
+              ">
+              <h2 style="margin:0; font-size:20px;">
+                {{ header|default:"Admin Notification" }}
+              </h2>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="padding:20px; color:#333333; font-size:14px; line-height:1.6;">
+
+              <p><strong>Action:</strong>
+                <span
+                  style="
+                    {% if action|lower == 'deleted' %}
+                      color:#dc3545;
+                    {% else %}
+                      color:#0d6efd;
+                    {% endif %}
+                    font-weight:bold;
+                  ">
+                  {{ action }}
+                </span>
+              </p>
+
+              <p><strong>Performed By:</strong> {{ user }}</p>
+              <p><strong>Date & Time:</strong> {{ timestamp }}</p>
+
+              {% if description %}
+              <hr style="margin:16px 0;">
+              <p>{{ description }}</p>
+              {% endif %}
+
+              {% if details %}
+              <hr style="margin:16px 0;">
+              <h4 style="margin:0 0 8px;">Details</h4>
+              <table width="100%" cellpadding="6" cellspacing="0"
+                     style="border-collapse:collapse; font-size:13px;">
+                {% for label, value in details.items %}
+                <tr>
+                  <td style="border:1px solid #ddd; background:#f8f9fa; width:40%;">
+                    <strong>{{ label }}</strong>
+                  </td>
+                  <td style="border:1px solid #ddd;">
+                    {{ value }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+              {% endif %}
+
+              {% if previous %}
+              <hr style="margin:16px 0;">
+              <h4 style="margin:0 0 8px; color:#dc3545;">Previous Values</h4>
+              <table width="100%" cellpadding="6" cellspacing="0"
+                     style="border-collapse:collapse; font-size:13px;">
+                {% for label, value in previous.items %}
+                <tr>
+                  <td style="border:1px solid #ddd; background:#fff3f3; width:40%;">
+                    <strong>{{ label }}</strong>
+                  </td>
+                  <td style="border:1px solid #ddd;">
+                    {{ value }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+              {% endif %}
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background:#f1f3f5; padding:12px 20px;
+                       font-size:12px; color:#666;">
+              This is an automated system notification.  
+              Please do not reply to this email.
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+
+{% extends 'faculty_requirement/admin/base.html' %}
+
+{% block content %}
+
+<h1>Custom Admin Dashboard</h1>
+
+<p>
+    You are logged in as 
+    <strong>{{ request.user.username }}</strong>
+</p>
+
+{% if request.user.is_superuser %}
+    <p style="color: green;">Role: SUPERUSER</p>
+{% endif %}
+
+<a href="{% url 'admin_logout' %}">Logout</a>
+
+
+
+{% endblock content %}
