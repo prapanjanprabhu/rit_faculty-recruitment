@@ -258,100 +258,139 @@ from django.db import transaction
 #         },
 #     )
 
+from django.shortcuts import render, redirect
+from django.db import transaction
+from django.core.files.storage import default_storage
+from applications.models import (
+    Candidate, PositionApplication, Designation,
+    Department, Degree, Language, Community
+)
+
+def to_int(v, d=0):
+    try: return int(v)
+    except: return d
+
+
 def individual_summary_sheet(request):
+
+    # bootstrap languages + communities once
+    try: Language.create_default_languages()
+    except: pass
+    try: Community.create_default_communities()
+    except: pass
 
     if request.method == "POST":
         post = request.POST
-        data = {}
+        files = request.FILES
 
-        data["name"] = post.get("name")
+        data = request.session.get("summary", {})
+
+        # simple fields
+        data["name"] = post.get("name", "")
         data["age"] = to_int(post.get("age"))
-        data["present_organization"] = post.get("present_organization")
-        data["overall_specialization"] = post.get("overall_specialization", "").strip()
+        data["present_organization"] = post.get("present_organization", "")
+        data["overall_specialization"] = post.get("overall_specialization", "")
         data["specialization"] = data["overall_specialization"]
-        data["community_and_caste"] = post.get("community_and_caste")
 
+        # community
+        data["community"] = to_int(post.get("community"), None)
+
+        # languages multiple
+        data["languages"] = [to_int(x) for x in post.getlist("languages[]")]
+
+        # departments multiple
+        data["departments"] = [to_int(x) for x in post.getlist("departments[]")]
+
+        # position + designation
         data["position_applied"] = to_int(post.get("position_applied"), None)
         data["present_designation"] = to_int(post.get("present_designation"), None)
-        data["department"] = to_int(post.get("department"), None)
 
-        if request.FILES.get("photo"):
-            if not request.session.session_key:
-                request.session.save()
+        # qualifications structured
+        qualifications = []
+        q_qual = post.getlist("qualification[]")
+        q_spec = post.getlist("specialization[]")
+        q_inst = post.getlist("institute[]")
+        q_year = post.getlist("year[]")
 
-            tmp_path = default_storage.save(
-                f"tmp/profile_{request.session.session_key}_{request.FILES['photo'].name}",
-                request.FILES["photo"]
-            )
-            request.session["photo_tmp_path"] = tmp_path
+        for i in range(len(q_qual)):
+            qualifications.append({
+                "qualification": to_int(q_qual[i]),
+                "specialization": q_spec[i],
+                "institute": q_inst[i],
+                "year": to_int(q_year[i], None),
+            })
+        data["qualifications"] = qualifications
 
-        numeric_fields = [
-            "assistant_professor_years", "associate_professor_years",
-            "professor_years", "other_years",
-            "research_experience_years", "industry_experience_years",
-            "journal_national", "journal_international",
-            "conference_national", "conference_international",
-            "mtech_completed", "mtech_ongoing",
-            "phd_completed", "phd_ongoing",
+        # projects structured
+        projects = []
+        p_title = post.getlist("project_title[]")
+        p_dur = post.getlist("project_duration[]")
+        p_amt = post.getlist("project_amount[]")
+        p_agency = post.getlist("project_agency[]")
+        for i in range(len(p_title)):
+            if p_title[i].strip():
+                projects.append({
+                    "title": p_title[i],
+                    "duration": p_dur[i],
+                    "amount": to_int(p_amt[i], 0),
+                    "agency": p_agency[i]
+                })
+        data["projects"] = projects
+
+        # numeric fields
+        nums = [
+            "assistant_professor_years","associate_professor_years",
+            "professor_years","other_years",
+            "research_experience_years","industry_experience_years",
+            "journal_national","journal_international",
+            "conference_national","conference_international",
+            "mtech_completed","mtech_ongoing",
+            "phd_completed","phd_ongoing"
         ]
-
-        for f in numeric_fields:
+        for f in nums:
             data[f] = to_int(post.get(f))
 
+        # computed
         data["journal_publications"] = data["journal_national"] + data["journal_international"]
         data["conference_publications"] = data["conference_national"] + data["conference_international"]
         data["students_guided_completed"] = data["mtech_completed"] + data["phd_completed"]
         data["students_guided_ongoing"] = data["mtech_ongoing"] + data["phd_ongoing"]
 
+        # image temporary
+        if files.get("photo"):
+            if not request.session.session_key:
+                request.session.save()
+            tmp_path = default_storage.save(
+                f"tmp/photo_{request.session.session_key}_{files['photo'].name}",
+                files["photo"]
+            )
+            data["photo"] = tmp_path
+            data["photo_name"] = files["photo"].name
+
+        # persist to session
         request.session["summary"] = data
 
-        with transaction.atomic():
-
-            candidate_id = request.session.get("candidate_id")
-            candidate = Candidate.objects.filter(id=candidate_id).first()
-
-            # ✅ CREATE ONLY ONCE (DRAFT)
-            if not candidate:
-                candidate = Candidate.objects.create(
-                    name=data["name"],
-                    age=data["age"],
-                )
-                request.session["candidate_id"] = candidate.id
-
-            PositionApplication.objects.update_or_create(
-                candidate=candidate,
-                defaults={
-                    "position_applied_id": data["position_applied"],
-                    "department_id": data["department"],
-                    "present_designation_id": data["present_designation"],
-                    "present_organization": data["present_organization"],
-                    "specialization": data["specialization"],
-                    "assistant_professor_years": data["assistant_professor_years"],
-                    "associate_professor_years": data["associate_professor_years"],
-                    "professor_years": data["professor_years"],
-                    "other_years": data["other_years"],
-                    "research_experience_years": data["research_experience_years"],
-                    "industry_experience_years": data["industry_experience_years"],
-                    "journal_publications": data["journal_publications"],
-                    "conference_publications": data["conference_publications"],
-                    "students_guided_completed": data["students_guided_completed"],
-                    "students_guided_ongoing": data["students_guided_ongoing"],
-                    "community_and_caste": data["community_and_caste"],
-                },
-            )
-
+        # NOTE — DB saving happens only on NEXT step
         return redirect("individual_data_sheet")
+
+    # GET request (rehydrate everything)
+    data = request.session.get("summary", {})
 
     return render(
         request,
         "faculty_requirement/faculty/individual_summary_sheet.html",
         {
-            "data": request.session.get("summary", {}),
+            "data": data,
             "designations": Designation.objects.all(),
             "departments": Department.objects.all(),
-            "degrees": Degree.objects.all().order_by("degree"),
+            "degrees": Degree.objects.all(),
+            "languages": Language.objects.all(),
+            "communities": Community.objects.all(),
         },
     )
+
+
+
 
 def individual_data_sheet(request):
     if request.method == "POST":
@@ -662,204 +701,6 @@ def programmes_and_publications(request):
 
 
 
-
-# def referees_and_declaration(request):
-    
-#     if request.method == "POST":
-
-#         personal = request.session.get("personal")
-#         summary = request.session.get("summary")
-#         candidate_id = request.session.get("candidate_id")
-#         if not personal or not summary:
-#             return redirect("application_success")
-
-#         # ================= CANDIDATE =================
-
-#         # ✅ FETCH EXISTING CANDIDATE (NO CREATE)
-#         candidate = Candidate.objects.get(id=candidate_id)
-
-#         # ✅ UPDATE FINAL DETAILS
-#         candidate.name = personal.get("name")
-#         candidate.age = to_int(personal.get("age"))
-#         candidate.date_of_birth = parse_date(personal.get("date_of_birth"))
-#         candidate.gender = personal.get("gender")
-#         candidate.marital_status = personal.get("marital_status")
-#         candidate.community = personal.get("community")
-#         candidate.caste = personal.get("caste")
-#         candidate.pan_number = personal.get("pan_number")
-#         candidate.email = personal.get("email")
-#         candidate.phone_primary = personal.get("phone_primary")
-#         candidate.phone_secondary = personal.get("phone_secondary")
-#         candidate.address = personal.get("address")
-#         candidate.total_experience_years = to_int(personal.get("total_experience_years"))
-#         candidate.present_post_years = to_int(personal.get("present_post_years"))
-#         candidate.mother_name_and_occupation = personal.get("mother_name_and_occupation")
-#         candidate.save()
-
-#         # ================= PROFILE IMAGE =================
-#         import re, os
-#         safe_name = re.sub(r"[^a-zA-Z0-9_-]", "_", candidate.name)
-#         base_path = f"candidate/{safe_name}-{candidate.id}"
-
-#         photo_tmp = request.session.get("photo_tmp_path")
-#         if photo_tmp:
-#             with default_storage.open(photo_tmp, "rb") as f:
-#                 candidate.photo.save(
-#                     f"{base_path}/profile/profile.jpg",
-#                     ContentFile(f.read()),
-#                     save=True
-#                 )
-#             default_storage.delete(photo_tmp)
-
-#         # ================= DOCUMENTS =================
-#         uploaded_docs = request.session.get("uploaded_documents", {})
-#         for doc_id, tmp_path in uploaded_docs.items():
-#             doc_type = Document_Type.objects.filter(id=int(doc_id)).first()
-#             if not doc_type:
-#                 continue
-
-#             ext = os.path.splitext(tmp_path)[1]
-#             filename = (
-#                 f"{safe_name}-{candidate.id}_"
-#                 f"{doc_type.document_type.upper().replace(' ', '_')}{ext}"
-#             )
-
-#             with default_storage.open(tmp_path, "rb") as f:
-#                 Document.objects.create(
-#                     candidate=candidate,
-#                     document_type=doc_type,
-#                     file=ContentFile(
-#                         f.read(),
-#                         name=f"{base_path}/documents/{filename}"
-#                     )
-#                 )
-#             default_storage.delete(tmp_path)
-
-#         # ================= POSITION APPLICATION =================
-#         PositionApplication.objects.create(
-#             candidate=candidate,
-#             position_applied=Designation.objects.filter(
-#                 id=summary.get("position_applied")
-#             ).first(),
-#             department=Department.objects.filter(
-#                 id=summary.get("department")
-#             ).first(),
-#             present_designation=Designation.objects.filter(
-#                 id=summary.get("present_designation")
-#             ).first(),
-#             present_organization=summary.get("present_organization"),
-#             specialization=summary.get("overall_specialization"),
-
-#             assistant_professor_years=to_int(summary.get("assistant_professor_years")),
-#             associate_professor_years=to_int(summary.get("associate_professor_years")),
-#             professor_years=to_int(summary.get("professor_years")),
-#             other_years=to_int(summary.get("other_years")),
-
-#             research_experience_years=to_int(summary.get("research_experience_years")),
-#             industry_experience_years=to_int(summary.get("industry_experience_years")),
-
-#             journal_publications=(
-#                 to_int(summary.get("journal_national")) +
-#                 to_int(summary.get("journal_international"))
-#             ),
-#             conference_publications=(
-#                 to_int(summary.get("conference_national")) +
-#                 to_int(summary.get("conference_international"))
-#             ),
-#             students_guided_completed=(
-#                 to_int(summary.get("mtech_completed")) +
-#                 to_int(summary.get("phd_completed"))
-#             ),
-#             students_guided_ongoing=(
-#                 to_int(summary.get("mtech_ongoing")) +
-#                 to_int(summary.get("phd_ongoing"))
-#             ),
-#         )
-
-#         # ================= EDUCATION (FIXED FK HANDLING) =================
-#         # ================= EDUCATION (FULLY FIXED FK HANDLING) =================
-#         for edu in request.session.get("education", []):
-
-#             category_obj = None
-#             if edu.get("category"):
-#                 category_obj = LevelOfEducation.objects.filter(
-#                     id=int(edu.get("category"))
-#                 ).first()
-
-#             degree_obj = None
-#             if edu.get("degree"):
-#                 degree_obj = Degree.objects.filter(
-#                     id=int(edu.get("degree"))
-#                 ).first()
-
-#             Education.objects.create(
-#                 candidate=candidate,
-#                 category=category_obj,          # ✅ LevelOfEducation instance
-#                 degree=degree_obj,              # ✅ Degree instance
-#                 specialization=edu.get("specialization"),
-#                 year_of_passing=edu.get("year_of_passing") or None,
-#                 institution=edu.get("institution"),
-#                 university=edu.get("university"),
-#                 percentage=edu.get("percentage") or None,
-#                 class_obtained=edu.get("class_obtained"),
-#             )
-
-
-#         # ================= RESEARCH DETAILS =================
-#         r = request.session.get("research_details", {})
-#         ResearchDetails.objects.create(
-#             candidate=candidate,
-#             mode_ug=r.get("mode_ug"),
-#             mode_pg=r.get("mode_pg"),
-#             mode_phd=r.get("mode_phd"),
-#             arrears_ug=to_int(r.get("arrears_ug")),
-#             arrears_pg=to_int(r.get("arrears_pg")),
-#             gate_score=to_int(r.get("gate_score")),
-#             net_slet_score=to_int(r.get("net_slet_score")),
-#             me_thesis_title=r.get("me_thesis_title"),
-#             phd_thesis_title=r.get("phd_thesis_title"),
-#         )
-
-#         # ================= EXPERIENCE =================
-#         for exp in request.session.get("academic_experience", []):
-#             AcademicExperience.objects.create(candidate=candidate, **exp)
-
-#         for exp in request.session.get("industry_experience", []):
-#             IndustryExperience.objects.create(candidate=candidate, **exp)
-
-#         # ================= TEACHING & CONTRIBUTIONS =================
-#         for s in request.session.get("subjects", []):
-#             TeachingSubject.objects.create(candidate=candidate, **s)
-
-#         for c in request.session.get("contributions", []):
-#             Contribution.objects.create(candidate=candidate, **c)
-
-#         # ================= PROGRAMMES & PUBLICATIONS =================
-#         for p in request.session.get("programmes", []):
-#             Programme.objects.create(candidate=candidate, **p)
-
-#         for p in request.session.get("publications", []):
-#             Publication.objects.create(candidate=candidate, **p)
-
-#         # ================= REFEREES =================
-#         for i in range(len(request.POST.getlist("ref_name[]"))):
-#             Referee.objects.create(
-#                 candidate=candidate,
-#                 name=request.POST.getlist("ref_name[]")[i],
-#                 designation=request.POST.getlist("ref_designation[]")[i],
-#                 organization=request.POST.getlist("ref_organization[]")[i],
-#                 contact_number=request.POST.getlist("ref_contact[]")[i],
-#             )
-
-#         request.session.flush()
-#         return redirect("application_success")
-
-#     return render(
-#         request,
-#         "faculty_requirement/faculty/referees_and_declaration.html",
-#         {"referees": []},
-#     )
-
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -876,23 +717,37 @@ def referees_and_declaration(request):
 
         personal = request.session.get("personal")
         summary = request.session.get("summary")
+        education = request.session.get("education", [])
+        research = request.session.get("research_details", {})
+        academic = request.session.get("academic_experience", [])
+        industry = request.session.get("industry_experience", [])
+        subjects = request.session.get("subjects", [])
+        contributions = request.session.get("contributions", [])
+        programmes = request.session.get("programmes", [])
+        publications = request.session.get("publications", [])
         candidate_id = request.session.get("candidate_id")
 
-        # 🔐 HARD GUARD
+        # hard guard
         if not personal or not summary or not candidate_id:
             return redirect("application_success")
 
         with transaction.atomic():
 
-            # ================= CANDIDATE =================
             candidate = Candidate.objects.select_for_update().get(id=candidate_id)
+
+            # ================= CANDIDATE =================
+            dob_val = personal.get("date_of_birth")
+            candidate.date_of_birth = parse_date(dob_val) if isinstance(dob_val, str) else None
+
+            # normalize FK community
+            community_id = summary.get("community")
+            community_obj = Community.objects.filter(id=community_id).first() if community_id else None
 
             candidate.name = personal.get("name")
             candidate.age = to_int(personal.get("age"))
-            candidate.date_of_birth = parse_date(personal.get("date_of_birth"))
             candidate.gender = personal.get("gender")
             candidate.marital_status = personal.get("marital_status")
-            candidate.community = personal.get("community")
+            candidate.community = community_obj.name if community_obj else personal.get("community")
             candidate.caste = personal.get("caste")
             candidate.pan_number = personal.get("pan_number")
             candidate.email = personal.get("email")
@@ -904,19 +759,19 @@ def referees_and_declaration(request):
             candidate.mother_name_and_occupation = personal.get("mother_name_and_occupation")
             candidate.save()
 
-            # ================= PROFILE IMAGE =================
-            safe_name = re.sub(r"[^a-zA-Z0-9_-]", "_", candidate.name)
+            # ================= PHOTO =================
+            safe_name = re.sub(r"[^a-zA-Z0-9_-]", "_", candidate.name or "candidate")
             base_path = f"candidate/{safe_name}-{candidate.id}"
 
-            photo_tmp = request.session.get("photo_tmp_path")
-            if photo_tmp:
-                with default_storage.open(photo_tmp, "rb") as f:
+            tmp_photo = summary.get("photo")
+            if tmp_photo and default_storage.exists(tmp_photo):
+                with default_storage.open(tmp_photo, "rb") as f:
                     candidate.photo.save(
                         f"{base_path}/profile/profile.jpg",
                         ContentFile(f.read()),
                         save=True
                     )
-                default_storage.delete(photo_tmp)
+                default_storage.delete(tmp_photo)
 
             # ================= DOCUMENTS =================
             uploaded_docs = request.session.get("uploaded_documents", {})
@@ -924,14 +779,11 @@ def referees_and_declaration(request):
 
             for doc_id, tmp_path in uploaded_docs.items():
                 doc_type = Document_Type.objects.filter(id=int(doc_id)).first()
-                if not doc_type:
-                    continue
+                if not doc_type: continue
+                if not default_storage.exists(tmp_path): continue
 
                 ext = os.path.splitext(tmp_path)[1]
-                filename = (
-                    f"{safe_name}-{candidate.id}_"
-                    f"{doc_type.document_type.upper().replace(' ', '_')}{ext}"
-                )
+                filename = f"{safe_name}-{candidate.id}_{doc_type.document_type.upper().replace(' ', '_')}{ext}"
 
                 with default_storage.open(tmp_path, "rb") as f:
                     Document.objects.create(
@@ -945,170 +797,191 @@ def referees_and_declaration(request):
                 default_storage.delete(tmp_path)
 
             # ================= POSITION APPLICATION =================
-            PositionApplication.objects.update_or_create(
+            designation_id = summary.get("present_designation")
+            designation_obj = Designation.objects.filter(id=designation_id).first()
+
+            position_app, created = PositionApplication.objects.update_or_create(
                 candidate=candidate,
                 defaults={
-                    "position_applied": Designation.objects.filter(
-                        id=summary.get("position_applied")
-                    ).first(),
-                    "department": Department.objects.filter(
-                        id=summary.get("department")
-                    ).first(),
-                    "present_designation": Designation.objects.filter(
-                        id=summary.get("present_designation")
-                    ).first(),
+                    "position_applied_id": summary.get("position_applied"),
+                    "community": community_obj,
+                    "present_designation": designation_obj.name if designation_obj else None,
                     "present_organization": summary.get("present_organization"),
                     "specialization": summary.get("overall_specialization"),
-
                     "assistant_professor_years": to_int(summary.get("assistant_professor_years")),
                     "associate_professor_years": to_int(summary.get("associate_professor_years")),
                     "professor_years": to_int(summary.get("professor_years")),
                     "other_years": to_int(summary.get("other_years")),
-
                     "research_experience_years": to_int(summary.get("research_experience_years")),
                     "industry_experience_years": to_int(summary.get("industry_experience_years")),
-
-                    "journal_publications": (
-                        to_int(summary.get("journal_national")) +
-                        to_int(summary.get("journal_international"))
-                    ),
-                    "conference_publications": (
-                        to_int(summary.get("conference_national")) +
-                        to_int(summary.get("conference_international"))
-                    ),
-                    "students_guided_completed": (
-                        to_int(summary.get("mtech_completed")) +
-                        to_int(summary.get("phd_completed"))
-                    ),
-                    "students_guided_ongoing": (
-                        to_int(summary.get("mtech_ongoing")) +
-                        to_int(summary.get("phd_ongoing"))
-                    ),
-                }
+                    "journal_publications": to_int(summary.get("journal_publications")),
+                    "conference_publications": to_int(summary.get("conference_publications")),
+                    "students_guided_completed": to_int(summary.get("students_guided_completed")),
+                    "students_guided_ongoing": to_int(summary.get("students_guided_ongoing")),
+                },
             )
+
+            # M2M after save
+            position_app.departments.set(summary.get("departments", []))
+            position_app.languages.set(summary.get("languages", []))
+
+            # ================= QUALIFICATION =================
+            Qualification.objects.filter(candidate=candidate).delete()
+            for q in summary.get("qualifications", []):
+                Qualification.objects.create(
+                    candidate=candidate,
+                    qualification_id=q.get("qualification"),
+                    specialization=q.get("specialization"),
+                    institute=q.get("institute"),
+                    year=q.get("year"),
+                )
+
+            # ================= SPONSORED PROJECTS =================
+            SponsoredProject.objects.filter(candidate=candidate).delete()
+            for p in summary.get("projects", []):
+                SponsoredProject.objects.create(
+                    candidate=candidate,
+                    title=p.get("title"),
+                    duration=p.get("duration"),
+                    amount=p.get("amount"),
+                    agency=p.get("agency"),
+                )
 
             # ================= EDUCATION =================
             Education.objects.filter(candidate=candidate).delete()
-            for edu in request.session.get("education", []):
-
-                category_obj = LevelOfEducation.objects.filter(
-                    id=int(edu.get("category"))
-                ).first() if edu.get("category") else None
-
-                degree_obj = Degree.objects.filter(
-                    id=int(edu.get("degree"))
-                ).first() if edu.get("degree") else None
-
+            for edu in education:
                 Education.objects.create(
                     candidate=candidate,
-                    category=category_obj,
-                    degree=degree_obj,
+                    category_id=edu.get("category"),
+                    degree_id=edu.get("degree"),
                     specialization=edu.get("specialization"),
-                    year_of_passing=edu.get("year_of_passing") or None,
+                    year_of_passing=edu.get("year_of_passing"),
                     institution=edu.get("institution"),
                     university=edu.get("university"),
-                    percentage=edu.get("percentage") or None,
+                    percentage=edu.get("percentage"),
                     class_obtained=edu.get("class_obtained"),
                 )
 
             # ================= RESEARCH DETAILS =================
             ResearchDetails.objects.filter(candidate=candidate).delete()
-            r = request.session.get("research_details", {})
-            ResearchDetails.objects.create(
-                candidate=candidate,
-                mode_ug=r.get("mode_ug"),
-                mode_pg=r.get("mode_pg"),
-                mode_phd=r.get("mode_phd"),
-                arrears_ug=to_int(r.get("arrears_ug")),
-                arrears_pg=to_int(r.get("arrears_pg")),
-                gate_score=to_int(r.get("gate_score")),
-                net_slet_score=to_int(r.get("net_slet_score")),
-                me_thesis_title=r.get("me_thesis_title"),
-                phd_thesis_title=r.get("phd_thesis_title"),
-            )
+            if research:
+                ResearchDetails.objects.create(candidate=candidate, **research)
 
             # ================= EXPERIENCE =================
             AcademicExperience.objects.filter(candidate=candidate).delete()
-            IndustryExperience.objects.filter(candidate=candidate).delete()
-
-            for exp in request.session.get("academic_experience", []):
+            for exp in academic:
                 AcademicExperience.objects.create(candidate=candidate, **exp)
 
-            for exp in request.session.get("industry_experience", []):
+            IndustryExperience.objects.filter(candidate=candidate).delete()
+            for exp in industry:
                 IndustryExperience.objects.create(candidate=candidate, **exp)
 
             # ================= TEACHING & CONTRIBUTIONS =================
             TeachingSubject.objects.filter(candidate=candidate).delete()
-            Contribution.objects.filter(candidate=candidate).delete()
-
-            for s in request.session.get("subjects", []):
+            for s in subjects:
                 TeachingSubject.objects.create(candidate=candidate, **s)
 
-            for c in request.session.get("contributions", []):
+            Contribution.objects.filter(candidate=candidate).delete()
+            for c in contributions:
                 Contribution.objects.create(candidate=candidate, **c)
 
             # ================= PROGRAMMES & PUBLICATIONS =================
             Programme.objects.filter(candidate=candidate).delete()
-            Publication.objects.filter(candidate=candidate).delete()
-
-            for p in request.session.get("programmes", []):
+            for p in programmes:
                 Programme.objects.create(candidate=candidate, **p)
 
-            for p in request.session.get("publications", []):
+            Publication.objects.filter(candidate=candidate).delete()
+            for p in publications:
                 Publication.objects.create(candidate=candidate, **p)
 
             # ================= REFEREES =================
             Referee.objects.filter(candidate=candidate).delete()
+            names = request.POST.getlist("ref_name[]")
+            desigs = request.POST.getlist("ref_designation[]")
+            orgs = request.POST.getlist("ref_organization[]")
+            contacts = request.POST.getlist("ref_contact[]")
 
-            for i in range(len(request.POST.getlist("ref_name[]"))):
+            for i in range(len(names)):
                 Referee.objects.create(
                     candidate=candidate,
-                    name=request.POST.getlist("ref_name[]")[i],
-                    designation=request.POST.getlist("ref_designation[]")[i],
-                    organization=request.POST.getlist("ref_organization[]")[i],
-                    contact_number=request.POST.getlist("ref_contact[]")[i],
+                    name=names[i],
+                    designation=desigs[i],
+                    organization=orgs[i],
+                    contact_number=contacts[i],
                 )
-        # ================= EMAIL (AFTER COMMIT) =================
+
+            # ================= DEBUG PRINT =================
+            print("======== FORM SUBMISSION DEBUG ========")
+            print(f"CANDIDATE: {candidate.id} - {candidate.name}")
+            print("--- PERSONAL ---"); print(personal)
+            print("--- SUMMARY ---"); print(summary)
+            print("--- EDUCATION ---"); [print(e) for e in education]
+            print("--- RESEARCH ---"); print(research)
+            print("--- ACADEMIC ---"); [print(e) for e in academic]
+            print("--- INDUSTRY ---"); [print(e) for e in industry]
+            print("--- SUBJECTS ---"); [print(s) for s in subjects]
+            print("--- CONTRIBUTIONS ---"); [print(c) for c in contributions]
+            print("--- PROGRAMMES ---"); [print(p) for p in programmes]
+            print("--- PUBLICATIONS ---"); [print(p) for p in publications]
+            print("--- REFEREES ---")
+            for i in range(len(names)):
+                print({
+                    'name': names[i],
+                    'designation': desigs[i],
+                    'organization': orgs[i],
+                    'contact': contacts[i],
+                })
+
+            print("--- POSITION APPLICATION DB ---")
+            pa = PositionApplication.objects.get(candidate=candidate)
+            print({
+                "position_applied": pa.position_applied.name if pa.position_applied else None,
+                "departments": [d.name for d in pa.departments.all()],
+                "languages": [l.name for l in pa.languages.all()],
+                "community": pa.community.name if pa.community else None,
+                "present_designation": pa.present_designation,
+                "present_organization": pa.present_organization,
+                "specialization": pa.specialization,
+                "assistant_prof_years": pa.assistant_professor_years,
+                "associate_prof_years": pa.associate_professor_years,
+                "prof_years": pa.professor_years,
+                "other_years": pa.other_years,
+                "research_years": pa.research_experience_years,
+                "industry_years": pa.industry_experience_years,
+                "journals": pa.journal_publications,
+                "conferences": pa.conference_publications,
+                "students_done": pa.students_guided_completed,
+                "students_ongoing": pa.students_guided_ongoing,
+            })
+
+            print("--- DOCUMENTS SAVED ---")
+            for d in Document.objects.filter(candidate=candidate):
+                print(d.document_type.document_type, "=>", d.file.name)
+
+            print("--- END DEBUG ---")
+
+        # ================= EMAIL =================
         subject = "Faculty Application Submitted Successfully"
-
-        context = {
-            "candidate_name": candidate.name,
-            "candidate_id": candidate.id,
-            "email": candidate.email,
-            "position": Designation.objects.filter(
-                id=summary.get("position_applied")
-            ).values_list("designation", flat=True).first(),
-            "department": Department.objects.filter(
-                id=summary.get("department")
-            ).values_list("name", flat=True).first(),
-            "year": datetime.now().year,
-        }
-
-        html_content = render_to_string(
-            "faculty_requirement/emails/application_submitted.html",
-            context
-        )
-        text_content = strip_tags(html_content)
-
+        context = {"candidate_name": candidate.name, "candidate_id": candidate.id, "email": candidate.email}
+        html = render_to_string("faculty_requirement/emails/application_submitted.html", context)
         mail = EmailMultiAlternatives(
             subject=subject,
-            body=text_content,
+            body=strip_tags(html),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[candidate.email],
         )
-        mail.attach_alternative(html_content, "text/html")
-        mail.send(fail_silently=False)
+        mail.attach_alternative(html, "text/html")
+        mail.send()
 
-        # ================= FINAL CLEANUP =================
         request.session.flush()
         return redirect("application_success")
-
 
     return render(
         request,
         "faculty_requirement/faculty/referees_and_declaration.html",
         {"referees": []},
     )
+
 
 
 

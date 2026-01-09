@@ -10,7 +10,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Individual Summary Sheet</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Calibri','Segoe UI',sans-serif;background:#f8f9fa;padding:20px;color:#333}.container{max-width:1100px;margin:0 auto;background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);overflow:hidden;border:1px solid #ddd}.header{background:#003366;color:white;padding:20px;text-align:center;border-bottom:4px solid #ffcc00}.header h1{font-size:24px;margin-bottom:5px;font-weight:600}.header p{font-size:14px;opacity:.9}.form-section{padding:25px}.section-title{color:#003366;font-size:18px;font-weight:600;margin:25px 0 15px;padding-bottom:8px;border-bottom:2px solid #e0e0e0}.form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}.form-group{flex:1;min-width:200px;margin-bottom:15px}label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14px}.required:after{content:" *";color:#d32f2f}.form-control,select{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}.form-control:focus,select:focus{outline:none;border-color:#003366}.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px;transition:.3s}.btn-next{background:#003366;color:white}.btn-next:hover{background:#002244}.button-group{display:flex;justify-content:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #eee}.instructions{background:#e7f1ff;border-left:3px solid #003366;padding:10px 15px;margin-bottom:20px;font-size:13px}.stats-row{display:flex;flex-wrap:wrap;gap:10px;background:#f5f7fa;padding:15px;border-radius:4px}.stats-group{flex:1;min-width:120px}.stats-input{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;text-align:center}.full-width{flex:1 0 100%}.image-preview-container{margin-top:15px;text-align:center}.image-preview{max-width:100%;max-height:200px;border-radius:8px;border:2px solid #ddd;display:none}.qualification-section{margin-bottom:20px}.qualification-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:10px}.qualification-row .form-group{flex:1;min-width:150px}.add-qualification-btn{background:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:5px;font-size:14px}.remove-qualification-btn{background:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:12px}.research-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}.research-row{display:flex;margin-bottom:10px;align-items:center}.research-label{width:200px;font-weight:500;color:#555}.research-input-group{display:flex;gap:15px}.research-input-item{display:flex;flex-direction:column}.research-input-item label{font-size:12px;color:#666;margin-bottom:3px}.research-input{width:80px;padding:6px;border:1px solid #ccc;border-radius:4px;text-align:center}.students-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}.students-row{display:flex;margin-bottom:15px;align-items:center}.students-type{width:200px;font-weight:500;color:#555}.students-input-group{display:flex;gap:20px}.projects-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.projects-table th{background-color:#003366;color:white;padding:10px;text-align:left;border:1px solid #ddd}.projects-table td{padding:10px;border:1px solid #ddd}.projects-table input{width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box}.add-project-row{background-color:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:14px}.remove-project-row{background-color:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px}@media (max-width:768px){.form-group,.stats-group{min-width:100%}.button-group{justify-content:center}.btn{width:100%}.research-row,.students-row{flex-direction:column;align-items:flex-start}.research-label,.students-type{width:100%;margin-bottom:5px}.projects-table th,.projects-table td{padding:5px;font-size:12px}}
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Calibri','Segoe UI',sans-serif;background:#f8f9fa;padding:20px;color:#333}.container{max-width:1100px;margin:0 auto;background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);overflow:hidden;border:1px solid #ddd}.header{background:#003366;color:white;padding:20px;text-align:center;border-bottom:4px solid #ffcc00}.header h1{font-size:24px;margin-bottom:5px;font-weight:600}.header p{font-size:14px;opacity:.9}.form-section{padding:25px}.section-title{color:#003366;font-size:18px;font-weight:600;margin:25px 0 15px;padding-bottom:8px;border-bottom:2px solid #e0e0e0}.form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}.form-group{flex:1;min-width:200px;margin-bottom:15px}label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14px}.required:after{content:" *";color:#d32f2f}.form-control,select{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}.form-control:focus,select:focus{outline:none;border-color:#003366}.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px;transition:.3s}.btn-next{background:#003366;color:white}.btn-next:hover{background:#002244}.button-group{display:flex;justify-content:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #eee}.instructions{background:#e7f1ff;border-left:3px solid #003366;padding:10px 15px;margin-bottom:20px;font-size:13px}.stats-row{display:flex;flex-wrap:wrap;gap:10px;background:#f5f7fa;padding:15px;border-radius:4px}.stats-group{flex:1;min-width:120px}.stats-input{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;text-align:center}.full-width{flex:1 0 100%}.image-preview-container{margin-top:15px;text-align:center}.image-preview{max-width:100%;max-height:200px;border-radius:8px;border:2px solid #ddd;display:none}.qualification-section{margin-bottom:20px}.qualification-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:10px}.qualification-row .form-group{flex:1;min-width:150px}.add-qualification-btn{background:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:5px;font-size:14px}.remove-qualification-btn{background:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:12px}.research-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}.research-row{display:flex;margin-bottom:10px;align-items:center}.research-label{width:200px;font-weight:500;color:#555}.research-input-group{display:flex;gap:15px}.research-input-item{display:flex;flex-direction:column}.research-input-item label{font-size:12px;color:#666;margin-bottom:3px}.research-input{width:80px;padding:6px;border:1px solid #ccc;border-radius:4px;text-align:center}.students-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}.students-row{display:flex;margin-bottom:15px;align-items:center}.students-type{width:200px;font-weight:500;color:#555}.students-input-group{display:flex;gap:20px}.projects-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.projects-table th{background-color:#003366;color:white;padding:10px;text-align:left;border:1px solid #ddd}.projects-table td{padding:10px;border:1px solid #ddd}.projects-table input{width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box}.add-project-row{background-color:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:14px}.remove-project-row{background-color:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px}
+
+        /* Custom styles for multi-select dropdowns */
+        .multiselect-dropdown {
+            position: relative;
+            width: 100%;
+        }
+        
+        .multiselect-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .multiselect-input:after {
+            content: '▼';
+            font-size: 12px;
+        }
+        
+        .multiselect-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 2px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .multiselect-options.show {
+            display: block;
+        }
+        
+        .multiselect-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .multiselect-option:hover {
+            background: #f0f0f0;
+        }
+        
+        .multiselect-option input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .selected-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .selected-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .selected-tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        @media (max-width:768px){.form-group,.stats-group{min-width:100%}.button-group{justify-content:center}.btn{width:100%}.research-row,.students-row{flex-direction:column;align-items:flex-start}.research-label,.students-type{width:100%;margin-bottom:5px}.projects-table th,.projects-table td{padding:5px;font-size:12px}}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -30,70 +113,73 @@
             <div class="form-row">
                 <div class="form-group full-width">
                     <label>Upload Photograph</label>
-
                     <input type="file" name="photo" id="photoInput" class="form-control">
-
                     {% if data.photo_name %}
                         <small style="display:block;margin-top:6px;color:#555;">
                             📎 Uploaded file: <strong>{{ data.photo_name }}</strong>
                         </small>
                     {% endif %}
-
-    <div class="image-preview-container">
-        {% if data.photo %}
-            <img
-                id="imagePreview"
-                src="{{ MEDIA_URL }}{{ data.photo }}"
-                class="image-preview"
-                style="display:block;"
-            >
-        {% else %}
-            <img id="imagePreview" class="image-preview">
-        {% endif %}
-    </div>
-</div>
+                    <div class="image-preview-container">
+                        {% if data.photo %}
+                            <img
+                                id="imagePreview"
+                                src="{{ MEDIA_URL }}{{ data.photo }}"
+                                class="image-preview"
+                                style="display:block;"
+                            >
+                        {% else %}
+                            <img id="imagePreview" class="image-preview">
+                        {% endif %}
+                    </div>
+                </div>
             </div>
+            
             <h2 class="section-title">Application Details</h2>
             <div class="form-row">
                 <div class="form-group">
-    <label class="required">Position Applied For</label>
-    <select name="position_applied" class="form-control" required>
-        <option value="" {% if not data or not data.id %}selected{% endif %}>
-            Select Position
-        </option>
-
-        {% for d in designations %}
-            <option value="{{ d.id }}"
-                {% if data and data.position_applied and data.position_applied.id == d.id %}
-                    selected
-                {% endif %}
-            >
-                {{ d.name }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+                    <label class="required">Position Applied For</label>
+                    <select name="position_applied" class="form-control" required>
+                        <option value="" {% if not data or not data.id %}selected{% endif %}>
+                            Select Position
+                        </option>
+                        {% for d in designations %}
+                            <option value="{{ d.id }}"
+                                {% if data and data.position_applied and data.position_applied.id == d.id %}
+                                    selected
+                                {% elif data.position_applied == d.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ d.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
                 <div class="form-group">
-    <label class="required">Department</label>
-    <select name="department" class="form-control" required>
-        <option value="" {% if not data or not data.id %}selected{% endif %}>
-            Select Department
-        </option>
-
-        {% for dept in departments %}
-            <option value="{{ dept.id }}"
-                {% if data and data.department and data.department.id == dept.id %}
-                    selected
-                {% endif %}
-            >
-              {{ dept.degree.degree_code }} - {{ dept.name }} ({{ dept.code }})
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
+                    <label class="required">Department</label>
+                    <div class="multiselect-dropdown" id="department-dropdown">
+                        <div class="multiselect-input" onclick="toggleDropdown('department')">
+                            Select Department
+                        </div>
+                        <div class="multiselect-options" id="department-options">
+                            {% for dept in departments %}
+                                <label class="multiselect-option">
+                                    <input type="checkbox" 
+                                           name="departments[]" 
+                                           value="{{ dept.id }}"
+                                           {% if dept.id in data.departments %}checked{% endif %}
+                                           onchange="updateSelectedTags('department')">
+                                    {{ dept.degree.degree_code }} - {{ dept.name }} ({{ dept.code }})
+                                </label>
+                            {% endfor %}
+                        </div>
+                        <div class="selected-tags" id="department-tags"></div>
+                        <input type="hidden" name="department_display" id="department-display">
+                    </div>
+                </div>
             </div>
+            
             <h2 class="section-title">Candidate Information</h2>
             <div class="form-row">
                 <div class="form-group">
@@ -107,125 +193,199 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-    <label class="required">Present Designation</label>
-    <select name="present_designation" class="form-control" required>
-        <option value="" {% if not data or not data.id %}selected{% endif %}>
-            Select Present Designation
-        </option>
-
-        {% for d in designations %}
-            <option value="{{ d.id }}"
-                {% if data and data.present_designation and data.present_designation.id == d.id %}
-                    selected
-                {% endif %}
-            >
-                {{ d.name }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
+                    <label class="required">Present Designation</label>
+                    <select name="present_designation" class="form-control" required>
+                        <option value="" {% if not data or not data.id %}selected{% endif %}>
+                            Select Present Designation
+                        </option>
+                        {% for d in designations %}
+                            <option value="{{ d.id }}"
+                                {% if data and data.present_designation and data.present_designation.id == d.id %}
+                                    selected
+                                {% elif data.present_designation == d.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ d.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <div class="form-group">
                     <label class="required">Organization</label>
                     <input type="text" name="present_organization" class="form-control" value="{{ data.present_organization|default:'' }}">
                 </div>
             </div>
-           
-
-<h2 class="section-title">Qualifications</h2>
-
-<div class="qualification-section" id="qualifications-container">
-
-{% if data.qualifications %}
-    {% for q in data.qualifications %}
-    <div class="qualification-row">
-
-        <div class="form-group">
-            <label>Qualification</label>
-            <select name="qualification[]" class="form-control">
-                <option value="">Select Qualification</option>
-                {% for deg in degrees %}
-                    <option value="{{ deg.id }}"
-                        {% if q.qualification.id == deg.id %}selected{% endif %}>
-                        {{ deg.degree_code }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Specialization</label>
-            <input type="text" name="specialization[]" class="form-control"
-                   value="{{ q.specialization }}">
-        </div>
-
-        <div class="form-group">
-            <label>University/Institute</label>
-            <input type="text" name="institute[]" class="form-control"
-                   value="{{ q.institute }}">
-        </div>
-
-        <div class="form-group">
-            <label>Year</label>
-            <input type="number" name="year[]" class="form-control"
-                   value="{{ q.year }}">
-        </div>
-
-        {% if not forloop.first %}
-        <div class="form-group">
-            <label>&nbsp;</label>
-            <button type="button" class="remove-qualification-btn"
-                    onclick="removeQualification(this)">
-                <i class="fas fa-trash"></i> Remove
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Community</label>
+                    <select name="community" class="form-control" required>
+                        <option value="">Select Community</option>
+                        <!-- 5 Community Options -->
+                        <option value="1" {% if data.community == 1 %}selected{% endif %}>OC (Open Category)</option>
+                        <option value="2" {% if data.community == 2 %}selected{% endif %}>BC (Backward Class)</option>
+                        <option value="3" {% if data.community == 3 %}selected{% endif %}>MBC (Most Backward Class)</option>
+                        <option value="4" {% if data.community == 4 %}selected{% endif %}>SC (Scheduled Caste)</option>
+                        <option value="5" {% if data.community == 5 %}selected{% endif %}>ST (Scheduled Tribe)</option>
+                        
+                        <!-- Backup: Also show dynamic options if available -->
+                        {% for community in communities %}
+                            <option value="{{ community.id }}"
+                                {% if data.community == community.id %}selected{% endif %}>
+                                {{ community.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="required">Languages Known</label>
+                    <div class="multiselect-dropdown" id="language-dropdown">
+                        <div class="multiselect-input" onclick="toggleDropdown('language')">
+                            Select Languages
+                        </div>
+                        <div class="multiselect-options" id="language-options">
+                            <!-- 5 Language Options with checkboxes -->
+                            <label class="multiselect-option">
+                                <input type="checkbox" 
+                                       name="languages[]" 
+                                       value="1"
+                                       {% if 1 in data.languages %}checked{% endif %}
+                                       onchange="updateSelectedTags('language')">
+                                English
+                            </label>
+                            <label class="multiselect-option">
+                                <input type="checkbox" 
+                                       name="languages[]" 
+                                       value="2"
+                                       {% if 2 in data.languages %}checked{% endif %}
+                                       onchange="updateSelectedTags('language')">
+                                Tamil
+                            </label>
+                            <label class="multiselect-option">
+                                <input type="checkbox" 
+                                       name="languages[]" 
+                                       value="3"
+                                       {% if 3 in data.languages %}checked{% endif %}
+                                       onchange="updateSelectedTags('language')">
+                                Hindi
+                            </label>
+                            <label class="multiselect-option">
+                                <input type="checkbox" 
+                                       name="languages[]" 
+                                       value="4"
+                                       {% if 4 in data.languages %}checked{% endif %}
+                                       onchange="updateSelectedTags('language')">
+                                Malayalam
+                            </label>
+                            <label class="multiselect-option">
+                                <input type="checkbox" 
+                                       name="languages[]" 
+                                       value="5"
+                                       {% if 5 in data.languages %}checked{% endif %}
+                                       onchange="updateSelectedTags('language')">
+                                Telugu
+                            </label>
+                            
+                            <!-- Backup: Also show dynamic options if available -->
+                            {% for language in languages %}
+                                <label class="multiselect-option">
+                                    <input type="checkbox" 
+                                           name="languages[]" 
+                                           value="{{ language.id }}"
+                                           {% if language.id in data.languages %}checked{% endif %}
+                                           onchange="updateSelectedTags('language')">
+                                    {{ language.name }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                        <div class="selected-tags" id="language-tags"></div>
+                        <input type="hidden" name="language_display" id="language-display">
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Qualifications</h2>
+            <div class="qualification-section" id="qualifications-container">
+                {% if data.qualifications %}
+                    {% for q in data.qualifications %}
+                    <div class="qualification-row">
+                        <div class="form-group">
+                            <label>Qualification</label>
+                            <select name="qualification[]" class="form-control">
+                                <option value="">Select Qualification</option>
+                                {% for deg in degrees %}
+                                    <option value="{{ deg.id }}"
+                                        {% if q.qualification == deg.id %}selected{% endif %}>
+                                        {{ deg.degree_code }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Specialization</label>
+                            <input type="text" name="specialization[]" class="form-control"
+                                   value="{{ q.specialization }}">
+                        </div>
+                        <div class="form-group">
+                            <label>University/Institute</label>
+                            <input type="text" name="institute[]" class="form-control"
+                                   value="{{ q.institute }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Year</label>
+                            <input type="number" name="year[]" class="form-control"
+                                   value="{{ q.year }}">
+                        </div>
+                        {% if not forloop.first %}
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" class="remove-qualification-btn"
+                                    onclick="removeQualification(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="qualification-row">
+                        <div class="form-group">
+                            <label>Qualification</label>
+                            <select name="qualification[]" class="form-control">
+                                <option value="">Select Qualification</option>
+                                {% for deg in degrees %}
+                                    <option value="{{ deg.id }}">
+                                        {{ deg.degree_code }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Specialization</label>
+                            <input type="text" name="specialization[]" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>University/Institute</label>
+                            <input type="text" name="institute[]" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Year</label>
+                            <input type="number" name="year[]" class="form-control" min="1950" max="2030">
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <button type="button" class="add-qualification-btn" id="add-qualification">
+                <i class="fas fa-plus"></i> Add Another Qualification
             </button>
-        </div>
-        {% endif %}
-
-    </div>
-    {% endfor %}
-{% else %}
-    <div class="qualification-row">
-        <div class="form-group">
-            <label>Qualification</label>
-            <select name="qualification[]" class="form-control">
-                <option value="">Select Qualification</option>
-                {% for deg in degrees %}
-                    <option value="{{ deg.id }}">
-                        {{ deg.degree_code }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Specialization</label>
-            <input type="text" name="specialization[]" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>University/Institute</label>
-            <input type="text" name="institute[]" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>Year</label>
-            <input type="number" name="year[]" class="form-control" min="1950" max="2030">
-        </div>
-    </div>
-{% endif %}
-
-</div>
-
-<button type="button" class="add-qualification-btn" id="add-qualification">
-    <i class="fas fa-plus"></i> Add Another Qualification
-</button>
-
+            
             <div class="form-row">
                 <div class="form-group full-width">
                     <label class="required">Overall Specialization</label>
                     <input type="text" name="overall_specialization" class="form-control" value="{{ data.overall_specialization|default:'' }}" placeholder="Your primary area of specialization">
                 </div>
             </div>
+            
             <h2 class="section-title">Years of Service</h2>
             <div class="stats-row">
                 <div class="stats-group">
@@ -245,6 +405,7 @@
                     <input type="number" name="other_years" class="stats-input" value="{{ data.other_years|default:'' }}">
                 </div>
             </div>
+            
             <h2 class="section-title">Research & Industry Experience</h2>
             <div class="form-row">
                 <div class="form-group">
@@ -256,6 +417,7 @@
                     <input type="number" name="industry_experience_years" class="form-control" value="{{ data.industry_experience_years|default:'' }}">
                 </div>
             </div>
+            
             <h2 class="section-title">No. of Research Publications</h2>
             <div class="research-section">
                 <div class="research-row">
@@ -285,6 +447,7 @@
                     </div>
                 </div>
             </div>
+            
             <h2 class="section-title">No. of Students Guided</h2>
             <div class="students-section">
                 <div class="students-row">
@@ -314,6 +477,7 @@
                     </div>
                 </div>
             </div>
+            
             <h2 class="section-title">Completed Sponsored Projects</h2>
             <table class="projects-table" id="projects-table">
                 <thead>
@@ -371,19 +535,14 @@
                 </tbody>
             </table>
             <button type="button" class="add-project-row" id="add-project-row"><i class="fas fa-plus"></i> Add Project Row</button>
-            <h2 class="section-title">Community Information</h2>
-            <div class="form-row">
-                <div class="form-group full-width">
-                    <label>Community & Caste</label>
-                    <input type="text" name="community_and_caste" class="form-control" value="{{ data.community_and_caste|default:'' }}">
-                </div>
-            </div>
+            
             <div class="button-group">
                 <button type="submit" class="btn btn-next">Save & Next <i class="fas fa-arrow-right"></i></button>
             </div>
         </form>
     </div>
 </div>
+
 <script>
 // ================= IMAGE PREVIEW =================
 document.getElementById('photoInput').addEventListener('change', function (e) {
@@ -400,7 +559,95 @@ document.getElementById('photoInput').addEventListener('change', function (e) {
     }
 });
 
-// ================= ADD QUALIFICATION (FIXED) =================
+// ================= MULTI-SELECT DROPDOWN FUNCTIONS =================
+let activeDropdown = null;
+
+function toggleDropdown(type) {
+    const dropdown = document.getElementById(`${type}-dropdown`);
+    const options = document.getElementById(`${type}-options`);
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.multiselect-options').forEach(opt => {
+        if (opt !== options) {
+            opt.classList.remove('show');
+        }
+    });
+    
+    // Toggle current dropdown
+    options.classList.toggle('show');
+    
+    if (options.classList.contains('show')) {
+        activeDropdown = dropdown;
+    } else {
+        activeDropdown = null;
+    }
+}
+
+function updateSelectedTags(type) {
+    const container = document.getElementById(`${type}-tags`);
+    const checkboxes = document.querySelectorAll(`#${type}-options input[type="checkbox"]`);
+    const displayInput = document.getElementById(`${type}-display`);
+    const inputElement = document.querySelector(`#${type}-dropdown .multiselect-input`);
+    
+    let selectedValues = [];
+    let selectedTexts = [];
+    
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            const text = cb.parentElement.textContent.trim();
+            selectedValues.push(cb.value);
+            selectedTexts.push(text);
+        }
+    });
+    
+    // Update tags display
+    container.innerHTML = '';
+    selectedTexts.forEach((text, index) => {
+        const tag = document.createElement('div');
+        tag.className = 'selected-tag';
+        tag.innerHTML = `${text} <span class="remove-tag" onclick="removeTag('${type}', ${selectedValues[index]})">×</span>`;
+        container.appendChild(tag);
+    });
+    
+    // Update display text
+    if (selectedTexts.length > 0) {
+        inputElement.textContent = selectedTexts.join(', ');
+        if (selectedTexts.length > 2) {
+            inputElement.textContent = selectedTexts.slice(0, 2).join(', ') + ` +${selectedTexts.length - 2} more`;
+        }
+    } else {
+        inputElement.textContent = type === 'department' ? 'Select Department' : 'Select Languages';
+    }
+    
+    // Update hidden input for display
+    displayInput.value = selectedTexts.join(', ');
+}
+
+function removeTag(type, value) {
+    const checkbox = document.querySelector(`#${type}-options input[value="${value}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        updateSelectedTags(type);
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    if (activeDropdown && !activeDropdown.contains(event.target)) {
+        document.querySelectorAll('.multiselect-options').forEach(opt => {
+            opt.classList.remove('show');
+        });
+        activeDropdown = null;
+    }
+});
+
+// Initialize dropdowns on page load
+function initializeDropdowns() {
+    updateSelectedTags('department');
+    updateSelectedTags('language');
+}
+
+// ================= ADD QUALIFICATION =================
 document.getElementById('add-qualification').addEventListener('click', function () {
     const container = document.getElementById('qualifications-container');
     const row = document.createElement('div');
@@ -418,22 +665,18 @@ document.getElementById('add-qualification').addEventListener('click', function 
                 {% endfor %}
             </select>
         </div>
-
         <div class="form-group">
             <label>Specialization</label>
             <input type="text" name="specialization[]" class="form-control" placeholder="Enter specialization">
         </div>
-
         <div class="form-group">
             <label>University/Institute</label>
             <input type="text" name="institute[]" class="form-control" placeholder="Enter university/institute">
         </div>
-
         <div class="form-group">
             <label>Year</label>
             <input type="number" name="year[]" class="form-control" min="1950" max="2030" placeholder="Year">
         </div>
-
         <div class="form-group">
             <label>&nbsp;</label>
             <button type="button" class="remove-qualification-btn" onclick="removeQualification(this)">
@@ -441,7 +684,6 @@ document.getElementById('add-qualification').addEventListener('click', function 
             </button>
         </div>
     `;
-
     container.appendChild(row);
 });
 
@@ -455,7 +697,6 @@ function removeQualification(btn) {
 document.getElementById('add-project-row').addEventListener('click', function () {
     const tbody = document.getElementById('projects-body');
     const tr = document.createElement('tr');
-
     tr.innerHTML = `
         <td><input type="text" name="project_title[]" placeholder="Enter project title"></td>
         <td><input type="text" name="project_duration[]" placeholder="e.g., 2020-2022"></td>
@@ -481,14 +722,34 @@ function removeProjectRow(btn) {
 // ================= REQUIRED FIELD VALIDATION =================
 document.querySelector('form').addEventListener('submit', function (e) {
     let valid = true;
-
+    
+    // Check all required fields
     document.querySelectorAll('.required').forEach(label => {
-        const field = label.closest('.form-group').querySelector('input, select');
-        if (!field.value.trim()) {
-            valid = false;
-            field.style.borderColor = '#d32f2f';
-        } else {
-            field.style.borderColor = '#ccc';
+        const formGroup = label.closest('.form-group');
+        if (formGroup) {
+            const field = formGroup.querySelector('input, select');
+            const multiselect = formGroup.querySelector('.multiselect-dropdown');
+            
+            if (multiselect) {
+                // For multi-select fields, check if any checkbox is checked
+                const checkboxes = multiselect.querySelectorAll('input[type="checkbox"]');
+                const checked = Array.from(checkboxes).some(cb => cb.checked);
+                
+                if (!checked) {
+                    valid = false;
+                    multiselect.style.border = '1px solid #d32f2f';
+                } else {
+                    multiselect.style.border = '1px solid #ccc';
+                }
+            } else if (field) {
+                // For regular fields
+                if (!field.value.trim()) {
+                    valid = false;
+                    field.style.borderColor = '#d32f2f';
+                } else {
+                    field.style.borderColor = '#ccc';
+                }
+            }
         }
     });
 
@@ -500,16 +761,21 @@ document.querySelector('form').addEventListener('submit', function (e) {
 
 // ================= DOM READY =================
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize number inputs
     document.querySelectorAll('input[type="number"]').forEach(i => {
         i.addEventListener('input', function () {
             if (this.value < 0) this.value = 0;
         });
     });
 
+    // Initialize image preview
     const img = document.getElementById('imagePreview');
     if (img && img.src && img.src.trim() !== '') {
         img.style.display = 'block';
     }
+    
+    // Initialize dropdowns
+    initializeDropdowns();
 });
 </script>
 
