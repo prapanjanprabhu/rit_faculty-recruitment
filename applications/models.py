@@ -114,7 +114,6 @@ class Candidate(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=20, null=True, blank=True)
     marital_status = models.CharField(max_length=20, null=True, blank=True)
-    community = models.CharField(max_length=100, null=True, blank=True)
     caste = models.CharField(max_length=100, null=True, blank=True)
     pan_number = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
@@ -192,7 +191,7 @@ class SponsoredProject(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     title = models.CharField(max_length=300, null=True, blank=True)
     duration = models.CharField(max_length=50, null=True, blank=True)
-    amount = models.PositiveIntegerField(null=True, blank=True)
+    amount = models.BigIntegerField(null=True, blank=True)
     agency = models.CharField(max_length=200, null=True, blank=True)
 
 
