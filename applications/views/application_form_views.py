@@ -13,14 +13,9 @@ from applications.models import (
     ResearchDetails,
     AcademicExperience,
     IndustryExperience,
-    TeachingSubject,
-    Contribution,
     SponsoredProject,
     Qualification,
-    Programme,
-    Publication,
-    Referee,
-    ProgrammesPublications, Degree, Designation, Department, LevelOfEducation, Document_Type, Document, Certificate_Permission,
+    Referee, Degree, Designation, Department, LevelOfEducation, Document_Type, Document, Certificate_Permission,
 )
 import os
 from django.shortcuts import render, redirect
@@ -30,12 +25,12 @@ from applications.models import VisitorLog, ApplicationUsageLog
 from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
 
-# views.py
+
 from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
 import json
 
-# Create a custom template filter for indexing lists
+
 from django.template.defaulttags import register
 
 @register.filter
@@ -73,16 +68,13 @@ def individual_summary_sheet(request):
 
         data = request.session.get("summary", {})
 
-        # simple fields
-        data["name"] = post.get("name", "").strip()
-        data["age"] = to_int(post.get("age"))
+        # simple fields (✅ name + age removed)
         data["present_organization"] = post.get("present_organization", "").strip()
         data["overall_specialization"] = post.get("overall_specialization", "").strip()
         data["specialization"] = data["overall_specialization"]
 
         data["languages"] = post.getlist("languages[]") or []
         data["community"] = post.get("community") or ""
-
 
         # departments (FK IDs, unchanged)
         data["departments"] = [to_int(x) for x in post.getlist("departments[]")]
@@ -175,12 +167,17 @@ def individual_summary_sheet(request):
 
 
 
-
-
 def individual_data_sheet(request):
     if request.method == "POST":
         data = request.POST.dict()
         data.pop("csrfmiddlewaretoken", None)
+
+       
+        data.pop("community", None)
+        data.pop("caste", None)
+        data.pop("present_designation", None)
+        data.pop("present_organization", None)
+
         request.session["personal"] = data
         return redirect("educational_qualifications")
 
@@ -366,92 +363,63 @@ def academic_and_industry_experience(request):
 from django.core.files.storage import default_storage
 
 def teaching_and_contributions(request):
-
-    subjects = request.session.get("subjects", [])
-    contributions = request.session.get("contributions", [])
-    summary = request.session.get("summary", {})
-
-    department_id = summary.get("department")
-
-    all_documents = Document_Type.objects.all()
-
-    required_doc_ids = set(
-        Certificate_Permission.objects.filter(
-            department_id=department_id,
-            is_required=True
-        ).values_list("document_type_id", flat=True)
-    )
-
-    uploaded_docs = request.session.get("uploaded_documents", {})
+    data = request.session.get("teaching_entries", [])
 
     if request.method == "POST":
+        rows = []
 
-        subjects = (
-            [{"level": "UG", "subject_and_result": s}
-             for s in request.POST.getlist("ug_subjects[]")] +
-            [{"level": "PG", "subject_and_result": s}
-             for s in request.POST.getlist("pg_subjects[]")]
-        )
+        # ------- UG -------
+        ug_subject = request.POST.getlist("ug_subject[]")
+        ug_pass = request.POST.getlist("ug_pass_percentage[]")
+        ug_dept = request.POST.getlist("ug_department_contribution[]")
+        ug_college = request.POST.getlist("ug_college_contribution[]")
 
-        contributions = (
-            [{"level": "Department", "description": d}
-             for d in request.POST.getlist("department_contributions[]")] +
-            [{"level": "College", "description": c}
-             for c in request.POST.getlist("college_contributions[]")]
-        )
+        for i in range(len(ug_subject)):
+            subject = (ug_subject[i] or "").strip()
+            if not subject:
+                continue
+            rows.append({
+                "level": "UG",
+                "subject": subject,
+                "pass_percentage": ug_pass[i] or "",
+                "department_contribution": (ug_dept[i] or "").strip(),
+                "college_contribution": (ug_college[i] or "").strip(),
+            })
 
-        # ✅ TEMP DOCUMENT UPLOAD (MERGE)
-        for doc in all_documents:
-            field = f"document_{doc.id}"
-            if field in request.FILES:
-                tmp_path = default_storage.save(
-                    f"tmp/doc_{doc.id}_{request.FILES[field].name}",
-                    request.FILES[field]
-                )
-                uploaded_docs[str(doc.id)] = tmp_path
+        # ------- PG -------
+        pg_subject = request.POST.getlist("pg_subject[]")
+        pg_pass = request.POST.getlist("pg_pass_percentage[]")
+        pg_dept = request.POST.getlist("pg_department_contribution[]")
+        pg_college = request.POST.getlist("pg_college_contribution[]")
 
-        missing_required = [
-            doc.document_type
-            for doc in all_documents
-            if doc.id in required_doc_ids and str(doc.id) not in uploaded_docs
-        ]
+        for i in range(len(pg_subject)):
+            subject = (pg_subject[i] or "").strip()
+            if not subject:
+                continue
+            rows.append({
+                "level": "PG",
+                "subject": subject,
+                "pass_percentage": pg_pass[i] or "",
+                "department_contribution": (pg_dept[i] or "").strip(),
+                "college_contribution": (pg_college[i] or "").strip(),
+            })
 
-        if missing_required:
-            return render(
-                request,
-                "faculty_requirement/faculty/teaching_and_contributions.html",
-                {
-                    "subjects": subjects,
-                    "contributions": contributions,
-                    "all_documents": all_documents,
-                    "required_doc_ids": required_doc_ids,
-                    "uploaded_docs": [
-                        {"id": int(k), "name": os.path.basename(v)}
-                        for k, v in uploaded_docs.items()
-                    ],
-                    "error": f"Required documents missing: {', '.join(missing_required)}",
-                },
-            )
-
-        request.session["subjects"] = subjects
-        request.session["contributions"] = contributions
-        request.session["uploaded_documents"] = uploaded_docs
+        request.session["teaching_entries"] = rows
+        request.session.modified = True
 
         return redirect("programmes_and_publications")
+
+    # split for UI
+    ug_entries = [r for r in data if r.get("level") == "UG"]
+    pg_entries = [r for r in data if r.get("level") == "PG"]
 
     return render(
         request,
         "faculty_requirement/faculty/teaching_and_contributions.html",
         {
-            "subjects": subjects,
-            "contributions": contributions,
-            "all_documents": all_documents,
-            "required_doc_ids": required_doc_ids,
-            "uploaded_docs": [
-                {"id": int(k), "name": os.path.basename(v)}
-                for k, v in uploaded_docs.items()
-            ],
-        },
+            "ug_entries": ug_entries,
+            "pg_entries": pg_entries,
+        }
     )
 
 
@@ -459,75 +427,82 @@ def teaching_and_contributions(request):
 def programmes_and_publications(request):
     if request.method == "POST":
 
+        programme_types = request.POST.getlist("programme_type[]")
+        programme_counts = request.POST.getlist("programme_count[]")
+
+        # ✅ must exist in HTML as name="programme_category[]"
+        programme_categories = request.POST.getlist("programme_category[]")
+
         request.session["programmes"] = [
             {
-                "programme_type": p.strip(),
-                "category": c.strip(),
+                "programme_type": (p or "").strip(),
+                "category": (c or "").strip(),
                 "count": to_int(cnt),
             }
-            for p,c,cnt in zip(
-                request.POST.getlist("programme_type[]"),
-                request.POST.getlist("programme_category[]"),
-                request.POST.getlist("programme_count[]"),
-            ) if p.strip()
+            for p, c, cnt in zip(programme_types, programme_categories, programme_counts)
+            if (p or "").strip()
         ]
 
         request.session["publications"] = [
-            {"title":t.strip(),"indexing":i}
-            for t,i in zip(
+            {"title": (t or "").strip(), "indexing": i}
+            for t, i in zip(
                 request.POST.getlist("publication_title[]"),
                 request.POST.getlist("publication_indexing[]")
-            ) if t.strip()
+            )
+            if (t or "").strip()
         ]
 
         request.session["research_publications"] = [
-            {"details":d.strip()}
+            {"details": (d or "").strip()}
             for d in request.POST.getlist("research_publication_details[]")
-            if d.strip()
+            if (d or "").strip()
         ]
 
-        request.session["research_scholars"] = request.POST.get("research_scholars_details","").strip()
+        request.session["research_scholars"] = (request.POST.get("research_scholars_details", "") or "").strip()
 
         request.session["memberships"] = [
-            {"details":d.strip()}
+            {"details": (d or "").strip()}
             for d in request.POST.getlist("membership_details[]")
-            if d.strip()
+            if (d or "").strip()
         ]
 
         request.session["awards"] = [
-            {"details":d.strip()}
+            {"details": (d or "").strip()}
             for d in request.POST.getlist("award_details[]")
-            if d.strip()
+            if (d or "").strip()
         ]
 
         request.session["sponsored_projects"] = [
             {
-                "title":t.strip(),
-                "status":s,
-                "funding_agency":a.strip(),
+                "title": (t or "").strip(),
+                "status": s,
+                "funding_agency": (a or "").strip(),
                 "amount": safe_int(amt),
-                "duration":d
+                "duration": d
             }
-            for t,s,a,amt,d in zip(
+            for t, s, a, amt, d in zip(
                 request.POST.getlist("project_title[]"),
                 request.POST.getlist("project_status[]"),
                 request.POST.getlist("funding_agency[]"),
                 request.POST.getlist("project_amount[]"),
                 request.POST.getlist("project_duration[]"),
-            ) if t.strip()
+            )
+            if (t or "").strip()
         ]
 
         return redirect("referees_and_declaration")
 
-    return render(request,"faculty_requirement/faculty/programmes_and_publications.html",{
-        "programmes": request.session.get("programmes",[]),
-        "publications": request.session.get("publications",[]),
-        "research_publications": request.session.get("research_publications",[]),
-        "research_scholars": request.session.get("research_scholars",""),
-        "sponsored_projects": request.session.get("sponsored_projects",[]),
-        "memberships": request.session.get("memberships",[]),
-        "awards": request.session.get("awards",[]),
+    return render(request, "faculty_requirement/faculty/programmes_and_publications.html", {
+        "programmes": request.session.get("programmes", []),
+        "publications": request.session.get("publications", []),
+        "research_publications": request.session.get("research_publications", []),
+        "research_scholars": request.session.get("research_scholars", ""),
+        "sponsored_projects": request.session.get("sponsored_projects", []),
+        "memberships": request.session.get("memberships", []),
+        "awards": request.session.get("awards", []),
     })
+
+
 
 
 
@@ -549,12 +524,13 @@ from django.core.files.storage import default_storage
 from django.utils.text import slugify
 from django.utils.dateparse import parse_date
 import json, os, re
+from applications.models import ProgrammePublicationEntry
 
 from applications.models import (
     Candidate, PositionApplication, Designation, Department, Degree,
     Qualification, SponsoredProject, Education,
-    AcademicExperience, IndustryExperience, TeachingSubject, Contribution,
-    Programme, Publication, ProgrammesPublications, Referee, Document,
+    AcademicExperience, IndustryExperience,
+     Referee, Document,
     Document_Type, LevelOfEducation
 )
 
@@ -590,7 +566,7 @@ from django.utils.text import slugify
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 import json, os
-
+from applications.models import TeachingContributionEntry
 def calculate_age(dob):
     if not dob:
         return None
@@ -613,22 +589,22 @@ def referees_and_declaration(request):
             {"referees": []}
         )
 
-    personal            = request.session.get("personal", {})
-    summary             = request.session.get("summary", {})
-    education           = request.session.get("education", [])
-    research            = request.session.get("research_details", {})
-    academic            = request.session.get("academic_experience", [])
-    industry            = request.session.get("industry_experience", [])
-    subjects            = request.session.get("subjects", [])
-    contributions       = request.session.get("contributions", [])
-    programmes          = request.session.get("programmes", [])
-    publications        = request.session.get("publications", [])
+    personal              = request.session.get("personal", {})
+    summary               = request.session.get("summary", {})
+    education             = request.session.get("education", [])
+    research              = request.session.get("research_details", {})
+    academic              = request.session.get("academic_experience", [])
+    industry              = request.session.get("industry_experience", [])
+    subjects              = request.session.get("subjects", [])
+    contributions         = request.session.get("contributions", [])
+    programmes            = request.session.get("programmes", [])
+    publications          = request.session.get("publications", [])
     research_publications = request.session.get("research_publications", [])
-    research_scholars   = request.session.get("research_scholars", "")
-    sponsored_projects  = request.session.get("sponsored_projects", [])
-    memberships         = request.session.get("memberships", [])
-    awards              = request.session.get("awards", [])
-    uploaded_docs       = request.session.get("uploaded_documents", {})
+    research_scholars     = request.session.get("research_scholars", "")
+    sponsored_projects    = request.session.get("sponsored_projects", [])
+    memberships           = request.session.get("memberships", [])
+    awards                = request.session.get("awards", [])
+    uploaded_docs         = request.session.get("uploaded_documents", {})
 
     candidate_id = request.session.get("candidate_id")
 
@@ -654,7 +630,11 @@ def referees_and_declaration(request):
         candidate.phone_secondary = personal.get("phone_secondary")
         candidate.address = personal.get("address")
         candidate.caste = personal.get("caste")
-        candidate.mother_name_and_occupation = personal.get("mother_name_and_occupation")
+        # candidate.mother_name_and_occupation = personal.get("mother_name_and_occupation")
+
+
+        candidate.marital_status = (personal.get("marital_status") or "").strip() or None
+        candidate.pan_number = (personal.get("pan_number") or "").strip() or None
 
         dob = personal.get("date_of_birth")
         candidate.date_of_birth = parse_date(dob) if dob else None
@@ -706,8 +686,8 @@ def referees_and_declaration(request):
         # =============================
         # POSITION APPLICATION
         # =============================
-        community_value  = summary.get("community")      # free text
-        languages_value  = summary.get("languages", [])  # list of free text
+        community_value  = summary.get("community")
+        languages_value  = summary.get("languages", [])
         designation_obj  = Designation.objects.filter(id=summary.get("present_designation")).first()
 
         position_app, _ = PositionApplication.objects.update_or_create(
@@ -750,7 +730,7 @@ def referees_and_declaration(request):
             )
 
         # =============================
-        # SPONSORED PROJECTS
+        # SPONSORED PROJECTS (if you still use this table elsewhere, keep)
         # =============================
         SponsoredProject.objects.filter(candidate=candidate).delete()
         for p in sponsored_projects:
@@ -763,7 +743,7 @@ def referees_and_declaration(request):
             )
 
         # =============================
-        # EDUCATION  (CORRECTED)
+        # EDUCATION
         # =============================
         Education.objects.filter(candidate=candidate).delete()
         for e in education:
@@ -811,42 +791,106 @@ def referees_and_declaration(request):
         # =============================
         # TEACHING + CONTRIBUTIONS
         # =============================
-        TeachingSubject.objects.filter(candidate=candidate).delete()
-        for s in subjects:
-            TeachingSubject.objects.create(candidate=candidate, **s)
+        TeachingContributionEntry.objects.filter(candidate=candidate).delete()
 
-        Contribution.objects.filter(candidate=candidate).delete()
-        for c in contributions:
-            Contribution.objects.create(candidate=candidate, **c)
+        teaching_entries = request.session.get("teaching_entries", [])
+        bulk = []
 
-        # =============================
-        # PROGRAMMES + PUBLICATIONS
-        # =============================
-        Programme.objects.filter(candidate=candidate).delete()
-        for p in programmes:
-            Programme.objects.create(
+        for r in teaching_entries:
+            bulk.append(TeachingContributionEntry(
                 candidate=candidate,
-                programme_type=p.get("programme_type"),
-                category=p.get("category"),
-                count=safe_int(p.get("count")),
-            )
+                level=r.get("level"),
+                subject=r.get("subject"),
+                pass_percentage=safe_int(r.get("pass_percentage")),
+                department_contribution=r.get("department_contribution"),
+                college_contribution=r.get("college_contribution"),
+            ))
 
-        Publication.objects.filter(candidate=candidate).delete()
-        for p in publications:
-            Publication.objects.create(candidate=candidate, **p)
+        if bulk:
+            TeachingContributionEntry.objects.bulk_create(bulk)
 
-        ProgrammesPublications.objects.update_or_create(
-            candidate=candidate,
-            defaults={
-                "programmes": json.dumps(programmes),
-                "publications": json.dumps(publications),
-                "research_publications_details": json.dumps(research_publications),
-                "research_scholars_details": research_scholars,
-                "sponsored_projects": json.dumps(sponsored_projects),
-                "memberships": json.dumps(memberships),
-                "awards": json.dumps(awards),
-            }
-        )
+        # ==========================================================
+        # PROGRAMMES + PUBLICATIONS (✅ ONE TABLE, ✅ NO JSON, ✅ NORMAL)
+        # ==========================================================
+        # IMPORTANT:
+        # - Remove usage of Programme, Publication, ProgrammesPublications for this page
+        # - Store everything in ProgrammePublicationEntry
+
+        ProgrammePublicationEntry.objects.filter(candidate=candidate).delete()
+
+        rows = []
+
+        # Programmes
+        for p in programmes:
+            if (p.get("programme_type") or "").strip():
+                rows.append(ProgrammePublicationEntry(
+                    candidate=candidate,
+                    entry_type="PROGRAMME",
+                    programme_type=p.get("programme_type"),
+                    programme_category=p.get("category"),
+                    programme_count=safe_int(p.get("count")),
+                ))
+
+        # Publications (General)
+        for pub in publications:
+            if (pub.get("title") or "").strip():
+                rows.append(ProgrammePublicationEntry(
+                    candidate=candidate,
+                    entry_type="PUBLICATION",
+                    publication_title=pub.get("title"),
+                    publication_indexing=pub.get("indexing"),
+                ))
+
+        # Research publications (Scopus indexed)
+        for rp in research_publications:
+            if (rp.get("details") or "").strip():
+                rows.append(ProgrammePublicationEntry(
+                    candidate=candidate,
+                    entry_type="RESEARCH_PUB",
+                    details=rp.get("details"),
+                ))
+
+        # Research scholars (single text)
+        if (research_scholars or "").strip():
+            rows.append(ProgrammePublicationEntry(
+                candidate=candidate,
+                entry_type="RESEARCH_SCHOLARS",
+                details=research_scholars,
+            ))
+
+        # Sponsored projects (store in same single table also)
+        for sp in sponsored_projects:
+            if (sp.get("title") or "").strip():
+                rows.append(ProgrammePublicationEntry(
+                    candidate=candidate,
+                    entry_type="SPONSORED_PROJECT",
+                    project_title=sp.get("title"),
+                    project_status=sp.get("status"),
+                    project_funding_agency=sp.get("funding_agency"),
+                    project_amount=safe_int(sp.get("amount")),
+                    project_duration=sp.get("duration"),
+                ))
+
+        # Memberships
+        for m in memberships:
+            if (m.get("details") or "").strip():
+                rows.append(ProgrammePublicationEntry(
+                    candidate=candidate,
+                    entry_type="MEMBERSHIP",
+                    details=m.get("details"),
+                ))
+
+        # Awards
+        for a in awards:
+            if (a.get("details") or "").strip():
+                rows.append(ProgrammePublicationEntry(
+                    candidate=candidate,
+                    entry_type="AWARD",
+                    details=a.get("details"),
+                ))
+
+        if rows:
+            ProgrammePublicationEntry.objects.bulk_create(rows)
 
         # =============================
         # REFEREES
@@ -869,7 +913,6 @@ def referees_and_declaration(request):
 
     request.session.flush()
     return redirect("application_success")
-
 
 
 

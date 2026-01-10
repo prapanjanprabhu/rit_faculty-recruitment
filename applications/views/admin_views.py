@@ -41,10 +41,9 @@ def admin_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user and is_admin(user):
-            # ✅ Django already protects against session fixation
+      
             login(request, user)
 
-            # ✅ Rotate session key SAFELY (no CSRF break)
             request.session.cycle_key()
 
             AdminLoginLog.objects.create(
@@ -58,7 +57,7 @@ def admin_login(request):
 
             return redirect("admin_home")
 
-        # ❗ Failed login audit
+       
         AdminLoginLog.objects.create(
             user=None,
             username_attempted=username,
@@ -197,6 +196,10 @@ def admin_logs(request):
         },
     )
 
+
+
+
+
 import random
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils import timezone
@@ -210,6 +213,8 @@ def hash_otp(otp):
 
 def otp_expiry(minutes=10):
     return timezone.now() + timedelta(minutes=minutes)
+
+
 
 
 from django.core.mail import send_mail
@@ -232,6 +237,8 @@ If you didn’t request this, ignore this email.
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
 
 @csrf_protect
 def admin_forgot_password(request):
@@ -269,6 +276,8 @@ def admin_forgot_password(request):
         return redirect("admin_verify_otp")
 
     return render(request, "faculty_requirement/admin/admin_forgot_password.html")
+
+
 
 
 @csrf_protect
@@ -313,87 +322,6 @@ def admin_verify_otp(request):
     return render(request, "faculty_requirement/admin/admin_verify_otp.html", {"email": email})
 
 
-# @login_required(login_url="admin_login")
-# @user_passes_test(is_admin)
-# def user_logs(request):
-
-#     base_qs = VisitorLog.objects.select_related("user").all()
-
-#     # ---------------- FILTERS ----------------
-#     user_id = request.GET.get("user", "")
-#     ip = request.GET.get("ip", "")
-#     device = request.GET.get("device", "")
-#     method = request.GET.get("method", "")
-
-#     if user_id:
-#         base_qs = base_qs.filter(user__id=user_id)
-
-#     if ip:
-#         base_qs = base_qs.filter(ip_address=ip)
-
-#     if device:
-#         base_qs = base_qs.filter(device_type=device)
-
-#     if method:
-#         base_qs = base_qs.filter(method=method)
-
-#     # ---------------- ANALYTICS ----------------
-#     analytics = {
-#         "total": base_qs.count(),
-#         "authenticated": base_qs.filter(user__isnull=False).count(),
-#         "anonymous": base_qs.filter(user__isnull=True).count(),
-#         "unique_ips": base_qs.values("ip_address").distinct().count(),
-#         "last_activity": base_qs.aggregate(last=Max("timestamp"))["last"],
-#     }
-
-#     # ---------------- TABLE ----------------
-#     logs_qs = (
-#         base_qs.only(
-#             "timestamp",
-#             "user",
-#             "ip_address",
-#             "device_type",
-#             "path",
-#             "method",
-#             "user_agent",
-#         )
-#         .order_by("-timestamp")
-#     )
-
-#     paginator = Paginator(logs_qs, 50)
-#     page_obj = paginator.get_page(request.GET.get("page"))
-
-#     # ---------------- DROPDOWNS ----------------
-#     users = (
-#         VisitorLog.objects
-#         .exclude(user__isnull=True)
-#         .values("user__id", "user__username")
-#         .distinct()[:200]
-#     )
-
-#     ips = (
-#         VisitorLog.objects
-#         .order_by("ip_address")
-#         .values_list("ip_address", flat=True)
-#         .distinct()[:200]
-#     )
-
-#     return render(
-#         request,
-#         "faculty_requirement/admin/user_logs.html",
-#         {
-#             "page_obj": page_obj,
-#             "analytics": analytics,
-#             "users": users,
-#             "ips": ips,
-#             "filters": {
-#                 "user": user_id,
-#                 "ip": ip,
-#                 "device": device,
-#                 "method": method,
-#             },
-#         },
-#     )
 
 
 @login_required(login_url="admin_login")
@@ -484,11 +412,15 @@ def user_logs(request):
 
 
 
+
+
 def get_client_ip(request):
     xff = request.META.get("HTTP_X_FORWARDED_FOR")
     if xff:
         return xff.split(",")[0].strip()
     return request.META.get("REMOTE_ADDR")
+
+
 
 
 def get_user_agent(request):

@@ -234,29 +234,78 @@ class IndustryExperience(models.Model):
     days = models.IntegerField(null=True, blank=True)
 
 
-class TeachingSubject(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+from django.db import models
+
+class TeachingContributionEntry(models.Model):
+    candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE, related_name="teaching_entries")
+
     level = models.CharField(max_length=10, null=True, blank=True)  # UG / PG
-    subject_and_result = models.CharField(max_length=200, null=True, blank=True)
+
+    subject = models.CharField(max_length=200, null=True, blank=True)
+    pass_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    department_contribution = models.TextField(null=True, blank=True)
+    college_contribution = models.TextField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.candidate_id} - {self.level} - {self.subject}"
 
 
-class Contribution(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    level = models.CharField(max_length=50, null=True, blank=True)  # Department / College
-    description = models.CharField(max_length=200, null=True, blank=True)
 
 
-class Programme(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    programme_type = models.CharField(max_length=50, null=True, blank=True)  # Workshop / FDP etc
-    category = models.CharField(max_length=50, null=True, blank=True)  # Participated / Organized
-    count = models.IntegerField(null=True, blank=True)
 
 
-class Publication(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True, blank=True)
-    title = models.TextField(null=True, blank=True)
-    indexing = models.CharField(max_length=100, null=True, blank=True)
+from django.db import models
+
+class ProgrammePublicationEntry(models.Model):
+    ENTRY_TYPES = (
+        ("PROGRAMME", "Programme"),
+        ("PUBLICATION", "Publication"),
+        ("RESEARCH_PUB", "Research Publication (Scopus)"),
+        ("SPONSORED_PROJECT", "Sponsored Project"),
+        ("MEMBERSHIP", "Membership/Fellowship"),
+        ("AWARD", "Award/Recognition"),
+        ("RESEARCH_SCHOLARS", "Research Scholars Guided"),
+    )
+
+    candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE, related_name="pp_entries")
+    entry_type = models.CharField(max_length=30, choices=ENTRY_TYPES)
+
+    # PROGRAMME fields
+    programme_type = models.CharField(max_length=50, null=True, blank=True)     # Workshop / FDP etc
+    programme_category = models.CharField(max_length=50, null=True, blank=True) # Participated / Organized
+    programme_count = models.IntegerField(null=True, blank=True)
+
+    # PUBLICATION fields
+    publication_title = models.TextField(null=True, blank=True)
+    publication_indexing = models.CharField(max_length=100, null=True, blank=True)
+
+    # GENERIC DETAILS (for research pubs, memberships, awards, research scholars)
+    details = models.TextField(null=True, blank=True)
+
+    # SPONSORED PROJECT fields
+    project_title = models.TextField(null=True, blank=True)
+    project_status = models.CharField(max_length=30, null=True, blank=True)     # Ongoing / Completed
+    project_funding_agency = models.TextField(null=True, blank=True)
+    project_amount = models.IntegerField(null=True, blank=True)
+    project_duration = models.CharField(max_length=100, null=True, blank=True)  # e.g., 2020-2022
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.entry_type} - {self.candidate.name}"
+
+
+
+
+
+
+
+
 
 
 class Referee(models.Model):
@@ -330,30 +379,14 @@ class ApplicationUsageLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
-# models.py
-class ProgrammesPublications(models.Model):
-    candidate = models.ForeignKey(
-        Candidate,
-        on_delete=models.CASCADE,
-        related_name="programmes_publications"
-    )
 
-    programmes = models.CharField(max_length=1000, default="", null=True)
-    publications = models.CharField(max_length=1000, default="", null=True)
 
-    research_publications_details = models.CharField(max_length=1000, default="", null=True)
-    research_scholars_details = models.TextField(blank=True, null=True)
 
-    sponsored_projects = models.CharField(max_length=1000, default="", null=True)
-    memberships = models.CharField(max_length=1000, default="", null=True)
-    awards = models.CharField(max_length=1000, default="", null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Programmes & Publications - {self.candidate.name}"
-    
+
+
+
 
 import uuid
 from django.db import models

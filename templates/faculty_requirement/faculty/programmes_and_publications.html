@@ -66,9 +66,16 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
             <option value="Other" {% if p.programme_type == "Other" %}selected{% endif %}>Other</option>
         </select>
 
+        <!-- ✅ FIX ADDED: Category -->
+        <label class="required">Category</label>
+        <select name="programme_category[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Participated" {% if p.category == "Participated" %}selected{% endif %}>Participated</option>
+            <option value="Organized" {% if p.category == "Organized" %}selected{% endif %}>Organized</option>
+        </select>
+
         <label class="required">Count</label>
-        <input type="number" name="programme_count[]" class="form-control"
-               value="{{ p.count }}">
+        <input type="number" name="programme_count[]" class="form-control" value="{{ p.count }}">
 
         {% if not forloop.first %}
         <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
@@ -86,6 +93,14 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
             <option>Seminar</option>
             <option>Webinar</option>
             <option>Other</option>
+        </select>
+
+        <!-- ✅ FIX ADDED: Category -->
+        <label class="required">Category</label>
+        <select name="programme_category[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Participated">Participated</option>
+            <option value="Organized">Organized</option>
         </select>
 
         <label class="required">Count</label>
@@ -131,7 +146,7 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
 <div class="form-row">
     <div class="form-group full-width">
         <label>Details of Research Scholars</label>
-        <textarea name="research_scholars_details" class="form-control" rows="3">{{ research_scholars|default:"N/A" }}</textarea>
+        <textarea name="research_scholars_details" class="form-control" rows="3">{{ research_scholars }}</textarea>
     </div>
 </div>
 
@@ -284,8 +299,7 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
     {% for pub in publications %}
     <div class="publication-block" data-index="{{ forloop.counter }}">
         <label class="required">Publication Title</label>
-        <input type="text" name="publication_title[]" class="form-control"
-               value="{{ pub.title }}">
+        <input type="text" name="publication_title[]" class="form-control" value="{{ pub.title }}">
 
         <label class="required">Indexing</label>
         <select name="publication_indexing[]" class="form-control">
@@ -354,7 +368,8 @@ function addBlock(type){
     const container=document.getElementById(cid);
     const clone=container.firstElementChild.cloneNode(true);
 
-    clone.querySelectorAll('input,select,textarea').forEach(el=>el.value="");
+    // clear values in the clone
+    clone.querySelectorAll('input,textarea').forEach(el=>el.value="");
     clone.querySelectorAll('select').forEach(select=>select.selectedIndex=0);
 
     const removeBtn=document.createElement("button");
@@ -371,7 +386,7 @@ function addBlock(type){
 function removeBlock(btn){
     const container=btn.closest(".block-container");
     const blocks=container.children;
-    
+
     if(blocks.length>1){
         btn.parentElement.remove();
         updateIndex(container);
@@ -386,10 +401,8 @@ function updateIndex(container){
     });
 }
 
-// Initialize any necessary data
 document.addEventListener('DOMContentLoaded', function() {
-    // Update all containers on load
-    ['programmes-container', 'research-publications-container', 'projects-container', 
+    ['programmes-container', 'research-publications-container', 'projects-container',
      'memberships-container', 'awards-container', 'publications-container'].forEach(id => {
         const container = document.getElementById(id);
         if(container) updateIndex(container);
