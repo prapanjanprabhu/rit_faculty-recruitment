@@ -222,11 +222,11 @@
                     <select name="community" class="form-control" required>
                         <option value="">Select Community</option>
                         <!-- 5 Community Options -->
-                        <option value="1" {% if data.community == 1 %}selected{% endif %}>OC (Open Category)</option>
-                        <option value="2" {% if data.community == 2 %}selected{% endif %}>BC (Backward Class)</option>
-                        <option value="3" {% if data.community == 3 %}selected{% endif %}>MBC (Most Backward Class)</option>
-                        <option value="4" {% if data.community == 4 %}selected{% endif %}>SC (Scheduled Caste)</option>
-                        <option value="5" {% if data.community == 5 %}selected{% endif %}>ST (Scheduled Tribe)</option>
+                        <option value="OC" {% if data.community == 1 %}selected{% endif %}>OC (Open Category)</option>
+                        <option value="BC" {% if data.community == 2 %}selected{% endif %}>BC (Backward Class)</option>
+                        <option value="MBC" {% if data.community == 3 %}selected{% endif %}>MBC (Most Backward Class)</option>
+                        <option value="SC" {% if data.community == 4 %}selected{% endif %}>SC (Scheduled Caste)</option>
+                        <option value="ST" {% if data.community == 5 %}selected{% endif %}>ST (Scheduled Tribe)</option>
                         
                         <!-- Backup: Also show dynamic options if available -->
                         {% for community in communities %}
@@ -248,7 +248,7 @@
                             <label class="multiselect-option">
                                 <input type="checkbox" 
                                        name="languages[]" 
-                                       value="1"
+                                       value="English"
                                        {% if 1 in data.languages %}checked{% endif %}
                                        onchange="updateSelectedTags('language')">
                                 English
@@ -256,7 +256,7 @@
                             <label class="multiselect-option">
                                 <input type="checkbox" 
                                        name="languages[]" 
-                                       value="2"
+                                       value="Tamil"
                                        {% if 2 in data.languages %}checked{% endif %}
                                        onchange="updateSelectedTags('language')">
                                 Tamil
@@ -264,7 +264,7 @@
                             <label class="multiselect-option">
                                 <input type="checkbox" 
                                        name="languages[]" 
-                                       value="3"
+                                       value="Hindi"
                                        {% if 3 in data.languages %}checked{% endif %}
                                        onchange="updateSelectedTags('language')">
                                 Hindi
@@ -272,7 +272,7 @@
                             <label class="multiselect-option">
                                 <input type="checkbox" 
                                        name="languages[]" 
-                                       value="4"
+                                       value="Malayalam"
                                        {% if 4 in data.languages %}checked{% endif %}
                                        onchange="updateSelectedTags('language')">
                                 Malayalam
@@ -280,7 +280,7 @@
                             <label class="multiselect-option">
                                 <input type="checkbox" 
                                        name="languages[]" 
-                                       value="5"
+                                       value="Telugu"
                                        {% if 5 in data.languages %}checked{% endif %}
                                        onchange="updateSelectedTags('language')">
                                 Telugu

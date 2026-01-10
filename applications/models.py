@@ -140,20 +140,16 @@ class Document(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
 
-class Language(models.Model):
-    name = models.CharField(max_length=50)
-    code = models.CharField(max_length=10, unique=True)
-    
-    def __str__(self):
-        return self.name
+
 
 
 class PositionApplication(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     position_applied = models.ForeignKey('Designation', on_delete=models.SET_NULL, null=True, blank=True)
     departments = models.ManyToManyField('Department', blank=True, related_name='applications')
-    community = models.ForeignKey('Community', on_delete=models.SET_NULL, null=True, blank=True)
-    languages = models.ManyToManyField(Language, blank=True, related_name='applications')
+    languages = models.JSONField(default=list, blank=True)
+    community = models.CharField(max_length=100, null=True, blank=True)
+
     
     present_designation = models.CharField(max_length=200, null=True, blank=True)
     present_organization = models.CharField(max_length=200, null=True, blank=True)
@@ -171,12 +167,7 @@ class PositionApplication(models.Model):
     created_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 
-class Community(models.Model):
-    name = models.CharField(max_length=100)
-    code = models.CharField(max_length=20, unique=True)
-    
-    def __str__(self):
-        return self.name
+
 
 
 class Qualification(models.Model):
