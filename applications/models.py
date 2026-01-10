@@ -186,10 +186,14 @@ class SponsoredProject(models.Model):
     agency = models.CharField(max_length=200, null=True, blank=True)
 
 
+
+from django.db import models
+
 class Education(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    category = models.ForeignKey(LevelOfEducation, on_delete=models.SET_NULL, null=True, blank=True)  # SSLC / HSC / UG / PG / PhD
-    degree = models.ForeignKey(Degree, on_delete=models.SET_NULL,null=True, blank=True)
+    candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE)
+    category = models.ForeignKey("LevelOfEducation", on_delete=models.SET_NULL, null=True, blank=True)  # SSLC/HSC/UG/PG/PhD
+    degree = models.ForeignKey("Degree", on_delete=models.SET_NULL, null=True, blank=True)
+
     specialization = models.CharField(max_length=100, null=True, blank=True)
     year_of_passing = models.CharField(max_length=10, null=True, blank=True)
     institution = models.CharField(max_length=200, null=True, blank=True)
@@ -197,18 +201,43 @@ class Education(models.Model):
     percentage = models.CharField(max_length=20, null=True, blank=True)
     class_obtained = models.CharField(max_length=50, null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.candidate_id} - {self.category} - {self.degree}"
+
 
 class ResearchDetails(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, null=True, blank=True)
+    candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE, null=True, blank=True)
+
     mode_ug = models.CharField(max_length=30, null=True, blank=True)
     mode_pg = models.CharField(max_length=30, null=True, blank=True)
     mode_phd = models.CharField(max_length=30, null=True, blank=True)
+
     arrears_ug = models.IntegerField(null=True, blank=True)
     arrears_pg = models.IntegerField(null=True, blank=True)
+
     gate_score = models.CharField(max_length=50, null=True, blank=True)
     net_slet_score = models.CharField(max_length=50, null=True, blank=True)
+
     me_thesis_title = models.TextField(null=True, blank=True)
     phd_thesis_title = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"ResearchDetails({self.candidate_id})"
+
+
+class EducationCertificate(models.Model):
+    candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE)
+    level = models.CharField(max_length=20)  # UG / PG / SSLC / HSC / PhD
+    file = models.FileField(upload_to="candidate/education_certificates/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("candidate", "level")
+
+    def __str__(self):
+        return f"{self.candidate_id} - {self.level}"
+
+
 
 
 class AcademicExperience(models.Model):
@@ -232,6 +261,9 @@ class IndustryExperience(models.Model):
     years = models.IntegerField(null=True, blank=True)
     months = models.IntegerField(null=True, blank=True)
     days = models.IntegerField(null=True, blank=True)
+
+
+
 
 
 from django.db import models
@@ -314,6 +346,10 @@ class Referee(models.Model):
     designation = models.CharField(max_length=200, null=True, blank=True)
     organization = models.CharField(max_length=200, null=True, blank=True)
     contact_number = models.CharField(max_length=15, null=True, blank=True)
+
+
+
+
 
 
 

@@ -229,10 +229,104 @@ from itertools import zip_longest
 
 from itertools import zip_longest
 from django.shortcuts import render, redirect
+from itertools import zip_longest
+import os
+
+from django.shortcuts import render, redirect
+from django.core.files.storage import default_storage
+
+from applications.models import (
+    LevelOfEducation, Department, Degree,
+    Certificate_Permission, Document_Type,
+)
+
+def clean_str(v, none_if_empty=False):
+    if v is None:
+        return None if none_if_empty else ""
+    s = str(v).strip()
+    if none_if_empty and s == "":
+        return None
+    return s
+
+def safe_int(v):
+    try:
+        return int(v)
+    except:
+        return None
+
+def to_int(v, d=0):
+    try:
+        return int(v)
+    except:
+        return d
+
+from itertools import zip_longest
+from django.shortcuts import render, redirect
+from django.core.files.storage import default_storage
+from applications.models import (
+    LevelOfEducation, Department, Degree,
+    Certificate_Permission, Document_Type
+)
+import os
+
+def clean_str(v, none_if_empty=False):
+    if v is None:
+        return None if none_if_empty else ""
+    s = str(v).strip()
+    if none_if_empty and s == "":
+        return None
+    return s
+
+def safe_int(v):
+    try:
+        return int(v)
+    except:
+        return None
 
 def educational_qualifications(request):
+    """
+    RULES:
+    ✅ default show UG + PG blocks
+    ✅ must submit UG + PG qualifications
+    ✅ must upload UG + PG certificates
+    ✅ if selected dept requires extra cert (PhD/SSLC/HSC etc) -> must upload those too
+    """
+
+    summary = request.session.get("summary", {})
+    selected_dept_ids = summary.get("departments", [])  # ✅ MULTI DEPT LIST
+
+    # -----------------------------
+    # Infer level from Document_Type name
+    # -----------------------------
+    def infer_level_from_docname(name: str):
+        n = (name or "").lower()
+        if "sslc" in n: return "SSLC"
+        if "hsc" in n or "higher secondary" in n: return "HSC"
+        if "ug" in n or "undergraduate" in n: return "UG"
+        if "pg" in n or "postgraduate" in n: return "PG"
+        if "phd" in n or "doctorate" in n: return "PhD"
+        return None
+
+    # ✅ Always required
+    required_levels = {"UG", "PG"}
+
+    # ✅ Add dept-based required levels
+    if selected_dept_ids:
+        req_docs = (
+            Certificate_Permission.objects
+            .filter(department_id__in=selected_dept_ids, is_required=True)
+            .select_related("document_type")
+        )
+        for p in req_docs:
+            lvl = infer_level_from_docname(p.document_type.document_type)
+            if lvl:
+                required_levels.add(lvl)
+
+    # GET existing session values
+    education_rows = request.session.get("education", [])
+    tmp_certs = request.session.get("education_tmp_certificates", {})  # {"0":"tmp/..","1":"tmp/.."}
+
     if request.method == "POST":
-        # pull all POST lists (must match your input names exactly)
         categories       = request.POST.getlist("category[]")
         degrees          = request.POST.getlist("degree[]")
         specializations  = request.POST.getlist("specialization[]")
@@ -242,21 +336,15 @@ def educational_qualifications(request):
         percentages      = request.POST.getlist("percentage[]")
         classes          = request.POST.getlist("class_obtained[]")
 
-        education_list = []
+        # IMPORTANT: file input must be multiple and aligned by row order
+        cert_files = request.FILES.getlist("edu_certificate[]")
 
-        # zip and build structured entries
-        for cat, deg, spe, year, inst, uni, per, cls in zip_longest(
-            categories,
-            degrees,
-            specializations,
-            years,
-            institutions,
-            universities,
-            percentages,
-            classes,
-            fillvalue=""
-        ):
-            # normalize
+        new_rows = []
+        new_tmp_certs = dict(tmp_certs)  # keep old uploads if not reuploaded
+
+        for idx, (cat, deg, spe, year, inst, uni, per, cls) in enumerate(zip_longest(
+            categories, degrees, specializations, years, institutions, universities, percentages, classes, fillvalue=""
+        )):
             cat  = clean_str(cat)
             deg  = clean_str(deg)
             spe  = clean_str(spe)
@@ -266,12 +354,25 @@ def educational_qualifications(request):
             per  = clean_str(per)
             cls  = clean_str(cls)
 
-            # skip fully empty rows
+            # skip totally empty row
             if not (cat or deg or spe or year or inst or uni or per or cls):
                 continue
 
-            education_list.append({
-                # keep raw ids as strings in session; convert at DB save time
+            level_obj = LevelOfEducation.objects.filter(id=safe_int(cat)).first()
+            level_name = (level_obj.name if level_obj else "").strip()
+
+            # ✅ save tmp certificate for this row if uploaded now
+            if idx < len(cert_files) and cert_files[idx]:
+                f = cert_files[idx]
+                if not request.session.session_key:
+                    request.session.save()
+                tmp_path = default_storage.save(
+                    f"tmp/edu_{request.session.session_key}_{idx}_{f.name}",
+                    f
+                )
+                new_tmp_certs[str(idx)] = tmp_path
+
+            new_rows.append({
                 "category": cat,
                 "degree": deg,
                 "specialization": spe,
@@ -280,12 +381,43 @@ def educational_qualifications(request):
                 "university": uni,
                 "percentage": per,
                 "class_obtained": cls,
+                "level_name": level_name,
+                "certificate_name": os.path.basename(new_tmp_certs.get(str(idx), "")) if new_tmp_certs.get(str(idx)) else "",
             })
 
-        # IMPORTANT: session must be json-serializable => list of dicts only ✅
-        request.session["education"] = education_list
+        # ✅ MUST have UG + PG rows at minimum
+        present_levels = { (r.get("level_name") or "") for r in new_rows }
+        missing_levels = [lvl for lvl in required_levels if lvl not in present_levels]
+        if missing_levels:
+            return render(request, "faculty_requirement/faculty/educational_qualifications.html", {
+                "education": new_rows,
+                "research": request.session.get("research_details", {}),
+                "levels": LevelOfEducation.objects.all().order_by("name"),
+                "departments": Department.objects.select_related("degree").all(),
+                "required_levels": sorted(required_levels),
+                "error": f"Missing required qualification(s): {', '.join(missing_levels)}",
+            })
 
-        # research block (unchanged, but sanitize)
+        # ✅ MUST have certificates for required levels
+        level_to_has_cert = {}
+        for i, r in enumerate(new_rows):
+            lvl = (r.get("level_name") or "").strip()
+            has = bool(new_tmp_certs.get(str(i)))
+            if lvl:
+                level_to_has_cert[lvl] = level_to_has_cert.get(lvl, False) or has
+
+        missing_certs = [lvl for lvl in required_levels if not level_to_has_cert.get(lvl)]
+        if missing_certs:
+            return render(request, "faculty_requirement/faculty/educational_qualifications.html", {
+                "education": new_rows,
+                "research": request.session.get("research_details", {}),
+                "levels": LevelOfEducation.objects.all().order_by("name"),
+                "departments": Department.objects.select_related("degree").all(),
+                "required_levels": sorted(required_levels),
+                "error": f"Upload required certificate(s): {', '.join(missing_certs)}",
+            })
+
+        # save research details session (your same)
         request.session["research_details"] = {
             "mode_ug": request.POST.get("mode_ug") or "",
             "mode_pg": request.POST.get("mode_pg") or "",
@@ -298,22 +430,31 @@ def educational_qualifications(request):
             "phd_thesis_title": request.POST.get("phd_thesis_title") or "",
         }
 
-        # ensure session is committed
+        request.session["education"] = new_rows
+        request.session["education_tmp_certificates"] = new_tmp_certs
         request.session.modified = True
-
         return redirect("academic_and_industry_experience")
 
-    # GET: rehydrate
-    return render(
-        request,
-        "faculty_requirement/faculty/educational_qualifications.html",
-        {
-            "education": request.session.get("education", []),
-            "research": request.session.get("research_details", {}),
-            "levels": LevelOfEducation.objects.all().order_by("name"),
-            "departments": Department.objects.select_related("degree").all(),
-        }
-    )
+    # ✅ GET default show UG + PG always
+    if not education_rows:
+        ug = LevelOfEducation.objects.filter(name__iexact="UG").first()
+        pg = LevelOfEducation.objects.filter(name__iexact="PG").first()
+        education_rows = [
+            {"category": str(ug.id) if ug else "", "degree":"", "specialization":"", "year_of_passing":"",
+             "institution":"", "university":"", "percentage":"", "class_obtained":"", "level_name":"UG", "certificate_name":""},
+            {"category": str(pg.id) if pg else "", "degree":"", "specialization":"", "year_of_passing":"",
+             "institution":"", "university":"", "percentage":"", "class_obtained":"", "level_name":"PG", "certificate_name":""},
+        ]
+
+    return render(request, "faculty_requirement/faculty/educational_qualifications.html", {
+        "education": education_rows,
+        "research": request.session.get("research_details", {}),
+        "levels": LevelOfEducation.objects.all().order_by("name"),
+        "departments": Department.objects.select_related("degree").all(),
+        "required_levels": sorted(required_levels),  # ✅ show on UI
+        "error": None,
+    })
+
 
 
 
@@ -559,26 +700,38 @@ def safe_int(v):
     try: return int(v)
     except: return None
 
-from datetime import date
+
+
+
+
+from django.shortcuts import render, redirect
 from django.db import transaction
-from django.utils.dateparse import parse_date
-from django.utils.text import slugify
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-import json, os
-from applications.models import TeachingContributionEntry
+from django.utils.text import slugify
+from django.utils.dateparse import parse_date
+from datetime import date
+import os
+
+from applications.models import (
+    Candidate, PositionApplication, Designation, Department, Degree,
+    Qualification, SponsoredProject, Education, ResearchDetails,
+    AcademicExperience, IndustryExperience, Referee, Document,
+    Document_Type, LevelOfEducation, EducationCertificate,
+    ProgrammePublicationEntry, TeachingContributionEntry
+)
+
+def safe_int(v):
+    try:
+        return int(v)
+    except:
+        return None
+
 def calculate_age(dob):
     if not dob:
         return None
     today = date.today()
-    return (
-        today.year - dob.year
-        - ((today.month, today.day) < (dob.month, dob.day))
-    )
-
-def safe_int(v):
-    try: return int(v)
-    except: return None
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
 
 def referees_and_declaration(request):
@@ -595,8 +748,6 @@ def referees_and_declaration(request):
     research              = request.session.get("research_details", {})
     academic              = request.session.get("academic_experience", [])
     industry              = request.session.get("industry_experience", [])
-    subjects              = request.session.get("subjects", [])
-    contributions         = request.session.get("contributions", [])
     programmes            = request.session.get("programmes", [])
     publications          = request.session.get("publications", [])
     research_publications = request.session.get("research_publications", [])
@@ -605,6 +756,9 @@ def referees_and_declaration(request):
     memberships           = request.session.get("memberships", [])
     awards                = request.session.get("awards", [])
     uploaded_docs         = request.session.get("uploaded_documents", {})
+
+    # ✅ certificates saved as tmp paths from educational_qualifications()
+    tmp_certs             = request.session.get("education_tmp_certificates", {})  # {"0": "tmp/...", "1": "tmp/..."}
 
     candidate_id = request.session.get("candidate_id")
 
@@ -630,8 +784,6 @@ def referees_and_declaration(request):
         candidate.phone_secondary = personal.get("phone_secondary")
         candidate.address = personal.get("address")
         candidate.caste = personal.get("caste")
-        # candidate.mother_name_and_occupation = personal.get("mother_name_and_occupation")
-
 
         candidate.marital_status = (personal.get("marital_status") or "").strip() or None
         candidate.pan_number = (personal.get("pan_number") or "").strip() or None
@@ -642,7 +794,6 @@ def referees_and_declaration(request):
 
         candidate.total_experience_years = safe_int(personal.get("total_experience_years"))
         candidate.present_post_years = safe_int(personal.get("present_post_years"))
-
         candidate.save()
 
         # =============================
@@ -662,7 +813,7 @@ def referees_and_declaration(request):
             default_storage.delete(tmp)
 
         # =============================
-        # DOCUMENTS
+        # DOCUMENTS (general docs)
         # =============================
         Document.objects.filter(candidate=candidate).delete()
         for doc_id, tmp_path in uploaded_docs.items():
@@ -686,16 +837,14 @@ def referees_and_declaration(request):
         # =============================
         # POSITION APPLICATION
         # =============================
-        community_value  = summary.get("community")
-        languages_value  = summary.get("languages", [])
         designation_obj  = Designation.objects.filter(id=summary.get("present_designation")).first()
 
         position_app, _ = PositionApplication.objects.update_or_create(
             candidate=candidate,
             defaults={
                 "position_applied_id": summary.get("position_applied"),
-                "community": community_value,
-                "languages": languages_value,
+                "community": summary.get("community"),
+                "languages": summary.get("languages", []),
                 "present_designation": designation_obj.name if designation_obj else None,
                 "present_organization": summary.get("present_organization"),
                 "specialization": summary.get("overall_specialization"),
@@ -711,7 +860,6 @@ def referees_and_declaration(request):
                 "students_guided_ongoing": safe_int(summary.get("students_guided_ongoing")),
             }
         )
-
         position_app.departments.set(
             Department.objects.filter(id__in=summary.get("departments", []))
         )
@@ -730,7 +878,7 @@ def referees_and_declaration(request):
             )
 
         # =============================
-        # SPONSORED PROJECTS (if you still use this table elsewhere, keep)
+        # SPONSORED PROJECTS (table)
         # =============================
         SponsoredProject.objects.filter(candidate=candidate).delete()
         for p in sponsored_projects:
@@ -743,13 +891,20 @@ def referees_and_declaration(request):
             )
 
         # =============================
-        # EDUCATION
+        # EDUCATION (table)
         # =============================
         Education.objects.filter(candidate=candidate).delete()
-        for e in education:
-            Education.objects.create(
+
+        # Keep a map: index -> level_name (UG/PG/PhD)
+        index_to_level = {}
+
+        for idx, e in enumerate(education):
+            level_obj = LevelOfEducation.objects.filter(id=safe_int(e.get("category"))).first()
+            level_name = (level_obj.name if level_obj else "").strip()  # UG/PG/PhD/...
+
+            edu_obj = Education.objects.create(
                 candidate=candidate,
-                category=LevelOfEducation.objects.filter(id=safe_int(e.get("category"))).first(),
+                category=level_obj,
                 degree=Degree.objects.filter(id=safe_int(e.get("degree"))).first(),
                 specialization=e.get("specialization"),
                 year_of_passing=e.get("year_of_passing"),
@@ -758,6 +913,44 @@ def referees_and_declaration(request):
                 percentage=e.get("percentage"),
                 class_obtained=e.get("class_obtained"),
             )
+            index_to_level[idx] = level_name
+
+        # =============================
+        # ✅ EDUCATION CERTIFICATES (FIXED)
+        # =============================
+        # Model: EducationCertificate(candidate, level, file)
+        # unique_together = (candidate, level)
+
+        # Optional: clear old ones first OR update_or_create
+        # We'll update_or_create per level and remove leftovers not present this time.
+        current_levels = set([lvl for lvl in index_to_level.values() if lvl])
+
+        # delete certificates that are no longer present
+        EducationCertificate.objects.filter(candidate=candidate).exclude(level__in=current_levels).delete()
+
+        for idx, level_name in index_to_level.items():
+            if not level_name:
+                continue
+
+            tmp_path = tmp_certs.get(str(idx))
+            if tmp_path and default_storage.exists(tmp_path):
+                ext = os.path.splitext(tmp_path)[1]
+                safe_name = slugify(candidate.name or "candidate")
+                file_name = f"{safe_name}-{candidate.id}_{level_name}_certificate{ext}"
+
+                with default_storage.open(tmp_path, "rb") as f:
+                    EducationCertificate.objects.update_or_create(
+                        candidate=candidate,
+                        level=level_name,
+                        defaults={
+                            "file": ContentFile(
+                                f.read(),
+                                name=f"candidate/{safe_name}-{candidate.id}/education_certificates/{file_name}"
+                            )
+                        }
+                    )
+
+                default_storage.delete(tmp_path)
 
         # =============================
         # RESEARCH DETAILS
@@ -792,10 +985,9 @@ def referees_and_declaration(request):
         # TEACHING + CONTRIBUTIONS
         # =============================
         TeachingContributionEntry.objects.filter(candidate=candidate).delete()
-
         teaching_entries = request.session.get("teaching_entries", [])
-        bulk = []
 
+        bulk = []
         for r in teaching_entries:
             bulk.append(TeachingContributionEntry(
                 candidate=candidate,
@@ -805,22 +997,15 @@ def referees_and_declaration(request):
                 department_contribution=r.get("department_contribution"),
                 college_contribution=r.get("college_contribution"),
             ))
-
         if bulk:
             TeachingContributionEntry.objects.bulk_create(bulk)
 
-        # ==========================================================
-        # PROGRAMMES + PUBLICATIONS (✅ ONE TABLE, ✅ NO JSON, ✅ NORMAL)
-        # ==========================================================
-        # IMPORTANT:
-        # - Remove usage of Programme, Publication, ProgrammesPublications for this page
-        # - Store everything in ProgrammePublicationEntry
-
+        # =============================
+        # PROGRAMMES + PUBLICATIONS (single table)
+        # =============================
         ProgrammePublicationEntry.objects.filter(candidate=candidate).delete()
-
         rows = []
 
-        # Programmes
         for p in programmes:
             if (p.get("programme_type") or "").strip():
                 rows.append(ProgrammePublicationEntry(
@@ -831,7 +1016,6 @@ def referees_and_declaration(request):
                     programme_count=safe_int(p.get("count")),
                 ))
 
-        # Publications (General)
         for pub in publications:
             if (pub.get("title") or "").strip():
                 rows.append(ProgrammePublicationEntry(
@@ -841,7 +1025,6 @@ def referees_and_declaration(request):
                     publication_indexing=pub.get("indexing"),
                 ))
 
-        # Research publications (Scopus indexed)
         for rp in research_publications:
             if (rp.get("details") or "").strip():
                 rows.append(ProgrammePublicationEntry(
@@ -850,7 +1033,6 @@ def referees_and_declaration(request):
                     details=rp.get("details"),
                 ))
 
-        # Research scholars (single text)
         if (research_scholars or "").strip():
             rows.append(ProgrammePublicationEntry(
                 candidate=candidate,
@@ -858,7 +1040,6 @@ def referees_and_declaration(request):
                 details=research_scholars,
             ))
 
-        # Sponsored projects (store in same single table also)
         for sp in sponsored_projects:
             if (sp.get("title") or "").strip():
                 rows.append(ProgrammePublicationEntry(
@@ -871,7 +1052,6 @@ def referees_and_declaration(request):
                     project_duration=sp.get("duration"),
                 ))
 
-        # Memberships
         for m in memberships:
             if (m.get("details") or "").strip():
                 rows.append(ProgrammePublicationEntry(
@@ -880,7 +1060,6 @@ def referees_and_declaration(request):
                     details=m.get("details"),
                 ))
 
-        # Awards
         for a in awards:
             if (a.get("details") or "").strip():
                 rows.append(ProgrammePublicationEntry(
@@ -902,7 +1081,7 @@ def referees_and_declaration(request):
             request.POST.getlist("ref_organization[]"),
             request.POST.getlist("ref_contact[]"),
         ):
-            if n.strip():
+            if (n or "").strip():
                 Referee.objects.create(
                     candidate=candidate,
                     name=n,
@@ -913,8 +1092,6 @@ def referees_and_declaration(request):
 
     request.session.flush()
     return redirect("application_success")
-
-
 
 
 
