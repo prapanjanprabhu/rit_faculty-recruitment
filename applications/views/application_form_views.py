@@ -778,8 +778,9 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils.text import slugify
 from django.utils.dateparse import parse_date
-from datetime import date
+
 import os
+from datetime import date
 
 from applications.models import (
     Candidate, PositionApplication, Designation, Department, Degree,
@@ -800,6 +801,7 @@ def calculate_age(dob):
         return None
     today = date.today()
     return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
 
 def referees_and_declaration(request):
     if request.method != "POST":
@@ -851,8 +853,8 @@ def referees_and_declaration(request):
         candidate.phone_secondary = personal.get("phone_secondary")
         candidate.address = personal.get("address")
         candidate.caste = personal.get("caste")
-        candidate.community = personal.get("community")  
-        candidate.languages = personal.get("languages", []) 
+        candidate.community = personal.get("community")
+        candidate.languages = personal.get("languages", [])
 
         candidate.marital_status = (personal.get("marital_status") or "").strip() or None
         candidate.pan_number = (personal.get("pan_number") or "").strip() or None
@@ -906,7 +908,7 @@ def referees_and_declaration(request):
         # =============================
         # POSITION APPLICATION
         # =============================
-        designation_obj  = Designation.objects.filter(id=summary.get("present_designation")).first()
+        designation_obj = Designation.objects.filter(id=summary.get("present_designation")).first()
 
         position_app, _ = PositionApplication.objects.update_or_create(
             candidate=candidate,
@@ -916,7 +918,6 @@ def referees_and_declaration(request):
                 "present_organization": summary.get("present_organization"),
                 "specialization": summary.get("overall_specialization"),
 
-                # ✅ NEW: arrears saved here
                 "arrears_ug": safe_int(summary.get("arrears_ug")),
                 "arrears_pg": safe_int(summary.get("arrears_pg")),
 
@@ -935,7 +936,6 @@ def referees_and_declaration(request):
         position_app.departments.set(
             Department.objects.filter(id__in=summary.get("departments", []))
         )
-
 
         # =============================
         # QUALIFICATIONS
@@ -967,7 +967,6 @@ def referees_and_declaration(request):
         # EDUCATION
         # =============================
         Education.objects.filter(candidate=candidate).delete()
-
         index_to_level = {}
 
         for idx, e in enumerate(education):
@@ -1017,7 +1016,7 @@ def referees_and_declaration(request):
                 default_storage.delete(tmp_path)
 
         # =============================
-        # RESEARCH DETAILS  ✅ (now stores Gate/Net certificates)
+        # RESEARCH DETAILS (Gate/Net certs)
         # =============================
         ResearchDetails.objects.filter(candidate=candidate).delete()
 
@@ -1032,7 +1031,6 @@ def referees_and_declaration(request):
                 phd_thesis_title=research.get("phd_thesis_title"),
             )
 
-            # Gate certificate
             gate_tmp = research_tmp.get("gate_certificate_tmp")
             gate_name = research_tmp.get("gate_certificate_name") or "gate_certificate"
             if gate_tmp and default_storage.exists(gate_tmp):
@@ -1040,7 +1038,6 @@ def referees_and_declaration(request):
                     rd.gate_certificate.save(gate_name, ContentFile(f.read()), save=True)
                 default_storage.delete(gate_tmp)
 
-            # Net/Slet certificate
             net_tmp = research_tmp.get("net_slet_certificate_tmp")
             net_name = research_tmp.get("net_slet_certificate_name") or "net_slet_certificate"
             if net_tmp and default_storage.exists(net_tmp):
@@ -1150,29 +1147,29 @@ def referees_and_declaration(request):
             ProgrammePublicationEntry.objects.bulk_create(rows)
 
         # =============================
-        # REFEREES
+        # ✅ REFEREES  (UPDATED)
         # =============================
         Referee.objects.filter(candidate=candidate).delete()
-        for n, d, o, c in zip(
+
+        for n, d, o, em, wa in zip(
             request.POST.getlist("ref_name[]"),
             request.POST.getlist("ref_designation[]"),
             request.POST.getlist("ref_organization[]"),
-            request.POST.getlist("ref_contact[]"),
+            request.POST.getlist("ref_email[]"),
+            request.POST.getlist("ref_whatsapp[]"),
         ):
             if (n or "").strip():
                 Referee.objects.create(
                     candidate=candidate,
-                    name=n,
-                    designation=d,
-                    organization=o,
-                    contact_number=c,
+                    name=(n or "").strip(),
+                    designation=(d or "").strip(),
+                    organization=(o or "").strip(),
+                    email=(em or "").strip(),
+                    whatsapp_number=(wa or "").strip(),
                 )
 
     request.session.flush()
     return redirect("application_success")
-
-
-
 
 
 

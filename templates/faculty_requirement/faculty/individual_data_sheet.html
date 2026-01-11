@@ -1,364 +1,358 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Individual Data Sheet</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
+{% extends "faculty_requirement/base.html" %}
+{% load static %}
 
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
+{% block page_title %}Individual Data Sheet{% endblock %}
+{% block header_meta %}
+  <div>Provide details of your Personal Information</div>
+{% endblock %}
 
-        .header { background: #003366; color: white; padding: 20px; text-align: center; border-bottom: 4px solid #ffcc00; }
-        .header h1 { font-size: 24px; margin-bottom: 5px; font-weight: 600; }
-        .header p { font-size: 14px; opacity: 0.9; }
+{% block extra_css %}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
 
-        .form-section { padding: 25px; }
+  .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
 
-        .section-title { color: #003366; font-size: 18px; font-weight: 600; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
+  .form-section { padding: 25px; }
 
-        .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
-        .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
+  .section-title { color: #003366; font-size: 18px; font-weight: 600; margin: 25px 0 15px;
+    padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
 
-        label { display: block; margin-bottom: 5px; color: #003366; font-weight: 500; font-size: 14px; }
-        .required:after { content: " *"; color: #d32f2f; }
+  .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
+  .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
 
-        .form-control, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        .form-control:focus, select:focus, textarea:focus { outline: none; border-color: #003366; }
+  label { display: block; margin-bottom: 5px; color: #003366; font-weight: 500; font-size: 14px; }
+  .required:after { content: " *"; color: #d32f2f; }
 
-        .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .btn-prev { background: #6c757d; color: white; }
-        .btn-next { background: #003366; color: white; }
-        .btn-prev:hover { background: #545b62; }
-        .btn-next:hover { background: #002244; }
+  .form-control, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid #ccc;
+    border-radius: 4px; font-size: 14px; }
+  .form-control:focus, select:focus, textarea:focus { outline: none; border-color: #003366; }
 
-        .button-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+  .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+  .btn-prev { background: #6c757d; color: white; }
+  .btn-next { background: #003366; color: white; }
+  .btn-prev:hover { background: #545b62; }
+  .btn-next:hover { background: #002244; }
 
-        .instructions { background: #e7f1ff; border-left: 3px solid #003366; padding: 10px 15px; margin-bottom: 20px; font-size: 13px; }
+  .button-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px;
+    border-top: 1px solid #eee; }
 
-        .full-width { flex: 1 0 100%; }
+  .instructions { background: #e7f1ff; border-left: 3px solid #003366; padding: 10px 15px;
+    margin-bottom: 20px; font-size: 13px; }
 
-        /* ✅ Multiselect styles */
-        .multiselect-dropdown { position: relative; width: 100%; }
-        .multiselect-input {
-            width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;
-            background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-        }
-        .multiselect-input:after { content: '▼'; font-size: 12px; }
-        .multiselect-options {
-            position: absolute; top: 100%; left: 0; right: 0;
-            background: white; border: 1px solid #ccc; border-radius: 4px;
-            margin-top: 2px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .multiselect-options.show { display: block; }
-        .multiselect-option { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; }
-        .multiselect-option:hover { background: #f0f0f0; }
-        .multiselect-option input[type="checkbox"] { margin-right: 8px; }
-        .selected-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
-        .selected-tag {
-            background: #e3f2fd; color: #1976d2;
-            padding: 3px 8px; border-radius: 12px; font-size: 12px;
-            display: flex; align-items: center;
-        }
-        .selected-tag .remove-tag { margin-left: 5px; cursor: pointer; font-size: 14px; }
+  .full-width { flex: 1 0 100%; }
 
-        @media (max-width: 768px) {
-            .form-group { min-width: 100%; }
-            .button-group { flex-direction: column; gap: 10px; }
-            .btn { width: 100%; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Individual Data Sheet</h1>
-            <p>Personal and contact information</p>
+  /* ✅ Multiselect styles */
+  .multiselect-dropdown { position: relative; width: 100%; }
+  .multiselect-input {
+    width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;
+    background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  }
+  .multiselect-input:after { content: '▼'; font-size: 12px; }
+  .multiselect-options {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid #ccc; border-radius: 4px;
+    margin-top: 2px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .multiselect-options.show { display: block; }
+  .multiselect-option { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; }
+  .multiselect-option:hover { background: #f0f0f0; }
+  .multiselect-option input[type="checkbox"] { margin-right: 8px; }
+  .selected-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .selected-tag {
+    background: #e3f2fd; color: #1976d2;
+    padding: 3px 8px; border-radius: 12px; font-size: 12px;
+    display: flex; align-items: center;
+  }
+  .selected-tag .remove-tag { margin-left: 5px; cursor: pointer; font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .form-group { min-width: 100%; }
+    .button-group { flex-direction: column; gap: 10px; }
+    .btn { width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="instructions">
+        <p><strong>Instructions:</strong> Fill all required personal details. Fields marked * are mandatory.</p>
+      </div>
+
+      <h2 class="section-title">Personal Information</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Full Name</label>
+          <input type="text" name="name" class="form-control" value="{{ data.name|default:'' }}">
         </div>
 
-        <div class="form-section">
-            <form method="post">
-                {% csrf_token %}
-
-                <div class="instructions">
-                    <p><strong>Instructions:</strong> Fill all required personal details. Fields marked * are mandatory.</p>
-                </div>
-
-                <h2 class="section-title">Personal Information</h2>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Full Name</label>
-                        <input type="text" name="name" class="form-control" value="{{ data.name|default:'' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="required">Date of Birth</label>
-                        <input type="date" name="date_of_birth" class="form-control" value="{{ data.date_of_birth|default:'' }}">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Gender</label>
-                        <select name="gender" class="form-control">
-                            <option value="">Select Gender</option>
-                            <option value="Male" {% if data.gender == "Male" %}selected{% endif %}>Male</option>
-                            <option value="Female" {% if data.gender == "Female" %}selected{% endif %}>Female</option>
-                            <option value="Trans" {% if data.gender == "Trans" %}selected{% endif %}>Trans</option>
-                            <option value="Other" {% if data.gender == "Other" %}selected{% endif %}>Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Marital Status</label>
-                        <select name="marital_status" class="form-control">
-                            <option value="">Select Status</option>
-                            <option value="Single" {% if data.marital_status == "Single" %}selected{% endif %}>Single</option>
-                            <option value="Married" {% if data.marital_status == "Married" %}selected{% endif %}>Married</option>
-                            <option value="Divorced" {% if data.marital_status == "Divorced" %}selected{% endif %}>Divorced</option>
-                            <option value="Widowed" {% if data.marital_status == "Widowed" %}selected{% endif %}>Widowed</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- ✅ NEW: Community + Languages -->
-                <h2 class="section-title">Community & Languages</h2>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Community</label>
-                        <select name="community" class="form-control">
-                            <option value="">Select Community</option>
-                            <option value="OC" {% if data.community == "OC" %}selected{% endif %}>OC (Open Category)</option>
-                            <option value="BC" {% if data.community == "BC" %}selected{% endif %}>BC (Backward Class)</option>
-                            <option value="MBC" {% if data.community == "MBC" %}selected{% endif %}>MBC (Most Backward Class)</option>
-                            <option value="SC" {% if data.community == "SC" %}selected{% endif %}>SC (Scheduled Caste)</option>
-                            <option value="ST" {% if data.community == "ST" %}selected{% endif %}>ST (Scheduled Tribe)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="required">Languages Known</label>
-                        <div class="multiselect-dropdown" id="language-dropdown">
-                            <div class="multiselect-input" onclick="toggleDropdown('language')">
-                                Select Languages
-                            </div>
-
-                            <div class="multiselect-options" id="language-options">
-                                <label class="multiselect-option">
-                                    <input type="checkbox" name="languages[]" value="English"
-                                           {% if "English" in data.languages %}checked{% endif %}
-                                           onchange="updateSelectedTags('language')">
-                                    English
-                                </label>
-
-                                <label class="multiselect-option">
-                                    <input type="checkbox" name="languages[]" value="Tamil"
-                                           {% if "Tamil" in data.languages %}checked{% endif %}
-                                           onchange="updateSelectedTags('language')">
-                                    Tamil
-                                </label>
-
-                                <label class="multiselect-option">
-                                    <input type="checkbox" name="languages[]" value="Hindi"
-                                           {% if "Hindi" in data.languages %}checked{% endif %}
-                                           onchange="updateSelectedTags('language')">
-                                    Hindi
-                                </label>
-
-                                <label class="multiselect-option">
-                                    <input type="checkbox" name="languages[]" value="Malayalam"
-                                           {% if "Malayalam" in data.languages %}checked{% endif %}
-                                           onchange="updateSelectedTags('language')">
-                                    Malayalam
-                                </label>
-
-                                <label class="multiselect-option">
-                                    <input type="checkbox" name="languages[]" value="Telugu"
-                                           {% if "Telugu" in data.languages %}checked{% endif %}
-                                           onchange="updateSelectedTags('language')">
-                                    Telugu
-                                </label>
-                            </div>
-
-                            <div class="selected-tags" id="language-tags"></div>
-                            <input type="hidden" name="language_display" id="language-display">
-                        </div>
-                    </div>
-                </div>
-
-                <h2 class="section-title">Contact Information</h2>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Primary Phone</label>
-                        <input type="tel" name="phone_primary" class="form-control" value="{{ data.phone_primary|default:'' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Secondary Phone</label>
-                        <input type="tel" name="phone_secondary" class="form-control" value="{{ data.phone_secondary|default:'' }}">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label class="required">Email Address</label>
-                        <input type="email" name="email" class="form-control" value="{{ data.email|default:'' }}">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label class="required">Residential Address</label>
-                        <textarea name="address" class="form-control">{{ data.address|default:'' }}</textarea>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>PAN Number</label>
-                        <input type="text" name="pan_number" class="form-control" value="{{ data.pan_number|default:'' }}">
-                    </div>
-                </div>
-
-                <h2 class="section-title">Professional Experience</h2>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Total Experience (Years)</label>
-                        <input type="number" name="total_experience_years" class="form-control" value="{{ data.total_experience_years|default:'' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Experience in Present Post (Years)</label>
-                        <input type="number" name="present_post_years" class="form-control" value="{{ data.present_post_years|default:'' }}">
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button type="button" class="btn btn-prev" onclick="window.location.href='{% url 'individual_summary_sheet' %}'">← Previous</button>
-                    <button type="submit" class="btn btn-next">Save & Next →</button>
-                </div>
-            </form>
+        <div class="form-group">
+          <label class="required">Date of Birth</label>
+          <input type="date" name="date_of_birth" class="form-control" value="{{ data.date_of_birth|default:'' }}">
         </div>
-    </div>
+      </div>
 
-    <script>
-        // ================= MULTISELECT DROPDOWN (Language) =================
-        let activeDropdown = null;
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Gender</label>
+          <select name="gender" class="form-control">
+            <option value="">Select Gender</option>
+            <option value="Male" {% if data.gender == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if data.gender == "Female" %}selected{% endif %}>Female</option>
+            <option value="Trans" {% if data.gender == "Trans" %}selected{% endif %}>Trans</option>
+            <option value="Other" {% if data.gender == "Other" %}selected{% endif %}>Other</option>
+          </select>
+        </div>
 
-        function toggleDropdown(type) {
-            const dropdown = document.getElementById(`${type}-dropdown`);
-            const options = document.getElementById(`${type}-options`);
+        <div class="form-group">
+          <label>Marital Status</label>
+          <select name="marital_status" class="form-control">
+            <option value="">Select Status</option>
+            <option value="Single" {% if data.marital_status == "Single" %}selected{% endif %}>Single</option>
+            <option value="Married" {% if data.marital_status == "Married" %}selected{% endif %}>Married</option>
+            <option value="Divorced" {% if data.marital_status == "Divorced" %}selected{% endif %}>Divorced</option>
+            <option value="Widowed" {% if data.marital_status == "Widowed" %}selected{% endif %}>Widowed</option>
+          </select>
+        </div>
+      </div>
 
-            document.querySelectorAll('.multiselect-options').forEach(opt => {
-                if (opt !== options) opt.classList.remove('show');
-            });
+      <h2 class="section-title">Community & Languages</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Community</label>
+          <select name="community" class="form-control">
+            <option value="">Select Community</option>
+            <option value="OC" {% if data.community == "OC" %}selected{% endif %}>OC (Open Category)</option>
+            <option value="BC" {% if data.community == "BC" %}selected{% endif %}>BC (Backward Class)</option>
+            <option value="MBC" {% if data.community == "MBC" %}selected{% endif %}>MBC (Most Backward Class)</option>
+            <option value="SC" {% if data.community == "SC" %}selected{% endif %}>SC (Scheduled Caste)</option>
+            <option value="ST" {% if data.community == "ST" %}selected{% endif %}>ST (Scheduled Tribe)</option>
+          </select>
+        </div>
 
-            options.classList.toggle('show');
-            activeDropdown = options.classList.contains('show') ? dropdown : null;
+        <div class="form-group">
+          <label class="required">Languages Known</label>
+          <div class="multiselect-dropdown" id="language-dropdown">
+            <div class="multiselect-input" onclick="toggleDropdown('language')">Select Languages</div>
+
+            <div class="multiselect-options" id="language-options">
+              {% with langs=data.languages|default:'' %}
+              <label class="multiselect-option">
+                <input type="checkbox" name="languages[]" value="English"
+                  {% if langs and "English" in langs %}checked{% endif %}
+                  onchange="updateSelectedTags('language')"> English
+              </label>
+
+              <label class="multiselect-option">
+                <input type="checkbox" name="languages[]" value="Tamil"
+                  {% if langs and "Tamil" in langs %}checked{% endif %}
+                  onchange="updateSelectedTags('language')"> Tamil
+              </label>
+
+              <label class="multiselect-option">
+                <input type="checkbox" name="languages[]" value="Hindi"
+                  {% if langs and "Hindi" in langs %}checked{% endif %}
+                  onchange="updateSelectedTags('language')"> Hindi
+              </label>
+
+              <label class="multiselect-option">
+                <input type="checkbox" name="languages[]" value="Malayalam"
+                  {% if langs and "Malayalam" in langs %}checked{% endif %}
+                  onchange="updateSelectedTags('language')"> Malayalam
+              </label>
+
+              <label class="multiselect-option">
+                <input type="checkbox" name="languages[]" value="Telugu"
+                  {% if langs and "Telugu" in langs %}checked{% endif %}
+                  onchange="updateSelectedTags('language')"> Telugu
+              </label>
+              {% endwith %}
+            </div>
+
+            <div class="selected-tags" id="language-tags"></div>
+            <input type="hidden" name="language_display" id="language-display">
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Contact Information</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Primary Phone</label>
+          <input type="tel" name="phone_primary" class="form-control" value="{{ data.phone_primary|default:'' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Secondary Phone</label>
+          <input type="tel" name="phone_secondary" class="form-control" value="{{ data.phone_secondary|default:'' }}">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label class="required">Email Address</label>
+          <input type="email" name="email" class="form-control" value="{{ data.email|default:'' }}">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label class="required">Residential Address</label>
+          <textarea name="address" class="form-control">{{ data.address|default:'' }}</textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>PAN Number</label>
+          <input type="text" name="pan_number" class="form-control" value="{{ data.pan_number|default:'' }}">
+        </div>
+      </div>
+
+      <h2 class="section-title">Professional Experience</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Total Experience (Years)</label>
+          <input type="number" name="total_experience_years" class="form-control" value="{{ data.total_experience_years|default:'' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Experience in Present Post (Years)</label>
+          <input type="number" name="present_post_years" class="form-control" value="{{ data.present_post_years|default:'' }}">
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="btn btn-prev" onclick="window.location.href='{% url 'individual_summary_sheet' %}'">← Previous</button>
+        <button type="submit" class="btn btn-next">Save & Next →</button>
+      </div>
+    </form>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // ================= MULTISELECT DROPDOWN (Language) =================
+  let activeDropdown = null;
+
+  function toggleDropdown(type) {
+    const dropdown = document.getElementById(`${type}-dropdown`);
+    const options = document.getElementById(`${type}-options`);
+
+    document.querySelectorAll('.multiselect-options').forEach(opt => {
+      if (opt !== options) opt.classList.remove('show');
+    });
+
+    options.classList.toggle('show');
+    activeDropdown = options.classList.contains('show') ? dropdown : null;
+  }
+
+  function updateSelectedTags(type) {
+    const container = document.getElementById(`${type}-tags`);
+    const checkboxes = document.querySelectorAll(`#${type}-options input[type="checkbox"]`);
+    const displayInput = document.getElementById(`${type}-display`);
+    const inputElement = document.querySelector(`#${type}-dropdown .multiselect-input`);
+
+    let selectedValues = [];
+    let selectedTexts = [];
+
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        const text = cb.parentElement.textContent.trim();
+        selectedValues.push(cb.value);
+        selectedTexts.push(text);
+      }
+    });
+
+    container.innerHTML = '';
+    selectedTexts.forEach((text, index) => {
+      const tag = document.createElement('div');
+      tag.className = 'selected-tag';
+      tag.innerHTML = `${text} <span class="remove-tag" onclick="removeTag('${type}', '${selectedValues[index]}')">×</span>`;
+      container.appendChild(tag);
+    });
+
+    if (selectedTexts.length > 0) {
+      inputElement.textContent = selectedTexts.join(', ');
+      if (selectedTexts.length > 2) {
+        inputElement.textContent = selectedTexts.slice(0, 2).join(', ') + ` +${selectedTexts.length - 2} more`;
+      }
+    } else {
+      inputElement.textContent = 'Select Languages';
+    }
+
+    displayInput.value = selectedTexts.join(', ');
+  }
+
+  function removeTag(type, value) {
+    const checkbox = document.querySelector(`#${type}-options input[value="${value}"]`);
+    if (checkbox) {
+      checkbox.checked = false;
+      updateSelectedTags(type);
+    }
+  }
+
+  document.addEventListener('click', function(event) {
+    if (activeDropdown && !activeDropdown.contains(event.target)) {
+      document.querySelectorAll('.multiselect-options').forEach(opt => opt.classList.remove('show'));
+      activeDropdown = null;
+    }
+  });
+
+  // ================= REQUIRED FIELD VALIDATION =================
+  document.addEventListener('DOMContentLoaded', function () {
+    updateSelectedTags('language');
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const required = document.querySelectorAll('.required');
+      let valid = true;
+
+      required.forEach(field => {
+        const group = field.closest('.form-group');
+        const input = group ? group.querySelector('input, select, textarea') : null;
+
+        // Special case: language multiselect
+        if (group && group.querySelector('#language-dropdown')) {
+          const checked = document.querySelectorAll('#language-options input[type="checkbox"]:checked').length > 0;
+          const borderEl = document.querySelector('#language-dropdown .multiselect-input');
+          if (!checked) {
+            valid = false;
+            borderEl.style.borderColor = '#d32f2f';
+          } else {
+            borderEl.style.borderColor = '#ccc';
+          }
+          return;
         }
 
-        function updateSelectedTags(type) {
-            const container = document.getElementById(`${type}-tags`);
-            const checkboxes = document.querySelectorAll(`#${type}-options input[type="checkbox"]`);
-            const displayInput = document.getElementById(`${type}-display`);
-            const inputElement = document.querySelector(`#${type}-dropdown .multiselect-input`);
-
-            let selectedValues = [];
-            let selectedTexts = [];
-
-            checkboxes.forEach(cb => {
-                if (cb.checked) {
-                    const text = cb.parentElement.textContent.trim();
-                    selectedValues.push(cb.value);
-                    selectedTexts.push(text);
-                }
-            });
-
-            container.innerHTML = '';
-            selectedTexts.forEach((text, index) => {
-                const tag = document.createElement('div');
-                tag.className = 'selected-tag';
-                tag.innerHTML = `${text} <span class="remove-tag" onclick="removeTag('${type}', '${selectedValues[index]}')">×</span>`;
-                container.appendChild(tag);
-            });
-
-            if (selectedTexts.length > 0) {
-                inputElement.textContent = selectedTexts.join(', ');
-                if (selectedTexts.length > 2) {
-                    inputElement.textContent = selectedTexts.slice(0, 2).join(', ') + ` +${selectedTexts.length - 2} more`;
-                }
-            } else {
-                inputElement.textContent = 'Select Languages';
-            }
-
-            displayInput.value = selectedTexts.join(', ');
+        if (input && !String(input.value || '').trim()) {
+          valid = false;
+          input.style.borderColor = '#d32f2f';
+        } else if (input) {
+          input.style.borderColor = '#ccc';
         }
+      });
 
-        function removeTag(type, value) {
-            const checkbox = document.querySelector(`#${type}-options input[value="${value}"]`);
-            if (checkbox) {
-                checkbox.checked = false;
-                updateSelectedTags(type);
-            }
+      const email = document.querySelector('input[type="email"]');
+      if (email && email.value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.value)) {
+          valid = false;
+          email.style.borderColor = '#d32f2f';
         }
+      }
 
-        document.addEventListener('click', function(event) {
-            if (activeDropdown && !activeDropdown.contains(event.target)) {
-                document.querySelectorAll('.multiselect-options').forEach(opt => opt.classList.remove('show'));
-                activeDropdown = null;
-            }
-        });
-
-        // ================= REQUIRED FIELD VALIDATION =================
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const required = document.querySelectorAll('.required');
-            let valid = true;
-
-            required.forEach(field => {
-                const group = field.closest('.form-group');
-                const input = group ? group.querySelector('input, select, textarea') : null;
-
-                // Special case: language multiselect
-                if (group && group.querySelector('#language-dropdown')) {
-                    const checked = document.querySelectorAll('#language-options input[type="checkbox"]:checked').length > 0;
-                    if (!checked) {
-                        valid = false;
-                        document.querySelector('#language-dropdown .multiselect-input').style.borderColor = '#d32f2f';
-                    } else {
-                        document.querySelector('#language-dropdown .multiselect-input').style.borderColor = '#ccc';
-                    }
-                    return;
-                }
-
-                if (input && !String(input.value || '').trim()) {
-                    valid = false;
-                    input.style.borderColor = '#d32f2f';
-                } else if (input) {
-                    input.style.borderColor = '#ccc';
-                }
-            });
-
-            const email = document.querySelector('input[type="email"]');
-            if (email && email.value) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email.value)) {
-                    valid = false;
-                    email.style.borderColor = '#d32f2f';
-                }
-            }
-
-            if (!valid) {
-                e.preventDefault();
-                alert('Please fill all required fields (*) correctly');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize tags from existing session data
-            updateSelectedTags('language');
-        });
-    </script>
-</body>
-</html>
+      if (!valid) {
+        e.preventDefault();
+        alert('Please fill all required fields (*) correctly');
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,12 +1,15 @@
+{% extends "faculty_requirement/base.html" %}
 {% load faculty_tags %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teaching & Contributions</title>
+{% load static %}
+
+{% block page_title %}Teaching and Contribution{% endblock %}
+{% block header_meta %}
+  <div>Provide details of your Teaching Experience</div>
+{% endblock %}
+
+{% block extra_css %}
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -34,16 +37,9 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .col{flex:1;min-width:200px}
 </style>
-</head>
+{% endblock %}
 
-<body>
-<div class="container">
-  <div class="header">
-    <h1>Teaching & Contributions</h1>
-    <p>UG / PG Subjects + Pass % + Dept/College Contributions</p>
-  </div>
-
-  <div class="form-section">
+{% block content %}
     <form method="post">
       {% csrf_token %}
 
@@ -162,9 +158,9 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
       </div>
 
     </form>
-  </div>
-</div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 function addBlock(type){
   const cid = type === 'ug' ? 'ug-container' : 'pg-container';
@@ -219,6 +215,4 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 </script>
-
-</body>
-</html>
+{% endblock %}

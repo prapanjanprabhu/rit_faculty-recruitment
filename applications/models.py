@@ -211,8 +211,7 @@ import uuid
 from django.db import models
 
 def research_cert_upload_to(instance, filename):
-    ext = os.path.splitext(filename)[1].lower()  # .pdf/.jpg...
-    # store as candidate/<id>/research/<random>.<ext>
+    ext = os.path.splitext(filename)[1].lower()
     return f"candidate/{instance.candidate_id}/research/{uuid.uuid4().hex}{ext}"
 
 
@@ -257,7 +256,7 @@ class AcademicExperience(models.Model):
     institution = models.CharField(max_length=200, null=True, blank=True)
     designation = models.CharField(max_length=100, null=True, blank=True)
     joining_date = models.DateField(null=True, blank=True)
-    relieving_date = models.CharField(max_length=50, null=True, blank=True)  # "Till Date" allowed
+    relieving_date = models.DateField(null=True, blank=True)  
     years = models.IntegerField(null=True, blank=True)
     months = models.IntegerField(null=True, blank=True)
     days = models.IntegerField(null=True, blank=True)
@@ -357,7 +356,8 @@ class Referee(models.Model):
     name = models.CharField(max_length=200, null=True, blank=True)
     designation = models.CharField(max_length=200, null=True, blank=True)
     organization = models.CharField(max_length=200, null=True, blank=True)
-    contact_number = models.CharField(max_length=15, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    whatsapp_number = models.CharField(max_length=20, null=True, blank=True)
 
 
 

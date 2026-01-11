@@ -1,9 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Educational Qualifications</title>
+{% extends "faculty_requirement/base.html" %}
+{% load static %}
+
+{% block page_title %}Educational Qualifications{% endblock %}
+{% block header_meta %}
+  <div>Provide details of your Educational Qualifications</div>
+{% endblock %}
+
+{% block extra_css %}
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Calibri','Segoe UI',sans-serif; background:#f8f9fa; padding:20px; color:#333; }
@@ -40,15 +43,10 @@
       .education-header{ flex-direction:column; align-items:flex-start; gap:10px; }
     }
   </style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>Educational Qualifications</h1>
-    <p>Complete educational background and certificates</p>
-  </div>
+{% endblock %}
 
-  <div class="form-section">
+{% block content %}
+
     <form method="post" enctype="multipart/form-data" id="eduForm">
       {% csrf_token %}
 
@@ -230,9 +228,10 @@
         <button type="submit" class="btn btn-next">Save & Next →</button>
       </div>
     </form>
-  </div>
-</div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
   function addEdu(){
     const container = document.getElementById('edu-container');
@@ -305,5 +304,4 @@
     });
   }
 </script>
-</body>
-</html>
+{% endblock %}

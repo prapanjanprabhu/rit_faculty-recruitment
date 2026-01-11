@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>
+    {% block title %}
+      RAMCO INSTITUTE OF TECHNOLOGY
+    {% endblock %}
+  </title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body{
+      font-family: "Calibri","Segoe UI",sans-serif;
+      background:#f8f9fa;
+      color:#333;
+      padding: 20px;
+    }
+
+    /* ======= PAGE WRAPPER ======= */
+    .page-wrap{
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ======= HEADER (RIT) ======= */
+    .rit-header{
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:8px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.08);
+      overflow:hidden;
+    }
+
+    .rit-header-top{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      padding:14px 18px;
+      border-bottom:4px solid #ffcc00;
+      background:#003366;
+      color:#fff;
+    }
+
+    .rit-logo{
+      width:64px;
+      height:64px;
+      background: #fff;
+      border-radius:6px;
+      padding:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+    }
+
+    .rit-logo img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      display:block;
+    }
+
+    .rit-headings{
+      flex:1;
+      text-align:center;
+      line-height:1.2;
+    }
+
+    .rit-name{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:0.4px;
+    }
+
+    .rit-sub{
+      font-size:15px;
+      opacity:0.95;
+      margin-top:3px;
+    }
+
+    .rit-doc-title{
+      text-align:center;
+      padding:10px 18px 8px;
+      background:#fff;
+    }
+
+    .rit-doc-title h2{
+      font-size:16px;
+      font-weight:700;
+      color:#003366;
+      margin-bottom:6px;
+    }
+
+    .rit-meta{
+      text-align:center;
+      font-size:13px;
+      color:#444;
+      padding-bottom:10px;
+    }
+
+    .rit-rule{
+      height:1px;
+      background:#000;
+      opacity:0.35;
+      margin: 0 18px;
+    }
+
+    /* ======= MAIN CONTENT CARD ======= */
+    .content-card{
+      margin-top:16px;
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:8px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.08);
+      overflow:hidden;
+    }
+
+    .content-inner{
+      padding: 22px;
+    }
+
+    /* ======= FOOTER ======= */
+    .rit-footer{
+      margin-top:16px;
+      font-size:12px;
+      color:#666;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding: 8px 4px;
+    }
+
+    .rit-footer .muted{
+      color:#888;
+    }
+
+    /* Small screens */
+    @media (max-width:768px){
+      body{ padding:12px; }
+      .rit-header-top{ flex-direction:column; text-align:center; }
+      .rit-headings{ text-align:center; }
+      .rit-logo{ width:56px; height:56px; }
+      .content-inner{ padding:16px; }
+      .rit-footer{ flex-direction:column; gap:6px; }
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  <div class="page-wrap">
+
+    <!-- ================== RIT HEADER ================== -->
+    <header class="rit-header">
+      <div class="rit-header-top">
+        <div class="rit-logo">
+          <img src="{% static 'images/ritlogo.png' %}" alt="RIT Logo">
+        </div>
+
+        <div class="rit-headings">
+          <div class="rit-name">RAMCO INSTITUTE OF TECHNOLOGY</div>
+          <div class="rit-sub">(An Autonomous Institution)</div>
+          <div class="rit-sub">Rajapalayam - 626117</div>
+        </div>
+      </div>
+
+      <div class="rit-doc-title">
+        <h2>
+          {% block document_title %}
+            Practical Statement
+          {% endblock %}
+        </h2>
+
+        <div class="rit-meta">
+          {% block header_meta %}
+            {# Example default meta (optional). Override in pages if needed. #}
+          {% endblock %}
+        </div>
+      </div>
+
+      <div class="rit-rule"></div>
+    </header>
+
+    <!-- ================== PAGE CONTENT ================== -->
+    <main class="content-card">
+      <div class="content-inner">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- ================== FOOTER ================== -->
+    <footer class="rit-footer">
+      <div>
+        <span class="muted">RAMCO INSTITUTE OF TECHNOLOGY</span>
+        {% block footer_left %}{% endblock %}
+      </div>
+
+      <div class="muted">
+        {# HTML cannot auto-page-number like PDF. Keep this text. #}
+        {% block footer_right %}
+         <span class="muted">Developed By: Department of AD</span>
+        {% endblock %}
+      </div>
+    </footer>
+
+  </div>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

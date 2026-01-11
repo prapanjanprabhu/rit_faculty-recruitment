@@ -1,241 +1,263 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Declaration & Referees</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
-        
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
-        
-        .header { background: #003366; color: white; padding: 20px; text-align: center; border-bottom: 4px solid #ffcc00; }
-        .header h1 { font-size: 24px; margin-bottom: 5px; font-weight: 600; }
-        .header p { font-size: 14px; opacity: 0.9; }
-        
-        .form-section { padding: 25px; }
-        
-        .section-title { color: #003366; font-size: 18px; font-weight: 600; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
-        
-        .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
-        .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
-        
-        label { display: block; margin-bottom: 5px; color: #003366; font-weight: 500; font-size: 14px; }
-        .required:after { content: " *"; color: #d32f2f; }
-        
-        .form-control, select { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-        .form-control:focus, select:focus { outline: none; border-color: #003366; }
-        
-        .referee-block { background: #f5f7fa; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; position: relative; }
-        .referee-block:before { content: attr(data-index); position: absolute; top: -10px; left: 15px; background: #003366; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px; }
-        
-        .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .btn-add { background: #e9ecef; color: #003366; border: 1px dashed #adb5bd; width: 100%; margin: 10px 0; }
-        .btn-add:hover { background: #dee2e6; }
-        .btn-prev { background: #6c757d; color: white; }
-        .btn-submit { background: #28a745; color: white; }
-        .btn-prev:hover { background: #545b62; }
-        .btn-submit:hover { background: #218838; }
-        
-        .remove-btn { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 5px 10px; border-radius: 3px; font-size: 12px; cursor: pointer; margin-top: 10px; }
-        
-        .button-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        
-        .instructions { background: #e7f1ff; border-left: 3px solid #003366; padding: 10px 15px; margin-bottom: 20px; font-size: 13px; }
-        
-        .declaration-box { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 20px; margin: 30px 0; }
-        .declaration-content { display: flex; align-items: start; gap: 10px; }
-        .declaration-checkbox { margin-top: 5px; }
-        
-        .section-divider { height: 1px; background: #eee; margin: 30px 0; }
-        
-        .full-width { flex: 1 0 100%; }
-        
-        @media (max-width: 768px) {
-            .form-group { min-width: 100%; }
-            .button-group { flex-direction: column; gap: 10px; }
-            .btn { width: 100%; }
-            .declaration-content { flex-direction: column; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Declaration & Referees</h1>
-            <p>Final step: Add referees and submit your application</p>
+{% extends "faculty_requirement/base.html" %}
+{% load static %}
+
+{% block page_title %}Referees and Declaration{% endblock %}
+{% block header_meta %}
+  <div>Provide details of your Referees and Declaration</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Calibri', 'Segoe UI', sans-serif; background: #f8f9fa; padding: 20px; color: #333; }
+
+  .section-title { color: #003366; font-size: 18px; font-weight: 600; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 2px solid #e0e0e0; }
+
+  .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
+  .form-group { flex: 1; min-width: 200px; margin-bottom: 15px; }
+
+  label { display: block; margin-bottom: 5px; color: #003366; font-weight: 500; font-size: 14px; }
+  .required:after { content: " *"; color: #d32f2f; }
+
+  .form-control, select { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+  .form-control:focus, select:focus { outline: none; border-color: #003366; }
+
+  .referee-block { background: #f5f7fa; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; position: relative; }
+  .referee-block:before {
+    content: attr(data-index);
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background: #003366;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+  }
+
+  .btn { padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+  .btn-add { background: #e9ecef; color: #003366; border: 1px dashed #adb5bd; width: 100%; margin: 10px 0; }
+  .btn-add:hover { background: #dee2e6; }
+  .btn-prev { background: #6c757d; color: white; }
+  .btn-submit { background: #28a745; color: white; }
+  .btn-prev:hover { background: #545b62; }
+  .btn-submit:hover { background: #218838; }
+
+  .remove-btn { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 5px 10px; border-radius: 3px; font-size: 12px; cursor: pointer; margin-top: 10px; }
+
+  .button-group { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+
+  .instructions { background: #e7f1ff; border-left: 3px solid #003366; padding: 10px 15px; margin-bottom: 20px; font-size: 13px; }
+
+  .declaration-box { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 20px; margin: 30px 0; }
+  .declaration-content { display: flex; align-items: start; gap: 10px; }
+  .declaration-checkbox { margin-top: 5px; }
+
+  .section-divider { height: 1px; background: #eee; margin: 30px 0; }
+
+  @media (max-width: 768px) {
+    .form-group { min-width: 100%; }
+    .button-group { flex-direction: column; gap: 10px; }
+    .btn { width: 100%; }
+    .declaration-content { flex-direction: column; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" id="declarationForm">
+  {% csrf_token %}
+
+  <div class="instructions">
+    <p><strong>Instructions:</strong> Provide details of at least one referee. You can add up to three referees.</p>
+  </div>
+
+  <h2 class="section-title">Referees Details</h2>
+
+  <div id="referees-container">
+    {% if referees and referees|length > 0 %}
+      {% for r in referees %}
+      <div class="referee-block" data-index="{{ forloop.counter }}">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Full Name</label>
+            <input type="text" name="ref_name[]" class="form-control" value="{{ r.name|default:'' }}">
+          </div>
+
+          <div class="form-group">
+            <label class="required">Designation</label>
+            <input type="text" name="ref_designation[]" class="form-control" value="{{ r.designation|default:'' }}">
+          </div>
         </div>
 
-        <div class="form-section">
-            <form method="post" id="declarationForm">
-                {% csrf_token %}
-                
-                <div class="instructions">
-                    <p><strong>Instructions:</strong> Provide details of at least one referee. You can add up to three referees.</p>
-                </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Organization</label>
+            <input type="text" name="ref_organization[]" class="form-control" value="{{ r.organization|default:'' }}">
+          </div>
 
-                <h2 class="section-title">Referees Details</h2>
-                
-                <div id="referees-container">
-                    {% if referees %}
-                        {% for r in referees %}
-                        <div class="referee-block" data-index="{{ forloop.counter }}">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="required">Full Name</label>
-                                    <input type="text" name="ref_name[]" class="form-control" value="{{ r.name }}">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="required">Designation</label>
-                                    <input type="text" name="ref_designation[]" class="form-control" value="{{ r.designation }}">
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="required">Organization</label>
-                                    <input type="text" name="ref_organization[]" class="form-control" value="{{ r.organization }}">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="required">Contact Number</label>
-                                    <input type="tel" name="ref_contact[]" class="form-control" value="{{ r.contact_number }}">
-                                </div>
-                            </div>
-                            
-                            {% if not forloop.first %}
-                            <button type="button" class="remove-btn" onclick="removeReferee(this)">Remove Referee</button>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="referee-block" data-index="1">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="required">Full Name</label>
-                                    <input type="text" name="ref_name[]" class="form-control">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="required">Designation</label>
-                                    <input type="text" name="ref_designation[]" class="form-control">
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="required">Organization</label>
-                                    <input type="text" name="ref_organization[]" class="form-control">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="required">Contact Number</label>
-                                    <input type="tel" name="ref_contact[]" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <button type="button" class="btn btn-add" onclick="addReferee()">+ Add Another Referee</button>
-
-                <div class="section-divider"></div>
-
-                <div class="declaration-box">
-                    <div class="declaration-content">
-                        <input type="checkbox" id="declaration_checkbox" name="declaration" class="declaration-checkbox" required>
-                        <div>
-                            <label for="declaration_checkbox" style="font-weight: 600; color: #155724;">
-                                I hereby declare that all information provided is true and accurate.
-                            </label>
-                            <p style="font-size: 13px; color: #0c5460; margin-top: 5px;">
-                                Any false statement may lead to disqualification.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button type="button" class="btn btn-prev" onclick="window.location.href='{% url 'programmes_and_publications' %}'">← Previous</button>
-                    <button type="submit" class="btn btn-submit">✓ Submit Application</button>
-                </div>
-            </form>
+          <div class="form-group">
+            <label class="required">Email ID</label>
+            <input type="email" name="ref_email[]" class="form-control" value="{{ r.email|default:'' }}">
+          </div>
         </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">WhatsApp Number</label>
+            <input type="tel" name="ref_whatsapp[]" class="form-control" value="{{ r.whatsapp_number|default:'' }}">
+          </div>
+        </div>
+
+        {% if not forloop.first %}
+          <button type="button" class="remove-btn" onclick="removeReferee(this)">Remove Referee</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="referee-block" data-index="1">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Full Name</label>
+            <input type="text" name="ref_name[]" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label class="required">Designation</label>
+            <input type="text" name="ref_designation[]" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Organization</label>
+            <input type="text" name="ref_organization[]" class="form-control">
+          </div>
+
+                    <div class="form-group">
+            <label class="required">WhatsApp Number</label>
+            <input type="tel" name="ref_whatsapp[]" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+
+          <div class="form-group">
+            <label class="required">Email ID</label>
+            <input type="email" name="ref_email[]" class="form-control">
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <button type="button" class="btn btn-add" onclick="addReferee()">+ Add Another Referee</button>
+
+  <div class="section-divider"></div>
+
+  <div class="declaration-box">
+    <div class="declaration-content">
+      <input type="checkbox" id="declaration_checkbox" name="declaration" class="declaration-checkbox" required>
+      <div>
+        <label for="declaration_checkbox" style="font-weight: 600; color: #155724;">
+          I hereby declare that all information provided is true and accurate.
+        </label>
+        <p style="font-size: 13px; color: #0c5460; margin-top: 5px;">
+          Any false statement may lead to disqualification.
+        </p>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let refereeCounter = {{ referees|length|default:1 }};
-        
-        function addReferee() {
-            if (refereeCounter >= 3) {
-                alert('Maximum 3 referees allowed.');
-                return;
-            }
-            
-            refereeCounter++;
-            const container = document.getElementById('referees-container');
-            const firstBlock = container.querySelector('.referee-block');
-            const newBlock = firstBlock.cloneNode(true);
-            
-            newBlock.setAttribute('data-index', refereeCounter);
-            newBlock.querySelectorAll('input').forEach(input => input.value = '');
-            
-            if (!newBlock.querySelector('.remove-btn')) {
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'remove-btn';
-                removeBtn.textContent = 'Remove Referee';
-                removeBtn.onclick = function() { removeReferee(this); };
-                newBlock.appendChild(removeBtn);
-            }
-            
-            container.appendChild(newBlock);
-        }
-        
-        function removeReferee(button) {
-            const block = button.closest('.referee-block');
-            if (document.querySelectorAll('.referee-block').length > 1) {
-                block.remove();
-                updateIndices('.referee-block');
-            }
-        }
-        
-        function updateIndices(selector) {
-            const blocks = document.querySelectorAll(selector);
-            blocks.forEach((block, index) => {
-                block.setAttribute('data-index', index + 1);
-            });
-        }
-        
-        document.getElementById('declarationForm').addEventListener('submit', function(e) {
-            const required = document.querySelectorAll('.required');
-            let valid = true;
-            
-            const declarationCheckbox = document.getElementById('declaration_checkbox');
-            if (!declarationCheckbox.checked) {
-                valid = false;
-                const box = document.querySelector('.declaration-box');
-                box.style.borderColor = '#d32f2f';
-                box.style.background = '#f8d7da';
-            }
-            
-            required.forEach(field => {
-                const input = field.closest('.form-group').querySelector('input, select');
-                if (!input.value.trim()) {
-                    valid = false;
-                    input.style.borderColor = '#d32f2f';
-                }
-            });
-            
-            if (!valid) {
-                e.preventDefault();
-                alert('Please fill all required fields and accept the declaration.');
-            } else if (!confirm('Are you sure you want to submit your application?')) {
-                e.preventDefault();
-            }
-        });
-    </script>
-</body>
-</html>
+  <div class="button-group">
+    <button type="button" class="btn btn-prev"
+            onclick="window.location.href='{% url 'programmes_and_publications' %}'">← Previous</button>
+    <button type="submit" class="btn btn-submit">✓ Submit Application</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let refereeCounter = {{ referees|length|default:1 }};
+
+  function addReferee() {
+    if (refereeCounter >= 3) {
+      alert('Maximum 3 referees allowed.');
+      return;
+    }
+
+    refereeCounter++;
+    const container = document.getElementById('referees-container');
+    const firstBlock = container.querySelector('.referee-block');
+    const newBlock = firstBlock.cloneNode(true);
+
+    newBlock.setAttribute('data-index', refereeCounter);
+
+    // clear all inputs in cloned block
+    newBlock.querySelectorAll('input').forEach(input => input.value = '');
+
+    // ensure remove button exists for new blocks
+    if (!newBlock.querySelector('.remove-btn')) {
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = 'Remove Referee';
+      removeBtn.onclick = function() { removeReferee(this); };
+      newBlock.appendChild(removeBtn);
+    }
+
+    container.appendChild(newBlock);
+    updateIndices();
+  }
+
+  function removeReferee(button) {
+    const block = button.closest('.referee-block');
+    if (document.querySelectorAll('.referee-block').length > 1) {
+      block.remove();
+      updateIndices();
+      refereeCounter = document.querySelectorAll('.referee-block').length;
+    }
+  }
+
+  function updateIndices() {
+    const blocks = document.querySelectorAll('.referee-block');
+    blocks.forEach((block, index) => {
+      block.setAttribute('data-index', index + 1);
+    });
+  }
+
+  document.getElementById('declarationForm').addEventListener('submit', function(e) {
+    const required = document.querySelectorAll('.required');
+    let valid = true;
+
+    const declarationCheckbox = document.getElementById('declaration_checkbox');
+    if (!declarationCheckbox.checked) {
+      valid = false;
+      const box = document.querySelector('.declaration-box');
+      box.style.borderColor = '#d32f2f';
+      box.style.background = '#f8d7da';
+    }
+
+    required.forEach(field => {
+      const input = field.closest('.form-group').querySelector('input, select');
+      if (input && !input.value.trim()) {
+        valid = false;
+        input.style.borderColor = '#d32f2f';
+      } else if (input) {
+        input.style.borderColor = '#ccc';
+      }
+    });
+
+    if (!valid) {
+      e.preventDefault();
+      alert('Please fill all required fields and accept the declaration.');
+    } else if (!confirm('Are you sure you want to submit your application?')) {
+      e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}
