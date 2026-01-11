@@ -32,6 +32,7 @@
     .error-box{ background:#ffe8e8; border-left:3px solid #dc3545; padding:10px 15px; margin-bottom:15px; font-size:13px; color:#7a1c1c; }
     .success-note{ display:block; color:#28a745; margin-top:5px; font-size:12px; }
     .full-width{ flex:1 0 100%; }
+    .help-text{ display:block; color:#6c757d; font-size:12px; margin-top:5px; }
     @media (max-width:768px){
       .form-group{ min-width:100%; }
       .button-group{ flex-direction:column; gap:10px; }
@@ -193,35 +194,30 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>UG Arrears</label>
-          <input type="number" name="arrears_ug" class="form-control" value="{{ research.arrears_ug|default:'' }}">
-        </div>
-        <div class="form-group">
-          <label>PG Arrears</label>
-          <input type="number" name="arrears_pg" class="form-control" value="{{ research.arrears_pg|default:'' }}">
-        </div>
-      </div>
-
+      <!-- ✅ GATE + NET/SLET (with certificates) -->
       <div class="form-row">
         <div class="form-group">
           <label>GATE Score</label>
           <input type="text" name="gate_score" class="form-control" value="{{ research.gate_score|default:'' }}">
+          <span class="help-text">If you enter GATE score, uploading GATE certificate is mandatory.</span>
+          <input type="file" name="gate_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+          {% if research_tmp.gate_certificate_name %}
+            <small class="success-note">Uploaded: {{ research_tmp.gate_certificate_name }}</small>
+          {% endif %}
         </div>
+
         <div class="form-group">
           <label>NET/SLET Score</label>
           <input type="text" name="net_slet_score" class="form-control" value="{{ research.net_slet_score|default:'' }}">
+          <span class="help-text">If you enter NET/SLET score, uploading NET/SLET certificate is mandatory.</span>
+          <input type="file" name="net_slet_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+          {% if research_tmp.net_slet_certificate_name %}
+            <small class="success-note">Uploaded: {{ research_tmp.net_slet_certificate_name }}</small>
+          {% endif %}
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group full-width">
-          <label>ME/MTech Thesis Title</label>
-          <textarea name="me_thesis_title" class="form-control" rows="3">{{ research.me_thesis_title|default:'' }}</textarea>
-        </div>
-      </div>
-
+      <!-- ✅ Thesis Title (only PhD retained) -->
       <div class="form-row">
         <div class="form-group full-width">
           <label>PhD Thesis Title</label>
@@ -249,11 +245,9 @@
     newBlock.setAttribute('data-index', newIndex);
     newBlock.querySelector('.education-header h3').textContent = `Qualification #${newIndex}`;
 
-    // Remove existing remove button in clone
     const header = newBlock.querySelector('.education-header');
     header.querySelectorAll('.btn-remove').forEach(b => b.remove());
 
-    // Add remove button for 3rd onwards
     if(newIndex >= 3){
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
@@ -263,13 +257,11 @@
       header.appendChild(removeBtn);
     }
 
-    // Clear inputs
     newBlock.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = '');
     newBlock.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
     newBlock.querySelectorAll('textarea').forEach(t => t.value = '');
     newBlock.querySelectorAll('input[type="file"]').forEach(f => f.value = '');
 
-    // remove uploaded note
     const note = newBlock.querySelector('.success-note');
     if(note) note.remove();
 

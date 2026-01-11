@@ -135,78 +135,19 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="required">Community</label>
-                    <select name="community" class="form-control" required>
-                        <option value="">Select Community</option>
-                        <option value="OC" {% if data.community == 1 %}selected{% endif %}>OC (Open Category)</option>
-                        <option value="BC" {% if data.community == 2 %}selected{% endif %}>BC (Backward Class)</option>
-                        <option value="MBC" {% if data.community == 3 %}selected{% endif %}>MBC (Most Backward Class)</option>
-                        <option value="SC" {% if data.community == 4 %}selected{% endif %}>SC (Scheduled Caste)</option>
-                        <option value="ST" {% if data.community == 5 %}selected{% endif %}>ST (Scheduled Tribe)</option>
 
-                        {% for community in communities %}
-                            <option value="{{ community.id }}"
-                                {% if data.community == community.id %}selected{% endif %}>
-                                {{ community.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="required">Languages Known</label>
-                    <div class="multiselect-dropdown" id="language-dropdown">
-                        <div class="multiselect-input" onclick="toggleDropdown('language')">
-                            Select Languages
-                        </div>
-                        <div class="multiselect-options" id="language-options">
-                            <label class="multiselect-option">
-                                <input type="checkbox" name="languages[]" value="English"
-                                       {% if "English" in data.languages %}checked{% endif %}
-                                       onchange="updateSelectedTags('language')">
-                                English
-                            </label>
-                            <label class="multiselect-option">
-                                <input type="checkbox" name="languages[]" value="Tamil"
-                                       {% if "Tamil" in data.languages %}checked{% endif %}
-                                       onchange="updateSelectedTags('language')">
-                                Tamil
-                            </label>
-                            <label class="multiselect-option">
-                                <input type="checkbox" name="languages[]" value="Hindi"
-                                       {% if "Hindi" in data.languages %}checked{% endif %}
-                                       onchange="updateSelectedTags('language')">
-                                Hindi
-                            </label>
-                            <label class="multiselect-option">
-                                <input type="checkbox" name="languages[]" value="Malayalam"
-                                       {% if "Malayalam" in data.languages %}checked{% endif %}
-                                       onchange="updateSelectedTags('language')">
-                                Malayalam
-                            </label>
-                            <label class="multiselect-option">
-                                <input type="checkbox" name="languages[]" value="Telugu"
-                                       {% if "Telugu" in data.languages %}checked{% endif %}
-                                       onchange="updateSelectedTags('language')">
-                                Telugu
-                            </label>
-
-                            {% for language in languages %}
-                                <label class="multiselect-option">
-                                    <input type="checkbox" name="languages[]" value="{{ language.id }}"
-                                           {% if language.id in data.languages %}checked{% endif %}
-                                           onchange="updateSelectedTags('language')">
-                                    {{ language.name }}
-                                </label>
-                            {% endfor %}
-                        </div>
-                        <div class="selected-tags" id="language-tags"></div>
-                        <input type="hidden" name="language_display" id="language-display">
-                    </div>
-                </div>
-            </div>
+<div class="form-row">
+  <div class="form-group">
+    <label>UG Arrears</label>
+    <input type="number" name="arrears_ug" class="form-control"
+           value="{{ data.arrears_ug|default:'0' }}" min="0">
+  </div>
+  <div class="form-group">
+    <label>PG Arrears</label>
+    <input type="number" name="arrears_pg" class="form-control"
+           value="{{ data.arrears_pg|default:'0' }}" min="0">
+  </div>
+</div>
 
             <!-- ✅ BELOW CONTENT UNCHANGED -->
             <h2 class="section-title">Qualifications</h2>
@@ -521,7 +462,7 @@ document.addEventListener('click', function(event) {
 
 function initializeDropdowns() {
     updateSelectedTags('department');
-    updateSelectedTags('language');
+    
 }
 
 // ================= ADD QUALIFICATION =================

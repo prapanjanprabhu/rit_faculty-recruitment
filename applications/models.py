@@ -113,6 +113,8 @@ class Candidate(models.Model):
     age = models.IntegerField(null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=20, null=True, blank=True)
+    languages = models.JSONField(default=list, blank=True)
+    community = models.CharField(max_length=100, null=True, blank=True)
     marital_status = models.CharField(max_length=20, null=True, blank=True)
     caste = models.CharField(max_length=100, null=True, blank=True)
     pan_number = models.CharField(max_length=20, null=True, blank=True)
@@ -147,9 +149,8 @@ class PositionApplication(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     position_applied = models.ForeignKey('Designation', on_delete=models.SET_NULL, null=True, blank=True)
     departments = models.ManyToManyField('Department', blank=True, related_name='applications')
-    languages = models.JSONField(default=list, blank=True)
-    community = models.CharField(max_length=100, null=True, blank=True)
-
+    arrears_ug = models.PositiveIntegerField(default=0, null=True, blank=True)
+    arrears_pg = models.PositiveIntegerField(default=0, null=True, blank=True)
     
     present_designation = models.CharField(max_length=200, null=True, blank=True)
     present_organization = models.CharField(max_length=200, null=True, blank=True)
@@ -205,6 +206,16 @@ class Education(models.Model):
         return f"{self.candidate_id} - {self.category} - {self.degree}"
 
 
+import os
+import uuid
+from django.db import models
+
+def research_cert_upload_to(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()  # .pdf/.jpg...
+    # store as candidate/<id>/research/<random>.<ext>
+    return f"candidate/{instance.candidate_id}/research/{uuid.uuid4().hex}{ext}"
+
+
 class ResearchDetails(models.Model):
     candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE, null=True, blank=True)
 
@@ -212,17 +223,18 @@ class ResearchDetails(models.Model):
     mode_pg = models.CharField(max_length=30, null=True, blank=True)
     mode_phd = models.CharField(max_length=30, null=True, blank=True)
 
-    arrears_ug = models.IntegerField(null=True, blank=True)
-    arrears_pg = models.IntegerField(null=True, blank=True)
-
     gate_score = models.CharField(max_length=50, null=True, blank=True)
     net_slet_score = models.CharField(max_length=50, null=True, blank=True)
 
-    me_thesis_title = models.TextField(null=True, blank=True)
+    # ✅ NEW: certificates
+    gate_certificate = models.FileField(upload_to=research_cert_upload_to, null=True, blank=True)
+    net_slet_certificate = models.FileField(upload_to=research_cert_upload_to, null=True, blank=True)
+
     phd_thesis_title = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"ResearchDetails({self.candidate_id})"
+
 
 
 class EducationCertificate(models.Model):
