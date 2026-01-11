@@ -50,31 +50,38 @@ def to_int(value, default=0):
 from django.shortcuts import render, redirect
 from django.db import transaction
 from django.core.files.storage import default_storage
-from applications.models import (
-    Candidate, PositionApplication, Designation,
-    Department, Degree
-)
-
-def to_int(v, d=0):
-    try: return int(v)
-    except: return d
-
-from django.shortcuts import render, redirect
-from django.db import transaction
-from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.utils.text import slugify
+from django.utils.dateparse import parse_date
+from datetime import date
+import os
 
 from applications.models import (
-    Candidate, PositionApplication, Designation,
-    Department, Degree
+    Candidate, PositionApplication, Designation, Department, Degree,
+    Qualification, SponsoredProject, Education, ResearchDetails,
+    AcademicExperience, IndustryExperience, Referee, Document,
+    Document_Type, LevelOfEducation, EducationCertificate,
+    ProgrammePublicationEntry, TeachingContributionEntry
 )
 
-def safe_int(v, default=0):
+# ✅ KEEP ONLY THIS safe_int IN YOUR FILE (delete any other safe_int)
+def safe_int2(v, default=0):
     try:
-        if v is None or str(v).strip() == "":
+        if v is None:
             return default
-        return int(v)
-    except:
+        s = str(v).strip()
+        if s == "":
+            return default
+        return int(s)
+    except (TypeError, ValueError):
         return default
+
+
+def calculate_age(dob):
+    if not dob:
+        return None
+    today = date.today()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
 
 def individual_summary_sheet(request):
@@ -84,22 +91,25 @@ def individual_summary_sheet(request):
 
         data = request.session.get("summary", {})
 
-        # simple fields
         data["present_organization"] = (post.get("present_organization", "") or "").strip()
         data["overall_specialization"] = (post.get("overall_specialization", "") or "").strip()
         data["specialization"] = data["overall_specialization"]
 
-
         # departments (MULTI)
-        data["departments"] = [safe_int(x, 0) for x in post.getlist("departments[]") if safe_int(x, 0)]
+        dept_ids = []
+        for x in post.getlist("departments[]"):
+            v = safe_int2(x, 0)
+            if v:
+                dept_ids.append(v)
+        data["departments"] = dept_ids
 
         # position + designation (FK IDs)
-        data["position_applied"] = safe_int(post.get("position_applied"), 0) or None
-        data["present_designation"] = safe_int(post.get("present_designation"), 0) or None
+        data["position_applied"] = safe_int2(post.get("position_applied"), 0) or None
+        data["present_designation"] = safe_int2(post.get("present_designation"), 0) or None
 
-        # ✅ NEW: arrears in summary (will go into PositionApplication)
-        data["arrears_ug"] = safe_int(post.get("arrears_ug"), 0)
-        data["arrears_pg"] = safe_int(post.get("arrears_pg"), 0)
+        # arrears
+        data["arrears_ug"] = safe_int2(post.get("arrears_ug"), 0)
+        data["arrears_pg"] = safe_int2(post.get("arrears_pg"), 0)
 
         # qualifications
         qualifications = []
@@ -111,10 +121,10 @@ def individual_summary_sheet(request):
         for i in range(len(q_qual)):
             if (q_qual[i] or "").strip() or (q_spec[i] or "").strip() or (q_inst[i] or "").strip():
                 qualifications.append({
-                    "qualification": safe_int(q_qual[i], 0) or None,
+                    "qualification": safe_int2(q_qual[i], 0) or None,
                     "specialization": (q_spec[i] or "").strip(),
                     "institute": (q_inst[i] or "").strip(),
-                    "year": safe_int(q_year[i], 0) or None,
+                    "year": safe_int2(q_year[i], 0) or None,
                 })
         data["qualifications"] = qualifications
 
@@ -131,12 +141,11 @@ def individual_summary_sheet(request):
                 projects.append({
                     "title": title,
                     "duration": (p_dur[i] or "").strip(),
-                    "amount": safe_int(p_amt[i], 0),
+                    "amount": safe_int2(p_amt[i], 0),
                     "agency": (p_agency[i] or "").strip(),
                 })
         data["projects"] = projects
 
-        # numeric computed fields
         nums = [
             "assistant_professor_years", "associate_professor_years",
             "professor_years", "other_years",
@@ -147,7 +156,7 @@ def individual_summary_sheet(request):
             "phd_completed", "phd_ongoing",
         ]
         for f in nums:
-            data[f] = safe_int(post.get(f), 0)
+            data[f] = safe_int2(post.get(f), 0)
 
         data["journal_publications"] = (data.get("journal_national") or 0) + (data.get("journal_international") or 0)
         data["conference_publications"] = (data.get("conference_national") or 0) + (data.get("conference_international") or 0)
@@ -164,15 +173,13 @@ def individual_summary_sheet(request):
             )
             data["photo"] = tmp_path
             data["photo_original"] = files["photo"].name
-            data["photo_name"] = files["photo"].name  # ✅ so template shows uploaded name
+            data["photo_name"] = files["photo"].name
 
         request.session["summary"] = data
         request.session.modified = True
         return redirect("individual_data_sheet")
 
-    # GET
     data = request.session.get("summary", {})
-
     return render(
         request,
         "faculty_requirement/faculty/individual_summary_sheet.html",
@@ -183,6 +190,7 @@ def individual_summary_sheet(request):
             "degrees": Degree.objects.all(),
         }
     )
+
 
 
 from django.shortcuts import render, redirect
