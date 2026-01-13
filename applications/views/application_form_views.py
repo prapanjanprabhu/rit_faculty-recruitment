@@ -136,6 +136,10 @@ def individual_summary_sheet(request):
         data["arrears_ug"] = safe_int2(post.get("arrears_ug"), 0)
         data["arrears_pg"] = safe_int2(post.get("arrears_pg"), 0)
 
+        # ✅ NEW: Professional Experience fields (store in SUMMARY -> later save to PositionApplication)
+        data["total_experience_years"] = safe_int2(post.get("total_experience_years"), 0)
+        data["present_post_years"] = safe_int2(post.get("present_post_years"), 0)
+
         # qualifications
         qualifications = []
         q_qual = post.getlist("qualification[]")
@@ -155,7 +159,7 @@ def individual_summary_sheet(request):
                 )
         data["qualifications"] = qualifications
 
-# ✅ Sponsored Projects (Completed Sponsored Projects table) stored in SUMMARY
+        # ✅ Sponsored Projects (Completed Sponsored Projects table) stored in SUMMARY
         projects = []
         p_title = post.getlist("project_title[]")
         p_dur = post.getlist("project_duration[]")
@@ -184,7 +188,6 @@ def individual_summary_sheet(request):
             )
 
         data["projects"] = projects
-
 
         nums = [
             "assistant_professor_years",
@@ -240,7 +243,6 @@ def individual_summary_sheet(request):
         },
     )
 
-
 # =====================================================
 # 2) INDIVIDUAL DATA SHEET
 # =====================================================
@@ -252,10 +254,6 @@ def individual_data_sheet(request):
         # ✅ multi select: must use getlist
         data["languages"] = request.POST.getlist("languages[]") or []
         data["community"] = (request.POST.get("community") or "").strip()
-
-        # do not duplicate summary fields
-        data.pop("present_designation", None)
-        data.pop("present_organization", None)
 
         request.session["personal"] = data
         request.session.modified = True
@@ -817,11 +815,6 @@ from applications.models import (
     ProfessionalActivity,  # ✅ add this if you created the model
 )
 
-# Uses your existing helpers:
-# - safe_int
-# - safe_int2
-# - calculate_age
-
 
 def referees_and_declaration(request):
     """
@@ -938,8 +931,8 @@ def referees_and_declaration(request):
         candidate.date_of_birth = parse_date(dob) if dob else None
         candidate.age = calculate_age(candidate.date_of_birth)
 
-        candidate.total_experience_years = safe_int(personal.get("total_experience_years"))
-        candidate.present_post_years = safe_int(personal.get("present_post_years"))
+
+
         candidate.save()
 
         # =============================
@@ -1004,6 +997,9 @@ def referees_and_declaration(request):
                 "conference_publications": safe_int(summary.get("conference_publications")),
                 "students_guided_completed": safe_int(summary.get("students_guided_completed")),
                 "students_guided_ongoing": safe_int(summary.get("students_guided_ongoing")),
+                "total_experience_years": safe_int(summary.get("total_experience_years")),
+                "present_post_years": safe_int(summary.get("present_post_years")),
+
             },
         )
         position_app.departments.set(Department.objects.filter(id__in=summary.get("departments", [])))
@@ -1041,7 +1037,7 @@ def referees_and_declaration(request):
                 duration=(p.get("duration") or "").strip() or None,
                 amount=safe_int(p.get("amount")),
                 agency=(p.get("agency") or "").strip() or None,
-                status=status_val,  # ✅ NEW
+                status=status_val,
             )
 
         # =============================
@@ -1286,7 +1282,6 @@ def referees_and_declaration(request):
     # Clear everything after successful save
     request.session.flush()
     return redirect("application_success")
-
 
 
 

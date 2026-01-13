@@ -116,7 +116,7 @@ class Candidate(models.Model):
     languages = models.JSONField(default=list, blank=True)
     community = models.CharField(max_length=100, null=True, blank=True)
     marital_status = models.CharField(max_length=20, null=True, blank=True)
-    caste = models.CharField(max_length=100, null=True, blank=True)
+    # caste = models.CharField(max_length=100, null=True, blank=True)
     pan_number = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     phone_primary = models.CharField(max_length=100, null=True, blank=True)
@@ -127,9 +127,9 @@ class Candidate(models.Model):
         blank=True
     )
     address = models.TextField(null=True, blank=True)
-    total_experience_years = models.IntegerField(null=True, blank=True)
-    present_post_years = models.IntegerField(null=True, blank=True)
-    mother_name_and_occupation = models.CharField(max_length=200, null=True, blank=True)
+    # total_experience_years = models.IntegerField(null=True, blank=True)
+    # present_post_years = models.IntegerField(null=True, blank=True)
+    # mother_name_and_occupation = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.name or "Unnamed Candidate"
@@ -165,8 +165,8 @@ class PositionApplication(models.Model):
     conference_publications = models.PositiveIntegerField(default=0, null=True, blank=True)
     students_guided_completed = models.PositiveIntegerField(default=0, null=True, blank=True)
     students_guided_ongoing = models.PositiveIntegerField(default=0, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now=True, null=True, blank=True)
-
+    total_experience_years = models.IntegerField(null=True, blank=True)
+    present_post_years = models.IntegerField(null=True, blank=True)
 
 
 

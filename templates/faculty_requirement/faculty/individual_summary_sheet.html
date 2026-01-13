@@ -332,6 +332,27 @@
       <input type="number" name="other_years" class="stats-input" value="{{ data.other_years|default:'' }}">
     </div>
   </div>
+  <!-- ✅ NEW: Professional Experience (Store into PositionApplication) -->
+  <h2 class="section-title">Professional Experience</h2>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Total Experience (Years)</label>
+      <input type="number"
+             name="total_experience_years"
+             class="form-control"
+             min="0"
+             value="{{ data.total_experience_years|default:'0' }}">
+    </div>
+
+    <div class="form-group">
+      <label>Experience in Present Post (Years)</label>
+      <input type="number"
+             name="present_post_years"
+             class="form-control"
+             min="0"
+             value="{{ data.present_post_years|default:'0' }}">
+    </div>
+  </div>
 
   <h2 class="section-title">Research & Industry Experience</h2>
   <div class="form-row">
