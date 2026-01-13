@@ -1,7 +1,6 @@
 {% extends "faculty_requirement/base.html" %}
 {% load static %}
 
-
 {% block page_title %}Academic & Industry Experience{% endblock %}
 {% block document_title %}Academic & Industry Experience{% endblock %}
 
@@ -72,6 +71,7 @@
     <p><strong>Instructions:</strong> Fill all relevant work experience details. Add multiple entries as needed.</p>
   </div>
 
+  <!-- ==================== ACADEMIC EXPERIENCE ==================== -->
   <h2 class="section-title">Academic Experience</h2>
   <div id="academic-container">
     {% if academic %}
@@ -167,6 +167,7 @@
     <i class="fas fa-plus"></i> Add More Academic Experience
   </button>
 
+  <!-- ==================== INDUSTRY EXPERIENCE ==================== -->
   <h2 class="section-title">Industry / Research Experience</h2>
   <div id="industry-container">
     {% if industry %}
@@ -276,6 +277,73 @@
     <i class="fas fa-plus"></i> Add More Industry Experience
   </button>
 
+  <!-- ==================== ✅ PROFESSIONAL ACTIVITY (NEW) ==================== -->
+  <h2 class="section-title">Professional Activity</h2>
+  <div id="professional-container">
+    {% if professional_activities %}
+      {% for p in professional_activities %}
+        <div class="experience-block" data-index="{{ forloop.counter }}">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Award</label>
+              <input type="text" name="pa_award[]" class="form-control" value="{{ p.award|default:'' }}">
+            </div>
+            <div class="form-group">
+              <label>Particular</label>
+              <input type="text" name="pa_particular[]" class="form-control" value="{{ p.particular|default:'' }}">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Agency</label>
+              <input type="text" name="pa_agency[]" class="form-control" value="{{ p.agency|default:'' }}">
+            </div>
+            <div class="form-group">
+              <label>Year</label>
+              <input type="number" name="pa_year[]" class="form-control" min="1950" max="2035" value="{{ p.year|default:'' }}">
+            </div>
+          </div>
+
+          {% if not forloop.first %}
+            <button type="button" class="remove-btn" onclick="removePA(this)">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="experience-block" data-index="1">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Award</label>
+            <input type="text" name="pa_award[]" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Particular</label>
+            <input type="text" name="pa_particular[]" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Agency</label>
+            <input type="text" name="pa_agency[]" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <input type="number" name="pa_year[]" class="form-control" min="1950" max="2035">
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <button type="button" class="btn btn-add" onclick="addPA()">
+    <i class="fas fa-plus"></i> Add More Professional Activity
+  </button>
+
+  <!-- ==================== BUTTONS ==================== -->
   <div class="button-group">
     <button type="button" class="btn btn-prev" onclick="window.location.href='{% url 'educational_qualifications' %}'">
       <i class="fas fa-arrow-left"></i> Previous
@@ -290,40 +358,45 @@
 
 {% block extra_js %}
 <script>
-  // Safe counters (works even if academic/industry not sent)
+  // Safe counters (works even if not provided)
   let academicCounter = {% if academic %}{{ academic|length }}{% else %}1{% endif %};
   let industryCounter = {% if industry %}{{ industry|length }}{% else %}1{% endif %};
+  let paCounter = {% if professional_activities %}{{ professional_activities|length }}{% else %}1{% endif %};
 
-  function resetBlockInputs(block, type) {
-    // Clear all text/date inputs
+  function resetBlockInputs(block) {
     block.querySelectorAll('input').forEach(input => {
       const nm = input.getAttribute('name') || '';
 
-      // Reset duration to 0
+      // Reset duration fields to 0
       if (nm.includes('_years') || nm.includes('_months') || nm.includes('_days')) {
         input.value = 0;
         return;
       }
-
-      // clear others
       input.value = '';
     });
 
-    // Also clear border colors (validation)
     block.querySelectorAll('input').forEach(i => i.style.borderColor = '#ccc');
   }
 
-  function ensureRemoveButton(block, removeFnName) {
+  function ensureRemoveButton(block, fnName) {
     if (!block.querySelector('.remove-btn')) {
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'remove-btn';
       removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
-      removeBtn.setAttribute('onclick', removeFnName + '(this)');
+      removeBtn.setAttribute('onclick', fnName + '(this)');
       block.appendChild(removeBtn);
     }
   }
 
+  function updateIndices(containerId) {
+    const blocks = document.querySelectorAll(`#${containerId} .experience-block`);
+    blocks.forEach((block, index) => {
+      block.setAttribute('data-index', index + 1);
+    });
+  }
+
+  // ---------------- ACADEMIC ----------------
   function addAcademic() {
     academicCounter++;
     const container = document.getElementById('academic-container');
@@ -331,7 +404,7 @@
     const newBlock = firstBlock.cloneNode(true);
 
     newBlock.setAttribute('data-index', academicCounter);
-    resetBlockInputs(newBlock, 'academic');
+    resetBlockInputs(newBlock);
     ensureRemoveButton(newBlock, 'removeAcademic');
 
     container.appendChild(newBlock);
@@ -347,6 +420,7 @@
     }
   }
 
+  // ---------------- INDUSTRY ----------------
   function addIndustry() {
     industryCounter++;
     const container = document.getElementById('industry-container');
@@ -354,7 +428,7 @@
     const newBlock = firstBlock.cloneNode(true);
 
     newBlock.setAttribute('data-index', industryCounter);
-    resetBlockInputs(newBlock, 'industry');
+    resetBlockInputs(newBlock);
     ensureRemoveButton(newBlock, 'removeIndustry');
 
     container.appendChild(newBlock);
@@ -370,17 +444,33 @@
     }
   }
 
-  function updateIndices(containerId) {
-    const blocks = document.querySelectorAll(`#${containerId} .experience-block`);
-    blocks.forEach((block, index) => {
-      block.setAttribute('data-index', index + 1);
-    });
+  // ---------------- ✅ PROFESSIONAL ACTIVITY ----------------
+  function addPA() {
+    paCounter++;
+    const container = document.getElementById('professional-container');
+    const firstBlock = container.querySelector('.experience-block');
+    const newBlock = firstBlock.cloneNode(true);
+
+    newBlock.setAttribute('data-index', paCounter);
+    resetBlockInputs(newBlock);
+    ensureRemoveButton(newBlock, 'removePA');
+
+    container.appendChild(newBlock);
+    updateIndices('professional-container');
   }
 
-  // Validation: checks required-input fields
+  function removePA(button) {
+    const block = button.closest('.experience-block');
+    const blocks = document.querySelectorAll('#professional-container .experience-block');
+    if (blocks.length > 1) {
+      block.remove();
+      updateIndices('professional-container');
+    }
+  }
+
+  // Validation: only required inputs (academic/industry)
   document.getElementById('exp-form').addEventListener('submit', function(e) {
     let valid = true;
-
     document.querySelectorAll('.required-input').forEach(input => {
       const v = (input.value || '').trim();
       if (!v) {

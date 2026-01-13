@@ -62,7 +62,6 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
             <option value="Other" {% if p.programme_type == "Other" %}selected{% endif %}>Other</option>
         </select>
 
-        <!-- ✅ FIX ADDED: Category -->
         <label class="required">Category</label>
         <select name="programme_category[]" class="form-control">
             <option value="">Select</option>
@@ -91,7 +90,6 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
             <option>Other</option>
         </select>
 
-        <!-- ✅ FIX ADDED: Category -->
         <label class="required">Category</label>
         <select name="programme_category[]" class="form-control">
             <option value="">Select</option>
@@ -118,7 +116,6 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
     <div class="publication-block" data-index="{{ forloop.counter }}">
         <label class="required">Publication Details</label>
         <textarea name="research_publication_details[]" class="form-control" rows="3">{{ pub.details }}</textarea>
-        
         {% if not forloop.first %}
         <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
         {% endif %}
@@ -146,92 +143,7 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
     </div>
 </div>
 
-<!-- ================= XIV. SPONSORED RESEARCH PROJECTS ================= -->
-<h2 class="section-title">XIV. Details of Ongoing/Completed Sponsored Research Projects and Consultancy work</h2>
-
-<div id="projects-container" class="block-container">
-{% if sponsored_projects %}
-    {% for proj in sponsored_projects %}
-    <div class="project-block" data-index="{{ forloop.counter }}">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Project Title</label>
-                <input type="text" name="project_title[]" class="form-control" value="{{ proj.title }}">
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select name="project_status[]" class="form-control">
-                    <option value="">Select Status</option>
-                    <option value="Ongoing" {% if proj.status == "Ongoing" %}selected{% endif %}>Ongoing</option>
-                    <option value="Completed" {% if proj.status == "Completed" %}selected{% endif %}>Completed</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Funding Agency</label>
-                <input type="text" name="funding_agency[]" class="form-control" value="{{ proj.funding_agency }}">
-            </div>
-            <div class="form-group">
-                <label>Amount (₹)</label>
-                <input type="number" name="project_amount[]" class="form-control" value="{{ proj.amount }}">
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group full-width">
-                <label>Duration</label>
-                <input type="text" name="project_duration[]" class="form-control" value="{{ proj.duration }}" placeholder="E.g., 2020-2022">
-            </div>
-        </div>
-        
-        {% if not forloop.first %}
-        <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
-        {% endif %}
-    </div>
-    {% endfor %}
-{% else %}
-    <div class="project-block" data-index="1">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Project Title</label>
-                <input type="text" name="project_title[]" class="form-control" placeholder="Enter project title">
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select name="project_status[]" class="form-control">
-                    <option value="">Select Status</option>
-                    <option value="Ongoing">Ongoing</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Funding Agency</label>
-                <input type="text" name="funding_agency[]" class="form-control" placeholder="Sponsoring agency">
-            </div>
-            <div class="form-group">
-                <label>Amount (₹)</label>
-                <input type="number" name="project_amount[]" class="form-control" placeholder="Amount in rupees">
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group full-width">
-                <label>Duration</label>
-                <input type="text" name="project_duration[]" class="form-control" placeholder="E.g., 2020-2022">
-            </div>
-        </div>
-    </div>
-{% endif %}
-</div>
-
-<button type="button" class="btn btn-add" onclick="addBlock('project')">
-+ Add More Project
-</button>
+<!-- ✅ XIV section removed بالكامل as requested -->
 
 <!-- ================= XV. MEMBERSHIP/FELLOWSHIP ================= -->
 <h2 class="section-title">XV. Details of Membership/Fellowship of other institutions/Professional Societies</h2>
@@ -242,7 +154,6 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
     <div class="programme-block" data-index="{{ forloop.counter }}">
         <label>Membership/Fellowship Details</label>
         <textarea name="membership_details[]" class="form-control" rows="2">{{ mem.details }}</textarea>
-        
         {% if not forloop.first %}
         <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
         {% endif %}
@@ -269,7 +180,6 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
     <div class="publication-block" data-index="{{ forloop.counter }}">
         <label>Award/Recognition Details</label>
         <textarea name="award_details[]" class="form-control" rows="2">{{ award.details }}</textarea>
-        
         {% if not forloop.first %}
         <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
         {% endif %}
@@ -355,7 +265,7 @@ function addBlock(type){
     const map={
         programme:['programmes-container','programme-block'],
         research_publication:['research-publications-container','publication-block'],
-        project:['projects-container','project-block'],
+        // ✅ project removed
         membership:['memberships-container','programme-block'],
         award:['awards-container','publication-block'],
         publication:['publications-container','publication-block']
@@ -365,7 +275,6 @@ function addBlock(type){
     const container=document.getElementById(cid);
     const clone=container.firstElementChild.cloneNode(true);
 
-    // clear values in the clone
     clone.querySelectorAll('input,textarea').forEach(el=>el.value="");
     clone.querySelectorAll('select').forEach(select=>select.selectedIndex=0);
 
@@ -399,7 +308,7 @@ function updateIndex(container){
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    ['programmes-container', 'research-publications-container', 'projects-container',
+    ['programmes-container', 'research-publications-container',
      'memberships-container', 'awards-container', 'publications-container'].forEach(id => {
         const container = document.getElementById(id);
         if(container) updateIndex(container);

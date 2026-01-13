@@ -94,10 +94,10 @@
               <label class="required">Degree</label>
               <select name="degree[]" class="form-control">
                 <option value="">Select Degree</option>
-                {% for dept in departments %}
-                  <option value="{{ dept.degree.id }}"
-                    {% if edu.degree|stringformat:"s" == dept.degree.id|stringformat:"s" %}selected{% endif %}>
-                    {{ dept.degree.degree_code }} - {{ dept.name }}
+                {% for deg in degrees %}
+                  <option value="{{ deg.id }}"
+                    {% if edu.degree|stringformat:"s" == deg.id|stringformat:"s" %}selected{% endif %}>
+                    {{ deg.degree_code }}
                   </option>
                 {% endfor %}
               </select>

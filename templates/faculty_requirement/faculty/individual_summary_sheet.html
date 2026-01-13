@@ -5,576 +5,756 @@
 {% departments as departments %}
 {% designations as designations %}
 
-{% load static %}
-
 {% block page_title %}Individual Summary Sheet{% endblock %}
 {% block header_meta %}
   <div>Provide Summary of your professional background and qualifications</div>
 {% endblock %}
 
 {% block extra_css %}
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Calibri','Segoe UI',sans-serif;background:#f8f9fa;padding:20px;color:#333}.container{max-width:1100px;margin:0 auto;background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);overflow:hidden;border:1px solid #ddd}.header{background:#003366;color:white;padding:20px;text-align:center;border-bottom:4px solid #ffcc00}.header h1{font-size:24px;margin-bottom:5px;font-weight:600}.header p{font-size:14px;opacity:.9}.form-section{padding:25px}.section-title{color:#003366;font-size:18px;font-weight:600;margin:25px 0 15px;padding-bottom:8px;border-bottom:2px solid #e0e0e0}.form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}.form-group{flex:1;min-width:200px;margin-bottom:15px}label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14px}.required:after{content:" *";color:#d32f2f}.form-control,select{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}.form-control:focus,select:focus{outline:none;border-color:#003366}.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px;transition:.3s}.btn-next{background:#003366;color:white}.btn-next:hover{background:#002244}.button-group{display:flex;justify-content:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #eee}.instructions{background:#e7f1ff;border-left:3px solid #003366;padding:10px 15px;margin-bottom:20px;font-size:13px}.stats-row{display:flex;flex-wrap:wrap;gap:10px;background:#f5f7fa;padding:15px;border-radius:4px}.stats-group{flex:1;min-width:120px}.stats-input{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;text-align:center}.full-width{flex:1 0 100%}.image-preview-container{margin-top:15px;text-align:center}.image-preview{max-width:100%;max-height:200px;border-radius:8px;border:2px solid #ddd;display:none}.qualification-section{margin-bottom:20px}.qualification-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:10px}.qualification-row .form-group{flex:1;min-width:150px}.add-qualification-btn{background:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:5px;font-size:14px}.remove-qualification-btn{background:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:12px}.research-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}.research-row{display:flex;margin-bottom:10px;align-items:center}.research-label{width:200px;font-weight:500;color:#555}.research-input-group{display:flex;gap:15px}.research-input-item{display:flex;flex-direction:column}.research-input-item label{font-size:12px;color:#666;margin-bottom:3px}.research-input{width:80px;padding:6px;border:1px solid #ccc;border-radius:4px;text-align:center}.students-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}.students-row{display:flex;margin-bottom:15px;align-items:center}.students-type{width:200px;font-weight:500;color:#555}.students-input-group{display:flex;gap:20px}.projects-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.projects-table th{background-color:#003366;color:white;padding:10px;text-align:left;border:1px solid #ddd}.projects-table td{padding:10px;border:1px solid #ddd}.projects-table input{width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box}.add-project-row{background-color:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:14px}.remove-project-row{background-color:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px}
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Calibri','Segoe UI',sans-serif;background:#f8f9fa;padding:20px;color:#333}
+  .container{max-width:1100px;margin:0 auto;background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);overflow:hidden;border:1px solid #ddd}
+  .header{background:#003366;color:white;padding:20px;text-align:center;border-bottom:4px solid #ffcc00}
+  .header h1{font-size:24px;margin-bottom:5px;font-weight:600}
+  .header p{font-size:14px;opacity:.9}
+  .form-section{padding:25px}
+  .section-title{color:#003366;font-size:18px;font-weight:600;margin:25px 0 15px;padding-bottom:8px;border-bottom:2px solid #e0e0e0}
 
-        .multiselect-dropdown { position: relative; width: 100%; }
-        .multiselect-input { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .multiselect-input:after { content: '▼'; font-size: 12px; }
-        .multiselect-options { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; margin-top: 2px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .multiselect-options.show { display: block; }
-        .multiselect-option { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; }
-        .multiselect-option:hover { background: #f0f0f0; }
-        .multiselect-option input[type="checkbox"] { margin-right: 8px; }
-        .selected-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
-        .selected-tag { background: #e3f2fd; color: #1976d2; padding: 3px 8px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; }
-        .selected-tag .remove-tag { margin-left: 5px; cursor: pointer; font-size: 14px; }
+  .form-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px}
+  .form-group{flex:1;min-width:200px;margin-bottom:15px}
+  label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14px}
+  .required:after{content:" *";color:#d32f2f}
 
-        @media (max-width:768px){.form-group,.stats-group{min-width:100%}.button-group{justify-content:center}.btn{width:100%}.research-row,.students-row{flex-direction:column;align-items:flex-start}.research-label,.students-type{width:100%;margin-bottom:5px}.projects-table th,.projects-table td{padding:5px;font-size:12px}}
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  .form-control,select{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px}
+  .form-control:focus,select:focus{outline:none;border-color:#003366}
+
+  .btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px;transition:.3s}
+  .btn-next{background:#003366;color:white}
+  .btn-next:hover{background:#002244}
+
+  .button-group{display:flex;justify-content:flex-end;margin-top:30px;padding-top:20px;border-top:1px solid #eee}
+  .instructions{background:#e7f1ff;border-left:3px solid #003366;padding:10px 15px;margin-bottom:20px;font-size:13px}
+
+  .stats-row{display:flex;flex-wrap:wrap;gap:10px;background:#f5f7fa;padding:15px;border-radius:4px}
+  .stats-group{flex:1;min-width:120px}
+  .stats-input{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;text-align:center}
+  .full-width{flex:1 0 100%}
+
+  /* ✅ Photo */
+  .photo-row{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .photo-preview-box{width:120px;height:150px;border:1px solid #d6d6d6;border-radius:6px;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+  .photo-preview-box img{width:100%;height:100%;object-fit:cover;display:none}
+  .photo-empty{text-align:center;font-size:12px;color:#6b7280;padding:8px;line-height:1.3}
+  .photo-empty i{display:block;font-size:20px;color:#003366;margin-bottom:6px;opacity:.85}
+  .photo-upload-area{flex:1;min-width:240px}
+  .upload-btn{display:inline-flex;align-items:center;gap:8px;background:#003366;color:#fff;border:none;border-radius:6px;padding:9px 14px;cursor:pointer;font-size:14px}
+  .upload-btn:hover{background:#002244}
+  .upload-meta{margin-top:8px;font-size:12px;color:#555}
+  .upload-meta strong{color:#111827}
+  .upload-hint{margin-top:6px;font-size:12px;color:#6b7280}
+  .photo-file-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+  /* ✅ Qualifications */
+  .qualification-section{margin-bottom:20px}
+  .qualification-row{display:flex;flex-wrap:wrap;gap:15px;margin-bottom:10px}
+  .qualification-row .form-group{flex:1;min-width:150px}
+  .add-qualification-btn{background:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:5px;font-size:14px}
+  .remove-qualification-btn{background:#f44336;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:12px}
+
+  /* ✅ Research + Students */
+  .research-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}
+  .research-row{display:flex;margin-bottom:10px;align-items:center}
+  .research-label{width:200px;font-weight:500;color:#555}
+  .research-input-group{display:flex;gap:15px}
+  .research-input-item{display:flex;flex-direction:column}
+  .research-input-item label{font-size:12px;color:#666;margin-bottom:3px}
+  .research-input{width:80px;padding:6px;border:1px solid #ccc;border-radius:4px;text-align:center}
+
+  .students-section{background:#f9f9f9;padding:15px;border-radius:5px;margin-bottom:20px;border:1px solid #e0e0e0}
+  .students-row{display:flex;margin-bottom:15px;align-items:center}
+  .students-type{width:200px;font-weight:500;color:#555}
+  .students-input-group{display:flex;gap:20px}
+
+  /* ✅ Sponsored Projects */
+  .projects-wrap{width:100%;overflow-x:auto}
+  .projects-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;background:#fff}
+  .projects-table th{background-color:#003366;color:white;padding:10px;text-align:left;border:1px solid #ddd}
+  .projects-table td{padding:10px;border:1px solid #ddd;vertical-align:top}
+  .projects-table input,.projects-table select{width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box}
+
+  .add-project-row{background-color:#4CAF50;color:white;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:14px}
+  .remove-project-last{background:#f44336;color:#fff;border:none;padding:8px 15px;border-radius:4px;cursor:pointer;margin-top:10px;font-size:14px}
+  .remove-project-last:hover{background:#d32f2f}
+
+  /* ✅ Hide remove button until user adds rows */
+  .remove-project-last.hidden{display:none}
+
+  /* Multi-select */
+  .multiselect-dropdown{position:relative;width:100%}
+  .multiselect-input{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:4px;background:white;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .multiselect-input:after{content:'▼';font-size:12px}
+  .multiselect-options{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #ccc;border-radius:4px;margin-top:2px;max-height:200px;overflow-y:auto;display:none;z-index:1000;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+  .multiselect-options.show{display:block}
+  .multiselect-option{padding:8px 12px;cursor:pointer;display:flex;align-items:center}
+  .multiselect-option:hover{background:#f0f0f0}
+  .multiselect-option input[type="checkbox"]{margin-right:8px}
+  .selected-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+  .selected-tag{background:#e3f2fd;color:#1976d2;padding:3px 8px;border-radius:12px;font-size:12px;display:flex;align-items:center}
+  .selected-tag .remove-tag{margin-left:5px;cursor:pointer;font-size:14px}
+
+  @media (max-width:768px){
+    .form-group,.stats-group{min-width:100%}
+    .button-group{justify-content:center}
+    .btn{width:100%}
+    .research-row,.students-row{flex-direction:column;align-items:flex-start}
+    .research-label,.students-type{width:100%;margin-bottom:5px}
+    .projects-table th,.projects-table td{padding:5px;font-size:12px}
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="instructions">
-                <p><strong>Instructions:</strong> Fill all summary information accurately. Fields marked * are mandatory.</p>
-            </div>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
 
-            <h2 class="section-title">Profile Photo</h2>
-            <div class="form-row">
-                <div class="form-group full-width">
-                    <label>Upload Photograph</label>
-                    <input type="file" name="photo" id="photoInput" class="form-control">
-                    {% if data.photo_name %}
-                        <small style="display:block;margin-top:6px;color:#555;">
-                            📎 Uploaded file: <strong>{{ data.photo_name }}</strong>
-                        </small>
-                    {% endif %}
-                    <div class="image-preview-container">
-                        {% if data.photo %}
-                            <img id="imagePreview" src="{{ MEDIA_URL }}{{ data.photo }}" class="image-preview" style="display:block;">
-                        {% else %}
-                            <img id="imagePreview" class="image-preview">
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="section-title">Application Details</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="required">Position Applied For</label>
-                    <select name="position_applied" class="form-control" required>
-                        <option value="" {% if not data or not data.id %}selected{% endif %}>
-                            Select Position
-                        </option>
-                        {% for d in designations %}
-                            <option value="{{ d.id }}"
-                                {% if data and data.position_applied and data.position_applied.id == d.id %}
-                                    selected
-                                {% elif data.position_applied == d.id %}
-                                    selected
-                                {% endif %}
-                            >
-                                {{ d.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="required">Department</label>
-                    <div class="multiselect-dropdown" id="department-dropdown">
-                        <div class="multiselect-input" onclick="toggleDropdown('department')">
-                            Select Department
-                        </div>
-                        <div class="multiselect-options" id="department-options">
-                            {% for dept in departments %}
-                                <label class="multiselect-option">
-                                    <input type="checkbox"
-                                           name="departments[]"
-                                           value="{{ dept.id }}"
-                                           {% if dept.id in data.departments %}checked{% endif %}
-                                           onchange="updateSelectedTags('department')">
-                                    {{ dept.degree.degree_code }} - {{ dept.name }} ({{ dept.code }})
-                                </label>
-                            {% endfor %}
-                        </div>
-                        <div class="selected-tags" id="department-tags"></div>
-                        <input type="hidden" name="department_display" id="department-display">
-                    </div>
-                </div>
-            </div>
-
-            <!-- ✅ REMOVED: Candidate Information section (Full Name + Age) -->
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="required">Present Designation</label>
-                    <select name="present_designation" class="form-control" required>
-                        <option value="" {% if not data or not data.id %}selected{% endif %}>
-                            Select Present Designation
-                        </option>
-                        {% for d in designations %}
-                            <option value="{{ d.id }}"
-                                {% if data and data.present_designation and data.present_designation.id == d.id %}
-                                    selected
-                                {% elif data.present_designation == d.id %}
-                                    selected
-                                {% endif %}
-                            >
-                                {{ d.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="required">Organization</label>
-                    <input type="text" name="present_organization" class="form-control" value="{{ data.present_organization|default:'' }}">
-                </div>
-            </div>
-
-
-<div class="form-row">
-  <div class="form-group">
-    <label>UG Arrears</label>
-    <input type="number" name="arrears_ug" class="form-control"
-           value="{{ data.arrears_ug|default:'0' }}" min="0">
+  <div class="instructions">
+    <p><strong>Instructions:</strong> Fill all summary information accurately. Fields marked * are mandatory.</p>
   </div>
-  <div class="form-group">
-    <label>PG Arrears</label>
-    <input type="number" name="arrears_pg" class="form-control"
-           value="{{ data.arrears_pg|default:'0' }}" min="0">
+
+  <h2 class="section-title">Profile Photo</h2>
+  <div class="photo-row">
+    <div class="photo-preview-box" id="photoPreviewBox">
+      {% if data.photo %}
+        <img id="imagePreview" src="{{ MEDIA_URL }}{{ data.photo }}" alt="Profile Photo" style="display:block;">
+        <div class="photo-empty" id="photoEmpty" style="display:none;">
+          <i class="fa-solid fa-image"></i><div>Photo Preview</div>
+        </div>
+      {% else %}
+        <img id="imagePreview" alt="Profile Photo">
+        <div class="photo-empty" id="photoEmpty">
+          <i class="fa-solid fa-camera"></i><div>No Photo</div><div>Upload to preview</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="photo-upload-area">
+      <label>Upload Photograph</label>
+      <input type="file" name="photo" id="photoInput" class="photo-file-input" accept="image/*">
+
+      <button type="button" class="upload-btn" id="uploadPhotoBtn">
+        <i class="fa-solid fa-upload"></i> Upload Photo
+      </button>
+
+      <div class="upload-meta">
+        {% if data.photo_name %}
+          📎 Uploaded file: <strong id="photoFileName">{{ data.photo_name }}</strong>
+        {% else %}
+          📎 Selected file: <strong id="photoFileName">None</strong>
+        {% endif %}
+      </div>
+
+      <div class="upload-hint">Accepted: JPG/PNG. Prefer clear passport size photo.</div>
+    </div>
   </div>
-</div>
 
-            <!-- ✅ BELOW CONTENT UNCHANGED -->
-            <h2 class="section-title">Qualifications</h2>
-            <div class="qualification-section" id="qualifications-container">
-                {% if data.qualifications %}
-                    {% for q in data.qualifications %}
-                    <div class="qualification-row">
-                        <div class="form-group">
-                            <label>Qualification</label>
-                            <select name="qualification[]" class="form-control">
-                                <option value="">Select Qualification</option>
-                                {% for deg in degrees %}
-                                    <option value="{{ deg.id }}"
-                                        {% if q.qualification == deg.id %}selected{% endif %}>
-                                        {{ deg.degree_code }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Specialization</label>
-                            <input type="text" name="specialization[]" class="form-control" value="{{ q.specialization }}">
-                        </div>
-                        <div class="form-group">
-                            <label>University/Institute</label>
-                            <input type="text" name="institute[]" class="form-control" value="{{ q.institute }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" name="year[]" class="form-control" value="{{ q.year }}">
-                        </div>
-                        {% if not forloop.first %}
-                        <div class="form-group">
-                            <label>&nbsp;</label>
-                            <button type="button" class="remove-qualification-btn" onclick="removeQualification(this)">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="qualification-row">
-                        <div class="form-group">
-                            <label>Qualification</label>
-                            <select name="qualification[]" class="form-control">
-                                <option value="">Select Qualification</option>
-                                {% for deg in degrees %}
-                                    <option value="{{ deg.id }}">{{ deg.degree_code }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Specialization</label>
-                            <input type="text" name="specialization[]" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>University/Institute</label>
-                            <input type="text" name="institute[]" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" name="year[]" class="form-control" min="1950" max="2030">
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            <button type="button" class="add-qualification-btn" id="add-qualification">
-                <i class="fas fa-plus"></i> Add Another Qualification
-            </button>
+  <h2 class="section-title">Application Details</h2>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="required">Position Applied For</label>
+      <select name="position_applied" class="form-control" required>
+        <option value="" {% if not data or not data.id %}selected{% endif %}>Select Position</option>
+        {% for d in designations %}
+          <option value="{{ d.id }}"
+            {% if data and data.position_applied and data.position_applied.id == d.id %}
+              selected
+            {% elif data.position_applied == d.id %}
+              selected
+            {% endif %}
+          >{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-            <div class="form-row">
-                <div class="form-group full-width">
-                    <label class="required">Overall Specialization</label>
-                    <input type="text" name="overall_specialization" class="form-control"
-                           value="{{ data.overall_specialization|default:'' }}" placeholder="Your primary area of specialization">
-                </div>
-            </div>
+    <div class="form-group">
+      <label class="required">Department</label>
+      <div class="multiselect-dropdown" id="department-dropdown">
+        <div class="multiselect-input" onclick="toggleDropdown('department')">Select Department</div>
+        <div class="multiselect-options" id="department-options">
+          {% for dept in departments %}
+            <label class="multiselect-option">
+              <input type="checkbox"
+                     name="departments[]"
+                     value="{{ dept.id }}"
+                     {% if dept.id in data.departments %}checked{% endif %}
+                     onchange="updateSelectedTags('department')">
+              {{ dept.degree.degree_code }} - {{ dept.name }} ({{ dept.code }})
+            </label>
+          {% endfor %}
+        </div>
+        <div class="selected-tags" id="department-tags"></div>
+        <input type="hidden" name="department_display" id="department-display">
+      </div>
+    </div>
+  </div>
 
-            <h2 class="section-title">Years of Service</h2>
-            <div class="stats-row">
-                <div class="stats-group">
-                    <label>Assistant Professor</label>
-                    <input type="number" name="assistant_professor_years" class="stats-input" value="{{ data.assistant_professor_years|default:'' }}">
-                </div>
-                <div class="stats-group">
-                    <label>Associate Professor</label>
-                    <input type="number" name="associate_professor_years" class="stats-input" value="{{ data.associate_professor_years|default:'' }}">
-                </div>
-                <div class="stats-group">
-                    <label>Professor</label>
-                    <input type="number" name="professor_years" class="stats-input" value="{{ data.professor_years|default:'' }}">
-                </div>
-                <div class="stats-group">
-                    <label>Others</label>
-                    <input type="number" name="other_years" class="stats-input" value="{{ data.other_years|default:'' }}">
-                </div>
-            </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="required">Present Designation</label>
+      <select name="present_designation" class="form-control" required>
+        <option value="" {% if not data or not data.id %}selected{% endif %}>Select Present Designation</option>
+        {% for d in designations %}
+          <option value="{{ d.id }}"
+            {% if data and data.present_designation and data.present_designation.id == d.id %}
+              selected
+            {% elif data.present_designation == d.id %}
+              selected
+            {% endif %}
+          >{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-            <h2 class="section-title">Research & Industry Experience</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Research Experience (Years)</label>
-                    <input type="number" name="research_experience_years" class="form-control" value="{{ data.research_experience_years|default:'' }}">
-                </div>
-                <div class="form-group">
-                    <label>Industry Experience (Years)</label>
-                    <input type="number" name="industry_experience_years" class="form-control" value="{{ data.industry_experience_years|default:'' }}">
-                </div>
-            </div>
+    <div class="form-group">
+      <label class="required">Organization</label>
+      <input type="text" name="present_organization" class="form-control" value="{{ data.present_organization|default:'' }}">
+    </div>
+  </div>
 
-            <h2 class="section-title">No. of Research Publications</h2>
-            <div class="research-section">
-                <div class="research-row">
-                    <div class="research-label">In Journals:</div>
-                    <div class="research-input-group">
-                        <div class="research-input-item">
-                            <label>National</label>
-                            <input type="number" name="journal_national" class="research-input" value="{{ data.journal_national|default:'0' }}">
-                        </div>
-                        <div class="research-input-item">
-                            <label>International</label>
-                            <input type="number" name="journal_international" class="research-input" value="{{ data.journal_international|default:'0' }}">
-                        </div>
-                    </div>
-                </div>
-                <div class="research-row">
-                    <div class="research-label">In Conferences:</div>
-                    <div class="research-input-group">
-                        <div class="research-input-item">
-                            <label>National</label>
-                            <input type="number" name="conference_national" class="research-input" value="{{ data.conference_national|default:'0' }}">
-                        </div>
-                        <div class="research-input-item">
-                            <label>International</label>
-                            <input type="number" name="conference_international" class="research-input" value="{{ data.conference_international|default:'0' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <h2 class="section-title">Academic Arrears</h2>
+  <div class="form-row">
+    <div class="form-group">
+      <label>UG Arrears</label>
+      <input type="number" name="arrears_ug" class="form-control" value="{{ data.arrears_ug|default:'0' }}" min="0">
+    </div>
+    <div class="form-group">
+      <label>PG Arrears</label>
+      <input type="number" name="arrears_pg" class="form-control" value="{{ data.arrears_pg|default:'0' }}" min="0">
+    </div>
+  </div>
 
-            <h2 class="section-title">No. of Students Guided</h2>
-            <div class="students-section">
-                <div class="students-row">
-                    <div class="students-type">M.E./M.Tech./ M.Phil.:</div>
-                    <div class="students-input-group">
-                        <div class="research-input-item">
-                            <label>Completed</label>
-                            <input type="number" name="mtech_completed" class="research-input" value="{{ data.mtech_completed|default:'0' }}">
-                        </div>
-                        <div class="research-input-item">
-                            <label>On-going</label>
-                            <input type="number" name="mtech_ongoing" class="research-input" value="{{ data.mtech_ongoing|default:'0' }}">
-                        </div>
-                    </div>
-                </div>
-                <div class="students-row">
-                    <div class="students-type">No. of Research Scholars for M.S./Ph.D.:</div>
-                    <div class="students-input-group">
-                        <div class="research-input-item">
-                            <label>Completed</label>
-                            <input type="number" name="phd_completed" class="research-input" value="{{ data.phd_completed|default:'0' }}">
-                        </div>
-                        <div class="research-input-item">
-                            <label>On-going</label>
-                            <input type="number" name="phd_ongoing" class="research-input" value="{{ data.phd_ongoing|default:'0' }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <h2 class="section-title">Qualifications</h2>
+  <div class="qualification-section" id="qualifications-container">
+    {% if data.qualifications %}
+      {% for q in data.qualifications %}
+      <div class="qualification-row">
+        <div class="form-group">
+          <label>Qualification</label>
+          <select name="qualification[]" class="form-control">
+            <option value="">Select Qualification</option>
+            {% for deg in degrees %}
+              <option value="{{ deg.id }}" {% if q.qualification == deg.id %}selected{% endif %}>
+                {{ deg.degree_code }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Specialization</label>
+          <input type="text" name="specialization[]" class="form-control" value="{{ q.specialization }}">
+        </div>
+        <div class="form-group">
+          <label>University/Institute</label>
+          <input type="text" name="institute[]" class="form-control" value="{{ q.institute }}">
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" name="year[]" class="form-control" value="{{ q.year }}">
+        </div>
+        {% if not forloop.first %}
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button type="button" class="remove-qualification-btn" onclick="removeQualification(this)">
+            <i class="fas fa-trash"></i> Remove
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="qualification-row">
+        <div class="form-group">
+          <label>Qualification</label>
+          <select name="qualification[]" class="form-control">
+            <option value="">Select Qualification</option>
+            {% for deg in degrees %}
+              <option value="{{ deg.id }}">{{ deg.degree_code }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Specialization</label>
+          <input type="text" name="specialization[]" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>University/Institute</label>
+          <input type="text" name="institute[]" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" name="year[]" class="form-control" min="1950" max="2030">
+        </div>
+      </div>
+    {% endif %}
+  </div>
 
-            <h2 class="section-title">Completed Sponsored Projects</h2>
-            <table class="projects-table" id="projects-table">
-                <thead>
-                    <tr>
-                        <th>Title of Project</th>
-                        <th>Duration</th>
-                        <th>Amount (Rs.)</th>
-                        <th>Sponsoring Agency</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="projects-body">
-                    {% if data.projects %}
-                        {% for p in data.projects %}
-                        <tr>
-                            <td><input type="text" name="project_title[]" value="{{ p.title }}"></td>
-                            <td><input type="text" name="project_duration[]" value="{{ p.duration }}"></td>
-                            <td><input type="number" name="project_amount[]" value="{{ p.amount }}"></td>
-                            <td><input type="text" name="project_agency[]" value="{{ p.agency }}"></td>
-                            <td>
-                                {% if not forloop.first %}
-                                <button type="button" class="remove-project-row" onclick="removeProjectRow(this)">Remove</button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% elif data.project_title %}
-                        {% for p in data.project_title %}
-                        <tr>
-                            <td><input type="text" name="project_title[]" value="{{ p }}"></td>
-                            <td><input type="text" name="project_duration[]" value="{{ data.project_duration|index:forloop.counter0 }}"></td>
-                            <td><input type="number" name="project_amount[]" value="{{ data.project_amount|index:forloop.counter0 }}"></td>
-                            <td><input type="text" name="project_agency[]" value="{{ data.project_agency|index:forloop.counter0 }}"></td>
-                            <td>{% if not forloop.first %}<button type="button" class="remove-project-row" onclick="removeProjectRow(this)">Remove</button>{% endif %}</td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td><input type="text" name="project_title[]" placeholder="Enter project title"></td>
-                            <td><input type="text" name="project_duration[]" placeholder="e.g., 2020-2022"></td>
-                            <td><input type="number" name="project_amount[]" placeholder="Amount in Rs."></td>
-                            <td><input type="text" name="project_agency[]" placeholder="Sponsoring agency"></td>
-                            <td></td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-            <button type="button" class="add-project-row" id="add-project-row"><i class="fas fa-plus"></i> Add Project Row</button>
+  <button type="button" class="add-qualification-btn" id="add-qualification">
+    <i class="fas fa-plus"></i> Add Another Qualification
+  </button>
 
-            <div class="button-group">
-                <button type="submit" class="btn btn-next">Save & Next <i class="fas fa-arrow-right"></i></button>
-            </div>
-        </form>
+  <div class="form-row">
+    <div class="form-group full-width">
+      <label class="required">Overall Specialization</label>
+      <input type="text" name="overall_specialization" class="form-control"
+             value="{{ data.overall_specialization|default:'' }}"
+             placeholder="Your primary area of specialization">
+    </div>
+  </div>
+
+  <h2 class="section-title">Years of Service</h2>
+  <div class="stats-row">
+    <div class="stats-group">
+      <label>Assistant Professor</label>
+      <input type="number" name="assistant_professor_years" class="stats-input" value="{{ data.assistant_professor_years|default:'' }}">
+    </div>
+    <div class="stats-group">
+      <label>Associate Professor</label>
+      <input type="number" name="associate_professor_years" class="stats-input" value="{{ data.associate_professor_years|default:'' }}">
+    </div>
+    <div class="stats-group">
+      <label>Professor</label>
+      <input type="number" name="professor_years" class="stats-input" value="{{ data.professor_years|default:'' }}">
+    </div>
+    <div class="stats-group">
+      <label>Others</label>
+      <input type="number" name="other_years" class="stats-input" value="{{ data.other_years|default:'' }}">
+    </div>
+  </div>
+
+  <h2 class="section-title">Research & Industry Experience</h2>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Research Experience (Years)</label>
+      <input type="number" name="research_experience_years" class="form-control" value="{{ data.research_experience_years|default:'' }}">
+    </div>
+    <div class="form-group">
+      <label>Industry Experience (Years)</label>
+      <input type="number" name="industry_experience_years" class="form-control" value="{{ data.industry_experience_years|default:'' }}">
+    </div>
+  </div>
+
+  <h2 class="section-title">No. of Research Publications</h2>
+  <div class="research-section">
+    <div class="research-row">
+      <div class="research-label">In Journals:</div>
+      <div class="research-input-group">
+        <div class="research-input-item">
+          <label>National</label>
+          <input type="number" name="journal_national" class="research-input" value="{{ data.journal_national|default:'0' }}">
+        </div>
+        <div class="research-input-item">
+          <label>International</label>
+          <input type="number" name="journal_international" class="research-input" value="{{ data.journal_international|default:'0' }}">
+        </div>
+      </div>
+    </div>
+    <div class="research-row">
+      <div class="research-label">In Conferences:</div>
+      <div class="research-input-group">
+        <div class="research-input-item">
+          <label>National</label>
+          <input type="number" name="conference_national" class="research-input" value="{{ data.conference_national|default:'0' }}">
+        </div>
+        <div class="research-input-item">
+          <label>International</label>
+          <input type="number" name="conference_international" class="research-input" value="{{ data.conference_international|default:'0' }}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">No. of Students Guided</h2>
+  <div class="students-section">
+    <div class="students-row">
+      <div class="students-type">M.E./M.Tech./ M.Phil.:</div>
+      <div class="students-input-group">
+        <div class="research-input-item">
+          <label>Completed</label>
+          <input type="number" name="mtech_completed" class="research-input" value="{{ data.mtech_completed|default:'0' }}">
+        </div>
+        <div class="research-input-item">
+          <label>On-going</label>
+          <input type="number" name="mtech_ongoing" class="research-input" value="{{ data.mtech_ongoing|default:'0' }}">
+        </div>
+      </div>
+    </div>
+    <div class="students-row">
+      <div class="students-type">No. of Research Scholars for M.S./Ph.D.:</div>
+      <div class="students-input-group">
+        <div class="research-input-item">
+          <label>Completed</label>
+          <input type="number" name="phd_completed" class="research-input" value="{{ data.phd_completed|default:'0' }}">
+        </div>
+        <div class="research-input-item">
+          <label>On-going</label>
+          <input type="number" name="phd_ongoing" class="research-input" value="{{ data.phd_ongoing|default:'0' }}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Completed / Ongoing Sponsored Projects</h2>
+  <div class="projects-wrap">
+    <table class="projects-table" id="projects-table">
+      <thead>
+        <tr>
+          <th>Title of Project</th>
+          <th>Duration</th>
+          <th>Amount (Rs.)</th>
+          <th>Sponsoring Agency</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="projects-body">
+        {% if data.projects %}
+          {% for p in data.projects %}
+          <tr class="project-row">
+            <td><input type="text" name="project_title[]" value="{{ p.title }}"></td>
+            <td><input type="text" name="project_duration[]" value="{{ p.duration }}"></td>
+            <td><input type="number" name="project_amount[]" value="{{ p.amount }}"></td>
+            <td><input type="text" name="project_agency[]" value="{{ p.agency }}"></td>
+            <td>
+              <select name="project_status[]" class="form-control">
+                <option value="completed" {% if p.status|default:'completed' == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="ongoing" {% if p.status == 'ongoing' %}selected{% endif %}>Ongoing</option>
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        {% elif data.project_title %}
+          {% for p in data.project_title %}
+          <tr class="project-row">
+            <td><input type="text" name="project_title[]" value="{{ p }}"></td>
+            <td><input type="text" name="project_duration[]" value="{{ data.project_duration|index:forloop.counter0 }}"></td>
+            <td><input type="number" name="project_amount[]" value="{{ data.project_amount|index:forloop.counter0 }}"></td>
+            <td><input type="text" name="project_agency[]" value="{{ data.project_agency|index:forloop.counter0 }}"></td>
+            <td>
+              <select name="project_status[]" class="form-control">
+                <option value="completed" selected>Completed</option>
+                <option value="ongoing">Ongoing</option>
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr class="project-row">
+            <td><input type="text" name="project_title[]" placeholder="Enter project title"></td>
+            <td><input type="text" name="project_duration[]" placeholder="e.g., 2020-2022"></td>
+            <td><input type="number" name="project_amount[]" placeholder="Amount in Rs."></td>
+            <td><input type="text" name="project_agency[]" placeholder="Sponsoring agency"></td>
+            <td>
+              <select name="project_status[]" class="form-control">
+                <option value="completed" selected>Completed</option>
+                <option value="ongoing">Ongoing</option>
+              </select>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ Remove button is hidden initially; appears only after clicking Add -->
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <button type="button" class="add-project-row" id="add-project-row">
+      <i class="fas fa-plus"></i> Add Project Row
+    </button>
+
+    <button type="button" class="remove-project-last hidden" id="remove-project-last" title="Remove last row">
+      <i class="fa-solid fa-trash"></i> Delete
+    </button>
+  </div>
+
+  <div class="button-group">
+    <button type="submit" class="btn btn-next">Save & Next <i class="fas fa-arrow-right"></i></button>
+  </div>
+</form>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// ================= IMAGE PREVIEW =================
-document.getElementById('photoInput').addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById('imagePreview');
+/* ===============================
+   ✅ PHOTO: Only upload button + left preview
+   =============================== */
+const photoInput = document.getElementById('photoInput');
+const uploadBtn  = document.getElementById('uploadPhotoBtn');
+const imgPreview = document.getElementById('imagePreview');
+const emptyBox   = document.getElementById('photoEmpty');
+const fileNameEl = document.getElementById('photoFileName');
 
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (ev) {
-            preview.src = ev.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
+function showEmptyPhoto(){
+  if (imgPreview) imgPreview.style.display = 'none';
+  if (emptyBox) emptyBox.style.display = 'block';
+}
+function showPhoto(src){
+  if (!imgPreview) return;
+  imgPreview.src = src;
+  imgPreview.style.display = 'block';
+  if (emptyBox) emptyBox.style.display = 'none';
+}
+
+if (uploadBtn && photoInput) {
+  uploadBtn.addEventListener('click', function(){
+    photoInput.click();
+  });
+}
+
+if (photoInput) {
+  photoInput.addEventListener('change', function(e){
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+      if (fileNameEl) fileNameEl.textContent = 'None';
+      showEmptyPhoto();
+      return;
     }
+
+    if (fileNameEl) fileNameEl.textContent = file.name;
+
+    if (!file.type || !file.type.startsWith('image/')) {
+      alert('Please choose an image file (JPG/PNG).');
+      photoInput.value = '';
+      if (fileNameEl) fileNameEl.textContent = 'None';
+      showEmptyPhoto();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      showPhoto(ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* On load: if server image exists keep it */
+document.addEventListener('DOMContentLoaded', function(){
+  if (imgPreview && imgPreview.getAttribute('src') && imgPreview.getAttribute('src').trim() !== '') {
+    imgPreview.style.display = 'block';
+    if (emptyBox) emptyBox.style.display = 'none';
+  } else {
+    showEmptyPhoto();
+  }
 });
 
-// ================= MULTI-SELECT DROPDOWN FUNCTIONS =================
+/* ================= MULTI-SELECT DROPDOWN (unchanged) ================= */
 let activeDropdown = null;
 
 function toggleDropdown(type) {
-    const dropdown = document.getElementById(`${type}-dropdown`);
-    const options = document.getElementById(`${type}-options`);
+  const dropdown = document.getElementById(`${type}-dropdown`);
+  const options = document.getElementById(`${type}-options`);
 
-    document.querySelectorAll('.multiselect-options').forEach(opt => {
-        if (opt !== options) opt.classList.remove('show');
-    });
+  document.querySelectorAll('.multiselect-options').forEach(opt => {
+    if (opt !== options) opt.classList.remove('show');
+  });
 
-    options.classList.toggle('show');
-
-    if (options.classList.contains('show')) activeDropdown = dropdown;
-    else activeDropdown = null;
+  options.classList.toggle('show');
+  activeDropdown = options.classList.contains('show') ? dropdown : null;
 }
 
 function updateSelectedTags(type) {
-    const container = document.getElementById(`${type}-tags`);
-    const checkboxes = document.querySelectorAll(`#${type}-options input[type="checkbox"]`);
-    const displayInput = document.getElementById(`${type}-display`);
-    const inputElement = document.querySelector(`#${type}-dropdown .multiselect-input`);
+  const container = document.getElementById(`${type}-tags`);
+  const checkboxes = document.querySelectorAll(`#${type}-options input[type="checkbox"]`);
+  const displayInput = document.getElementById(`${type}-display`);
+  const inputElement = document.querySelector(`#${type}-dropdown .multiselect-input`);
 
-    let selectedValues = [];
-    let selectedTexts = [];
+  let selectedValues = [];
+  let selectedTexts = [];
 
-    checkboxes.forEach(cb => {
-        if (cb.checked) {
-            const text = cb.parentElement.textContent.trim();
-            selectedValues.push(cb.value);
-            selectedTexts.push(text);
-        }
-    });
-
-    container.innerHTML = '';
-    selectedTexts.forEach((text, index) => {
-        const tag = document.createElement('div');
-        tag.className = 'selected-tag';
-        tag.innerHTML = `${text} <span class="remove-tag" onclick="removeTag('${type}', '${selectedValues[index]}')">×</span>`;
-        container.appendChild(tag);
-    });
-
-    if (selectedTexts.length > 0) {
-        inputElement.textContent = selectedTexts.join(', ');
-        if (selectedTexts.length > 2) {
-            inputElement.textContent = selectedTexts.slice(0, 2).join(', ') + ` +${selectedTexts.length - 2} more`;
-        }
-    } else {
-        inputElement.textContent = type === 'department' ? 'Select Department' : 'Select Languages';
+  checkboxes.forEach(cb => {
+    if (cb.checked) {
+      const text = cb.parentElement.textContent.trim();
+      selectedValues.push(cb.value);
+      selectedTexts.push(text);
     }
+  });
 
-    displayInput.value = selectedTexts.join(', ');
+  container.innerHTML = '';
+  selectedTexts.forEach((text, index) => {
+    const tag = document.createElement('div');
+    tag.className = 'selected-tag';
+    tag.innerHTML = `${text} <span class="remove-tag" onclick="removeTag('${type}', '${selectedValues[index]}')">×</span>`;
+    container.appendChild(tag);
+  });
+
+  if (selectedTexts.length > 0) {
+    inputElement.textContent = selectedTexts.join(', ');
+    if (selectedTexts.length > 2) {
+      inputElement.textContent = selectedTexts.slice(0, 2).join(', ') + ` +${selectedTexts.length - 2} more`;
+    }
+  } else {
+    inputElement.textContent = type === 'department' ? 'Select Department' : 'Select Languages';
+  }
+
+  displayInput.value = selectedTexts.join(', ');
 }
 
 function removeTag(type, value) {
-    const checkbox = document.querySelector(`#${type}-options input[value="${value}"]`);
-    if (checkbox) {
-        checkbox.checked = false;
-        updateSelectedTags(type);
-    }
+  const checkbox = document.querySelector(`#${type}-options input[value="${value}"]`);
+  if (checkbox) {
+    checkbox.checked = false;
+    updateSelectedTags(type);
+  }
 }
 
 document.addEventListener('click', function(event) {
-    if (activeDropdown && !activeDropdown.contains(event.target)) {
-        document.querySelectorAll('.multiselect-options').forEach(opt => opt.classList.remove('show'));
-        activeDropdown = null;
-    }
+  if (activeDropdown && !activeDropdown.contains(event.target)) {
+    document.querySelectorAll('.multiselect-options').forEach(opt => opt.classList.remove('show'));
+    activeDropdown = null;
+  }
 });
 
 function initializeDropdowns() {
-    updateSelectedTags('department');
-    
+  updateSelectedTags('department');
 }
 
-// ================= ADD QUALIFICATION =================
+/* ================= ADD QUALIFICATION (unchanged) ================= */
 document.getElementById('add-qualification').addEventListener('click', function () {
-    const container = document.getElementById('qualifications-container');
-    const row = document.createElement('div');
-    row.className = 'qualification-row';
+  const container = document.getElementById('qualifications-container');
+  const row = document.createElement('div');
+  row.className = 'qualification-row';
 
-    row.innerHTML = `
-        <div class="form-group">
-            <label>Qualification</label>
-            <select name="qualification[]" class="form-control">
-                <option value="">Select Qualification</option>
-                {% for deg in degrees %}
-                    <option value="{{ deg.id }}">{{ deg.degree_code }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Specialization</label>
-            <input type="text" name="specialization[]" class="form-control" placeholder="Enter specialization">
-        </div>
-        <div class="form-group">
-            <label>University/Institute</label>
-            <input type="text" name="institute[]" class="form-control" placeholder="Enter university/institute">
-        </div>
-        <div class="form-group">
-            <label>Year</label>
-            <input type="number" name="year[]" class="form-control" min="1950" max="2030" placeholder="Year">
-        </div>
-        <div class="form-group">
-            <label>&nbsp;</label>
-            <button type="button" class="remove-qualification-btn" onclick="removeQualification(this)">
-                <i class="fas fa-trash"></i> Remove
-            </button>
-        </div>
-    `;
-    container.appendChild(row);
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Qualification</label>
+      <select name="qualification[]" class="form-control">
+        <option value="">Select Qualification</option>
+        {% for deg in degrees %}
+          <option value="{{ deg.id }}">{{ deg.degree_code }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Specialization</label>
+      <input type="text" name="specialization[]" class="form-control" placeholder="Enter specialization">
+    </div>
+    <div class="form-group">
+      <label>University/Institute</label>
+      <input type="text" name="institute[]" class="form-control" placeholder="Enter university/institute">
+    </div>
+    <div class="form-group">
+      <label>Year</label>
+      <input type="number" name="year[]" class="form-control" min="1950" max="2030" placeholder="Year">
+    </div>
+    <div class="form-group">
+      <label>&nbsp;</label>
+      <button type="button" class="remove-qualification-btn" onclick="removeQualification(this)">
+        <i class="fas fa-trash"></i> Remove
+      </button>
+    </div>
+  `;
+  container.appendChild(row);
 });
 
 function removeQualification(btn) {
-    const row = btn.closest('.qualification-row');
-    if (row) row.remove();
+  const row = btn.closest('.qualification-row');
+  if (row) row.remove();
 }
 
-// ================= ADD PROJECT ROW =================
-document.getElementById('add-project-row').addEventListener('click', function () {
-    const tbody = document.getElementById('projects-body');
+/* ================= SPONSORED PROJECT: SHOW DELETE ONLY AFTER ADD ================= */
+const projectsBody   = document.getElementById('projects-body');
+const addProjectBtn  = document.getElementById('add-project-row');
+const removeLastBtn  = document.getElementById('remove-project-last');
+
+function setRemoveVisible(visible){
+  if (!removeLastBtn) return;
+  if (visible) removeLastBtn.classList.remove('hidden');
+  else removeLastBtn.classList.add('hidden');
+}
+
+if (addProjectBtn && projectsBody && removeLastBtn) {
+  // ✅ initially hidden always
+  setRemoveVisible(false);
+
+  addProjectBtn.addEventListener('click', function () {
     const tr = document.createElement('tr');
+    tr.className = 'project-row';
     tr.innerHTML = `
-        <td><input type="text" name="project_title[]" placeholder="Enter project title"></td>
-        <td><input type="text" name="project_duration[]" placeholder="e.g., 2020-2022"></td>
-        <td><input type="number" name="project_amount[]" placeholder="Amount in Rs."></td>
-        <td><input type="text" name="project_agency[]" placeholder="Sponsoring agency"></td>
-        <td><button type="button" class="remove-project-row" onclick="removeProjectRow(this)">Remove</button></td>
+      <td><input type="text" name="project_title[]" placeholder="Enter project title"></td>
+      <td><input type="text" name="project_duration[]" placeholder="e.g., 2020-2022"></td>
+      <td><input type="number" name="project_amount[]" placeholder="Amount in Rs."></td>
+      <td><input type="text" name="project_agency[]" placeholder="Sponsoring agency"></td>
+      <td>
+        <select name="project_status[]" class="form-control">
+          <option value="completed" selected>Completed</option>
+          <option value="ongoing">Ongoing</option>
+        </select>
+      </td>
     `;
-    tbody.appendChild(tr);
-});
+    projectsBody.appendChild(tr);
 
-function removeProjectRow(btn) {
-    const row = btn.closest('tr');
-    if (document.querySelectorAll('#projects-body tr').length > 1) row.remove();
+    // ✅ after first Add: show delete button
+    setRemoveVisible(true);
+  });
+
+  removeLastBtn.addEventListener('click', function () {
+    const rows = projectsBody.querySelectorAll('tr');
+    if (rows.length <= 1) return;
+
+    rows[rows.length - 1].remove();
+
+    // ✅ if back to 1 row, hide delete button again
+    const rowsAfter = projectsBody.querySelectorAll('tr');
+    if (rowsAfter.length <= 1) setRemoveVisible(false);
+  });
 }
 
-// ================= REQUIRED FIELD VALIDATION =================
+/* ================= REQUIRED FIELD VALIDATION (unchanged) ================= */
 document.querySelector('form').addEventListener('submit', function (e) {
-    let valid = true;
+  let valid = true;
 
-    document.querySelectorAll('.required').forEach(label => {
-        const formGroup = label.closest('.form-group');
-        if (formGroup) {
-            const field = formGroup.querySelector('input, select');
-            const multiselect = formGroup.querySelector('.multiselect-dropdown');
+  document.querySelectorAll('.required').forEach(label => {
+    const formGroup = label.closest('.form-group');
+    if (formGroup) {
+      const field = formGroup.querySelector('input, select');
+      const multiselect = formGroup.querySelector('.multiselect-dropdown');
 
-            if (multiselect) {
-                const checkboxes = multiselect.querySelectorAll('input[type="checkbox"]');
-                const checked = Array.from(checkboxes).some(cb => cb.checked);
+      if (multiselect) {
+        const checkboxes = multiselect.querySelectorAll('input[type="checkbox"]');
+        const checked = Array.from(checkboxes).some(cb => cb.checked);
 
-                if (!checked) {
-                    valid = false;
-                    multiselect.style.border = '1px solid #d32f2f';
-                } else {
-                    multiselect.style.border = '1px solid #ccc';
-                }
-            } else if (field) {
-                if (!field.value.trim()) {
-                    valid = false;
-                    field.style.borderColor = '#d32f2f';
-                } else {
-                    field.style.borderColor = '#ccc';
-                }
-            }
+        if (!checked) {
+          valid = false;
+          multiselect.style.border = '1px solid #d32f2f';
+        } else {
+          multiselect.style.border = '1px solid #ccc';
         }
-    });
-
-    if (!valid) {
-        e.preventDefault();
-        alert('Please fill all required fields (*)');
+      } else if (field) {
+        if (!field.value.trim()) {
+          valid = false;
+          field.style.borderColor = '#d32f2f';
+        } else {
+          field.style.borderColor = '#ccc';
+        }
+      }
     }
+  });
+
+  if (!valid) {
+    e.preventDefault();
+    alert('Please fill all required fields (*)');
+  }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('input[type="number"]').forEach(i => {
-        i.addEventListener('input', function () {
-            if (this.value < 0) this.value = 0;
-        });
+  document.querySelectorAll('input[type="number"]').forEach(i => {
+    i.addEventListener('input', function () {
+      if (this.value < 0) this.value = 0;
     });
+  });
 
-    const img = document.getElementById('imagePreview');
-    if (img && img.src && img.src.trim() !== '') img.style.display = 'block';
-
-    initializeDropdowns();
+  initializeDropdowns();
 });
 </script>
-
 {% endblock %}

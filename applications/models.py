@@ -179,12 +179,23 @@ class Qualification(models.Model):
     year = models.PositiveIntegerField(null=True, blank=True)
 
 
+# applications/models.py
+
+from django.db import models
+
 class SponsoredProject(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ("completed", "Completed"),
+        ("ongoing", "Ongoing"),
+    ]
+
+    candidate = models.ForeignKey("applications.Candidate", on_delete=models.CASCADE)
     title = models.CharField(max_length=300, null=True, blank=True)
     duration = models.CharField(max_length=50, null=True, blank=True)
     amount = models.BigIntegerField(null=True, blank=True)
     agency = models.CharField(max_length=200, null=True, blank=True)
+    status = models.CharField(max_length=20,choices=STATUS_CHOICES,default="completed",null=True,blank=True,)
+
 
 
 
@@ -224,8 +235,6 @@ class ResearchDetails(models.Model):
 
     gate_score = models.CharField(max_length=50, null=True, blank=True)
     net_slet_score = models.CharField(max_length=50, null=True, blank=True)
-
-    # ✅ NEW: certificates
     gate_certificate = models.FileField(upload_to=research_cert_upload_to, null=True, blank=True)
     net_slet_certificate = models.FileField(upload_to=research_cert_upload_to, null=True, blank=True)
 
@@ -279,6 +288,29 @@ class IndustryExperience(models.Model):
 
 from django.db import models
 
+class ProfessionalActivity(models.Model):
+    candidate = models.ForeignKey(
+        "applications.Candidate",
+        on_delete=models.CASCADE,
+        related_name="professional_activities"
+    )
+
+    award = models.CharField(max_length=255, blank=True, null=True)
+    particular = models.CharField(max_length=255, blank=True, null=True)
+    agency = models.CharField(max_length=255, blank=True, null=True)
+    year = models.PositiveIntegerField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-year", "-id"]
+
+    def __str__(self):
+        return f"{self.candidate_id} - {self.award or ''} ({self.year or ''})"
+
+
+
+
+from django.db import models
+
 class TeachingContributionEntry(models.Model):
     candidate = models.ForeignKey("Candidate", on_delete=models.CASCADE, related_name="teaching_entries")
 
@@ -308,7 +340,6 @@ class ProgrammePublicationEntry(models.Model):
         ("PROGRAMME", "Programme"),
         ("PUBLICATION", "Publication"),
         ("RESEARCH_PUB", "Research Publication (Scopus)"),
-        ("SPONSORED_PROJECT", "Sponsored Project"),
         ("MEMBERSHIP", "Membership/Fellowship"),
         ("AWARD", "Award/Recognition"),
         ("RESEARCH_SCHOLARS", "Research Scholars Guided"),
@@ -325,19 +356,7 @@ class ProgrammePublicationEntry(models.Model):
     # PUBLICATION fields
     publication_title = models.TextField(null=True, blank=True)
     publication_indexing = models.CharField(max_length=100, null=True, blank=True)
-
-    # GENERIC DETAILS (for research pubs, memberships, awards, research scholars)
     details = models.TextField(null=True, blank=True)
-
-    # SPONSORED PROJECT fields
-    project_title = models.TextField(null=True, blank=True)
-    project_status = models.CharField(max_length=30, null=True, blank=True)     # Ongoing / Completed
-    project_funding_agency = models.TextField(null=True, blank=True)
-    project_amount = models.IntegerField(null=True, blank=True)
-    project_duration = models.CharField(max_length=100, null=True, blank=True)  # e.g., 2020-2022
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.entry_type} - {self.candidate.name}"

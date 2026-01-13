@@ -78,10 +78,10 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
                 <label class="required">Subject</label>
                 <input type="text" name="ug_subject[]" class="form-control">
               </div>
-              <div class="col">
+              {% comment %} <div class="col">
                 <label class="required">Pass Percentage</label>
                 <input type="number" step="0.01" name="ug_pass_percentage[]" class="form-control">
-              </div>
+              </div> {% endcomment %}
             </div>
 
             <label>Department </label>
@@ -106,11 +106,11 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
                 <label class="required">Subject</label>
                 <input type="text" name="pg_subject[]" class="form-control" value="{{ r.subject }}">
               </div>
-              <div class="col">
+              {% comment %} <div class="col">
                 <label class="required">Pass Percentage</label>
                 <input type="number" step="0.01" name="pg_pass_percentage[]" class="form-control" value="{{ r.pass_percentage }}">
-              </div>
-            </div>
+              </div> {% endcomment %}
+            {% comment %} </div> {% endcomment %}
 
             <label>Department </label>
             <textarea name="pg_department_contribution[]" class="form-control" rows="2">{{ r.department_contribution }}</textarea>
@@ -130,10 +130,10 @@ label{display:block;margin-bottom:5px;color:#003366;font-weight:500;font-size:14
                 <label class="required">Subject</label>
                 <input type="text" name="pg_subject[]" class="form-control">
               </div>
-              <div class="col">
+              {% comment %} <div class="col">
                 <label class="required">Pass Percentage</label>
                 <input type="number" step="0.01" name="pg_pass_percentage[]" class="form-control">
-              </div>
+              </div> {% endcomment %}
             </div>
 
             <label>Department Contribution</label>
